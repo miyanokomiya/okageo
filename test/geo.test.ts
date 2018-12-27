@@ -316,3 +316,76 @@ describe('getCrossSegAndLine 線分と直線の交点', () => {
     expect(geo.getCrossSegAndLine(seg, line)).toEqual({ x: 1, y: 0 })
   })
 })
+
+describe('splitPolyByLine 直線によるポリゴン分割', () => {
+  it('分割されない場合、空配列が取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 2 },
+      { x: 0, y: 2 }
+    ]
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.splitPolyByLine(pol, line)).toEqual([])
+  })
+  it('分割される場合、分割されたポリゴンが取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 2 },
+      { x: 0, y: 2 }
+    ]
+    const line: IVec2[] = [{ x: 1, y: 0 }, { x: 1, y: 1 }]
+    expect(geo.splitPolyByLine(pol, line)).toEqual([
+      [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 }
+      ],
+      [
+        { x: 1, y: 0 },
+        { x: 2, y: 0 },
+        { x: 2, y: 2 },
+        { x: 1, y: 2 }
+      ]
+    ])
+  })
+  it('3つ以上に分割される場合、分割されたポリゴンが全て取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 3, y: 0 },
+      { x: 3, y: 3 },
+      { x: 2, y: 3 },
+      { x: 2, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 3 },
+      { x: 0, y: 3 }
+    ]
+    const line: IVec2[] = [{ x: 0, y: 2 }, { x: 1, y: 2 }]
+    const res = geo.splitPolyByLine(pol, line)
+    expect(res.length).toBe(3)
+    expect(res[0]).toEqual([
+        { x: 0, y: 0 },
+        { x: 3, y: 0 },
+        { x: 3, y: 2 },
+        { x: 2, y: 2 },
+        { x: 2, y: 1 },
+        { x: 1, y: 1 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 }
+    ])
+    expect(res[1]).toEqual([
+        { x: 1, y: 2 },
+        { x: 1, y: 3 },
+        { x: 0, y: 3 },
+        { x: 0, y: 2 }
+    ])
+    expect(res[2]).toEqual([
+        { x: 3, y: 2 },
+        { x: 3, y: 3 },
+        { x: 2, y: 3 },
+        { x: 2, y: 2 }
+    ])
+  })
+})

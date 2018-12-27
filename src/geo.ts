@@ -237,3 +237,140 @@ export function getCrossSegAndLine (seg: IVec2[], line: IVec2[]): IVec2 | null {
     y: seg[0].y + (seg[1].y - seg[0].y) * rate
   } : null
 }
+
+/**
+ * 同一線分かを判定する
+ * @param ab 線分ab
+ * @param cd 線分cd
+ * @return 同一であるフラグ
+ */
+export function isSameSeg (ab: IVec2[], cd: IVec2[]): boolean {
+  if (isSame(ab[0], cd[0]) && isSame(ab[1], cd[1])) return true
+  if (isSame(ab[0], cd[1]) && isSame(ab[1], cd[0])) return true
+  return false
+}
+
+/**
+ * ポリゴンを直線で分割する
+ * @param pol 面
+ * @param line 直線
+ * @return 分割された点配列の配列
+ */
+export function splitPolyByLine (pol: IVec2[], line: IVec2[]): IVec2[][] {
+  let points: IVec2[] = []
+  let crossIndex: number[] = []
+  let crossList: IVec2[] = []
+
+  pol.forEach((p, i) => {
+    const targetLine = [p, pol[(i + 1) % pol.length]]
+    const cross = getCrossSegAndLine(targetLine, line)
+    points.push(p)
+    if (cross) {
+      points.push(cross)
+      crossIndex.push(i + 1 + crossIndex.length)
+      crossList.push(cross)
+    }
+  })
+
+  if (crossIndex.length % 2 !== 0) return []
+
+  // 近い順に並べる -> 直線をx軸と重なるよう回転してx座標で比較
+  const rad: number = getRadian(line[0], line[1])
+  crossList.sort((a, b) => rotate(a, -rad).x - rotate(b, -rad).x)
+
+  // 面の辺と同一ではないものを採用
+  let targetSection: IVec2[] = []
+  for (let k = 0; k < crossList.length - 1; k += 2) {
+    const section = [crossList[k], crossList[k + 1]]
+    let sameSeg = false
+    for (let l = 0; l < pol.length; l++) {
+      if (isSameSeg(section, [pol[l], pol[(l + 1) % pol.length]])) {
+        sameSeg = true
+        break
+      }
+    }
+
+    if (!sameSeg) {
+      targetSection = section
+      break
+    }
+  }
+
+  if (targetSection.length !== 2) return []
+
+  // 除外対象回収
+  const dropList = crossList.concat()
+  let tmpIndex = dropList.indexOf(targetSection[0])
+  if (tmpIndex !== -1) {
+    dropList.splice(tmpIndex, 1)
+  }
+  tmpIndex = dropList.indexOf(targetSection[1])
+  if (tmpIndex !== -1) {
+    dropList.splice(tmpIndex, 1)
+  }
+  const tmpList = points.concat()
+  dropList.forEach((p) => {
+    const i = tmpList.indexOf(p)
+    tmpList.splice(i, 1)
+  })
+
+  points = tmpList
+  crossList = targetSection
+
+  const i0 = points.indexOf(crossList[0])
+  const i1 = points.indexOf(crossList[1])
+
+  if (i0 === -1 || i1 === -1) return []
+
+  crossIndex = []
+  crossIndex[0] = Math.min(i0, i1)
+  crossIndex[1] = Math.max(i0, i1)
+
+  // 分割ポリゴンを拾い集める
+  const splitedPolygons = []
+
+  // 1つ目
+  let splitPol = []
+  // 交点まで追加
+  for (let i = 0; i <= crossIndex[0]; i++) {
+    splitPol.push({
+      x: points[i].x,
+      y: points[i].y
+    })
+  }
+  // 交点から追加
+  for (let i = crossIndex[1]; i < points.length; i++) {
+    splitPol.push({
+      x: points[i].x,
+      y: points[i].y
+    })
+  }
+  // 確定
+  splitedPolygons.push(splitPol)
+
+  // 2つ目
+  splitPol = []
+  // 交点から交点まで追加
+  for (let i = crossIndex[0]; i <= crossIndex[1]; i++) {
+    splitPol.push({
+      x: points[i].x,
+      y: points[i].y
+    })
+  }
+  // 確定
+  splitedPolygons.push(splitPol)
+
+  // 再帰的に分割
+  const recursiveResult: IVec2[][] = []
+  splitedPolygons.forEach((polygon) => {
+    const splited = splitPolyByLine(polygon, line)
+    if (splited.length === 0) {
+      recursiveResult.push(polygon)
+    } else {
+      recursiveResult.push(splited[0])
+      recursiveResult.push(splited[1])
+    }
+  })
+
+  return recursiveResult
+}
