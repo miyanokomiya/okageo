@@ -374,3 +374,182 @@ export function splitPolyByLine (pol: IVec2[], line: IVec2[]): IVec2[][] {
 
   return recursiveResult
 }
+
+/**
+ * 三角分割
+ * @param polygon 面
+ * @return 分割面リスト
+ */
+export function triangleSplit (polygon: IVec2[]): IVec2[][] {
+  // 時計周りに揃える
+  polygon = convertLoopwise(polygon)
+
+  // ポリゴン複製
+  const targetPoly = polygon.concat()
+
+  // 最遠点のインデックス
+  let farthestIndex = 0
+  // 現在の最遠点と前後点で作った三角形の外積
+  let currentCross = 0
+  // 分割後の面リスト
+  const triangleList = []
+
+      // ループ
+  while (targetPoly.length >= 3) {
+    // 最遠点インデックス取得
+    const sorted = targetPoly.concat()
+    sorted.sort((a, b) => {
+      return getNorm(b) - getNorm(a)
+    })
+    farthestIndex = targetPoly.indexOf(sorted[0])
+
+    // 分割実行
+    let tri = getTriangle(targetPoly, farthestIndex)
+    if (!tri) {
+      // 最遠点では失敗
+      const size = targetPoly.length
+      // 外積計算
+      const pa = sub(targetPoly[(farthestIndex + 1) % size], targetPoly[farthestIndex])
+      const pb = sub(targetPoly[(farthestIndex - 1 < 0) ? size - 1 : farthestIndex - 1], targetPoly[farthestIndex])
+
+      currentCross = getCross(pa, pb)
+
+      let index = farthestIndex
+      // 最遠点以外で探す
+      while (!tri) {
+        index = (index + 1) % size
+        // 最遠点の外積と同じ符号かを判定
+        const v1 = sub(targetPoly[(index + 1) % size], targetPoly[index])
+        const v2 = sub(targetPoly[(index - 1 < 0) ? size - 1 : index - 1], targetPoly[index])
+        const tmpCross = getCross(v1, v2)
+        if (tmpCross * currentCross > 0) {
+              // 判定続行
+          tri = getTriangle(targetPoly, index)
+        }
+      }
+
+      // 採用された点を削除
+      targetPoly.splice(index, 1)
+    } else {
+      // 最遠点削除
+      targetPoly.splice(farthestIndex, 1)
+    }
+    triangleList.push(tri)
+  }
+  return triangleList
+}
+
+/**
+ * 面から三角形を取得する
+ * @param polygon 面
+ * @param index このインデックスの点とその両側の点で三角形を作る
+ * @return 三角形、内部に入り込む点がある場合はnull
+ */
+function getTriangle (polygon: IVec2[], index: number): IVec2[] | null {
+  // indexとその前後点で三角形作成
+  const size = polygon.length
+  const p0 = polygon[index]
+  const p1 = polygon[(index + 1) % size]
+  const p2 = polygon[(index - 1 < 0) ? size - 1 : index - 1]
+
+  const tri: IVec2[] = [p0, p1, p2]
+
+  // 内部に点が入り込まないか判定
+  let invalid: boolean = false
+  polygon.some((p) => {
+    if (p !== p0 && p !== p1 && p !== p2) {
+      if (isPointOnTriangle(tri, p)) {
+            // 失敗
+        invalid = true
+      }
+    }
+    return invalid
+  })
+
+  return invalid ? null : tri
+}
+
+/**
+ * 点が三角形内にあるかを判定する
+ * 境界も含む
+ * @param tri 三角形
+ * @param p 点
+ * @return 内部にあるフラグ
+ */
+export function isPointOnTriangle (tri: IVec2[], p: IVec2): boolean {
+  // 三角形の3つのベクトル
+  const ab = sub(tri[1], tri[0])
+  const bc = sub(tri[2], tri[1])
+  const ca = sub(tri[0], tri[2])
+
+  // 三角形の各点からpへのベクトル
+  const ap = sub(p, tri[0])
+  const bp = sub(p, tri[1])
+  const cp = sub(p, tri[2])
+
+  // 外積を求める
+  const crossABP = getCross(ab, bp)
+  const crossBCP = getCross(bc, cp)
+  const crossCAP = getCross(ca, ap)
+
+  // 外積の符号が全て同じなら内部にある
+  // 0も含む→境界も含む
+  if ((crossABP >= 0 && crossBCP >= 0 && crossCAP >= 0) ||
+        (crossABP <= 0 && crossBCP <= 0 && crossCAP <= 0)) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * 面を時計回りに変換する
+ * @param {vector[]} 面
+ * @return 時計回りにした面(引数とは別配列にする)
+ */
+export function convertLoopwise (polygon: IVec2[]): IVec2[] {
+  const ret = polygon.concat()
+  if (getLoopwise(polygon) === -1) {
+    ret.reverse()
+  }
+  return ret
+}
+
+/**
+ * 面の座標が時計回りかを判定する
+ * @param polygon 面
+ * @return -1:反時計 0:不定 1:時計
+ */
+export function getLoopwise (polygon: IVec2[]): number {
+  const area = getArea(polygon, true)
+  if (area > 0) return 1
+  if (area < 0) return -1
+  return 0
+}
+
+/**
+ * 面積取得
+ * @param polygon 面
+ * @param allowNegative 負値を許すフラグ
+ * @return 面積
+ */
+export function getArea (polygon: IVec2[], allowNegative: boolean = false): number {
+  if (polygon.length < 3) return 0
+
+  let area = 0
+  const size = polygon.length
+  for (let i = 0; i < size - 1; i++) {
+    area += (polygon[i].x - polygon[i + 1].x) * (polygon[i].y + polygon[i + 1].y)
+  }
+  // 最後分
+  area += (polygon[size - 1].x - polygon[0].x) * (polygon[size - 1].y + polygon[0].y)
+
+  area /= 2
+
+  // 負値を許さないなら絶対値
+  if (!allowNegative) {
+    area = Math.abs(area)
+  }
+
+  return area
+}

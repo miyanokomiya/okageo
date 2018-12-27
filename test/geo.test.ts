@@ -389,3 +389,140 @@ describe('splitPolyByLine 直線によるポリゴン分割', () => {
     ])
   })
 })
+
+describe('triangleSplit 三角分割', () => {
+  it('凸なポリゴンが分割できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 2 },
+      { x: 0, y: 2 }
+    ]
+    const res = geo.triangleSplit(pol)
+    expect(res.length).toBe(2)
+    expect(res[0]).toEqual([
+      { x: 2, y: 2 },
+      { x: 0, y: 2 },
+      { x: 2, y: 0 }
+    ])
+    expect(res[1]).toEqual([
+      { x: 2, y: 0 },
+      { x: 0, y: 2 },
+      { x: 0, y: 0 }
+    ])
+  })
+  it('凹なポリゴンが分割できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 3, y: 0 },
+      { x: 3, y: 3 },
+      { x: 2, y: 3 },
+      { x: 2, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 3 },
+      { x: 0, y: 3 }
+    ]
+    const res = geo.triangleSplit(pol)
+    expect(res.length).toBe(6)
+  })
+})
+
+describe('isPointOnTriangle 点が三角形内部にあるか判定', () => {
+  it('内包される場合、trueが取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    const p: IVec2 = { x: 0.2, y: 0.5 }
+    expect(geo.isPointOnTriangle(pol, p)).toBe(true)
+  })
+  it('辺上の場合、trueが取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    const p: IVec2 = { x: 0, y: 0.5 }
+    expect(geo.isPointOnTriangle(pol, p)).toBe(true)
+  })
+  it('点上の場合、trueが取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    const p: IVec2 = { x: 0, y: 1 }
+    expect(geo.isPointOnTriangle(pol, p)).toBe(true)
+  })
+  it('含まれない場合、falseが取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    const p: IVec2 = { x: 0, y: 2 }
+    expect(geo.isPointOnTriangle(pol, p)).toBe(false)
+  })
+})
+
+describe('convertLoopwise 面を時計回りに変換', () => {
+  it('時計回りに変換されること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    expect(geo.convertLoopwise(pol)).toEqual([
+      { x: 1, y: 1 },
+      { x: 0, y: 1 },
+      { x: 0, y: 0 }
+    ])
+  })
+})
+
+describe('getLoopwise 面の時計回りに判定', () => {
+  it('時計回りの場合、1が取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+      { x: 0, y: 1 }
+    ]
+    expect(geo.getLoopwise(pol)).toBe(1)
+  })
+  it('反時計回りの場合、-1が取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    expect(geo.getLoopwise(pol)).toBe(-1)
+  })
+  it('面が成立しない場合、0が取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: 2 }
+    ]
+    expect(geo.getLoopwise(pol)).toBe(0)
+  })
+})
+
+describe('getArea 面積取得', () => {
+  it('第2引数を省略した場合、非負の面積が取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    expect(geo.getArea(pol)).toBeCloseTo(1 / 2)
+  })
+  it('第2引数をtrueにした場合、負値を許した面積が取得できること', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    expect(geo.getArea(pol, true)).toBeCloseTo(-1 / 2)
+  })
+})
