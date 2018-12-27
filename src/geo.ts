@@ -563,40 +563,31 @@ export function getArea (polygon: IVec2[], allowNegative: boolean = false): numb
 export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
   const ret: IVec2[] = []
   const unitT: number = 1 / size
-  let i: number
-  let p: IVec2
-  let t: number
-  let c0: IVec2
-  let c1: IVec2
-  let c2: IVec2
-  let c3: IVec2
 
   if (pointList.length === 3) {
     // ２次ベジェの場合
-    for (i = 0; i <= size; i++) {
-      t = unitT * i
-      c0 = multi(pointList[0], (1 - t) * (1 - t))
-      c1 = multi(pointList[1], 2 * t * (1 - t))
-      c2 = multi(pointList[2], t * t)
-      p = {
+    for (let i = 0; i <= size; i++) {
+      const t = unitT * i
+      const c0 = multi(pointList[0], (1 - t) * (1 - t))
+      const c1 = multi(pointList[1], 2 * t * (1 - t))
+      const c2 = multi(pointList[2], t * t)
+      ret.push({
         x : c0.x + c1.x + c2.x,
         y : c0.y + c1.y + c2.y
-      }
-      ret.push(p)
+      })
     }
   } else if (pointList.length === 4) {
     // 3次ベジェの場合
-    for (i = 0; i <= size; i++) {
-      t = unitT * i
-      c0 = multi(pointList[0], (1 - t) * (1 - t) * (1 - t))
-      c1 = multi(pointList[1], 3 * t * (1 - t) * (1 - t))
-      c2 = multi(pointList[2], 3 * t * t * (1 - t))
-      c3 = multi(pointList[3], t * t * t)
-      p = {
+    for (let i = 0; i <= size; i++) {
+      const t = unitT * i
+      const c0 = multi(pointList[0], (1 - t) * (1 - t) * (1 - t))
+      const c1 = multi(pointList[1], 3 * t * (1 - t) * (1 - t))
+      const c2 = multi(pointList[2], 3 * t * t * (1 - t))
+      const c3 = multi(pointList[3], t * t * t)
+      ret.push({
         x : c0.x + c1.x + c2.x + c3.x,
         y : c0.y + c1.y + c2.y + c3.y
-      }
-      ret.push(p)
+      })
     }
   } else {
     throw new Error('connot approximate')
