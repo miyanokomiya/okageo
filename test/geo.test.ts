@@ -148,3 +148,67 @@ describe('getSymmetry 中点取得', () => {
     })
   })
 })
+
+describe('rotate 座標回転', () => {
+  describe('第3引数省略の場合', () => {
+    it('原点を起点として回転したベクトルが取得できること', () => {
+      const a: IVec2 = { x: 1, y: 1 }
+      const res: IVec2 = geo.rotate(a, Math.PI / 2)
+      expect(res.x).toBeCloseTo(-1)
+      expect(res.y).toBeCloseTo(1)
+    })
+  })
+  describe('第3引数指定の場合', () => {
+    it('第3引数を起点として回転したベクトルが取得できること', () => {
+      const a: IVec2 = { x: 2, y: 5 }
+      const b: IVec2 = { x: 1, y: 4 }
+      const res: IVec2 = geo.rotate(a, -Math.PI / 2, b)
+      expect(res.x).toBeCloseTo(2)
+      expect(res.y).toBeCloseTo(3)
+    })
+  })
+})
+
+describe('solveEquationOrder2 2次元方程式の解', () => {
+  describe('1次方程式の場合', () => {
+    it('解が正しいこと', () => {
+      const res = geo.solveEquationOrder2(0, 2, 3)
+      expect(res).toEqual([-3 / 2])
+    })
+  })
+  describe('重解の場合', () => {
+    it('解が正しいこと', () => {
+      const res = geo.solveEquationOrder2(1, -6, 9)
+      expect(res).toEqual([3])
+    })
+  })
+  describe('解が２つの場合', () => {
+    it('解が正しいこと', () => {
+      const res = geo.solveEquationOrder2(1, -5, 6)
+      expect(res).toEqual([3, 2])
+    })
+  })
+  describe('解なし(複素数解)の場合', () => {
+    it('空配列が取得できること', () => {
+      const res = geo.solveEquationOrder2(1, 4, 6)
+      expect(res).toEqual([])
+    })
+  })
+})
+
+describe('getPedal 垂線の足', () => {
+  it('計算結果が正しいこと', () => {
+    const p: IVec2 = { x: 1, y: 0 }
+    const line: IVec2[] = [{ x: 2, y: 0 }, { x: 0, y: 2 }]
+    const res = geo.getPedal(p, line)
+    expect(res.x).toBeCloseTo(1.5)
+    expect(res.y).toBeCloseTo(0.5)
+  })
+  it('直線引数エラーの場合、例外が投げられること', () => {
+    expect(() => {
+      const p: IVec2 = { x: 1, y: 0 }
+      const line: IVec2[] = [{ x: 2, y: 0 }]
+      geo.getPedal(p, line)
+    }).toThrow()
+  })
+})

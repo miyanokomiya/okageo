@@ -57,7 +57,73 @@ export function getRadian (a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
   return Math.atan2(dif.y, dif.x)
 }
 
-// fromに対して、aと点対称なベクトル取得
+/**
+ * fromに対して、aと点対称なベクトル取得
+ * @param a 対象ベクトル
+ * @param from 基点
+ * @param 点対称ベクトル
+ */
 export function getSymmetry (a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
   return add(multi(sub(from, a), 2), a)
+}
+
+/**
+ * fromに対して、aからradian回転したベクトル取得
+ * @param a 対象ベクトル
+ * @param radian 回転ラジアン
+ * @param from 基点
+ * @param 回転後のベクトル
+ */
+export function rotate (a: IVec2, radian: number, from: IVec2 = { x: 0, y: 0 }): IVec2 {
+  const fromBase: IVec2 = sub(a, from)
+  return add({
+    x: Math.cos(radian) * fromBase.x - Math.sin(radian) * fromBase.y,
+    y: Math.sin(radian) * fromBase.x + Math.cos(radian) * fromBase.y
+  }, from)
+}
+
+/**
+ * 2次方程式の解の公式
+ * a * x^2 + b * x + c = 0
+ * 解に虚数が含まれる場合は解なし扱い
+ * @param a x^2の係数
+ * @param b xの係数
+ * @param c 定数
+ * @return 解の配列
+ */
+export function solveEquationOrder2 (a: number, b: number, c: number): number[] {
+  if (a === 0) {
+    return b === 0 ? [] : [-c / b]
+  }
+
+  const d = b * b - 4 * a * c
+  if (d < 0) {
+    return []
+  }
+
+  const ia = 0.5 / a
+
+  if (d === 0) {
+    return [-b * ia]
+  }
+
+  const sd = Math.sqrt(d)
+  return [(-b + sd) * ia, (-b - sd) * ia]
+}
+
+/**
+ * 点から直線への垂線の足
+ * @param p 対象の点
+ * @param line 直線
+ * @return 垂線の足
+ */
+export function getPedal (p: IVec2, line: IVec2[]): IVec2 {
+  if (line.length !== 2) throw new Error('line must be length = 2')
+  const s = line[0]
+  const t = line[1]
+  const vecST = sub(t, s)
+  const vecSP = sub(p, s)
+  const inner = getInner(vecST, vecSP)
+  const rate = inner / getInner(vecST, vecST)
+  return add(s, multi(vecST, rate))
 }

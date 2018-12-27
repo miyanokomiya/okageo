@@ -1,4 +1,6 @@
 .cache
+.DS_Store
+doc
 
 # Logs
 logs

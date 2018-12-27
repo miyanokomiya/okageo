@@ -7,7 +7,8 @@
   "scripts": {
     "test": "jest",
     "tsc": "tsc",
-    "build": "parcel build src/okageo.ts"
+    "build": "parcel build src/okageo.ts",
+    "doc": "typedoc --out doc"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
@@ -16,6 +17,7 @@
     "ts-jest": "^23.10.5",
     "tslint": "^5.12.0",
     "tslint-config-standard": "^8.0.1",
+    "typedoc": "^0.13.0",
     "typescript": "^3.2.2"
   },
   "jest": {

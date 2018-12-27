@@ -1,3 +1,5 @@
-import { hello } from './geo'
+import * as geo from './geo'
 
-export default hello
+export default {
+  geo
+}
