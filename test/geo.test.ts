@@ -598,3 +598,202 @@ describe('approximateBezier ベジェ曲線近似', () => {
     })
   })
 })
+
+describe('approximateArc 円弧近似', () => {
+  it('サイズ2の近似が正しいこと', () => {
+    const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 0, y: 0 }, 0, 2)
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(2)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(0)
+    expect(res[1].y).toBeCloseTo(1)
+    expect(res[2].x).toBeCloseTo(-2)
+    expect(res[2].y).toBeCloseTo(0)
+  })
+  it('サイズ3の近似が正しいこと', () => {
+    const res = geo.approximateArc(1, 1, 0, Math.PI, { x: 0, y: 0 }, 0, 3)
+    expect(res.length).toBe(4)
+    expect(res[0].x).toBeCloseTo(1)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(1 / 2)
+    expect(res[1].y).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[2].x).toBeCloseTo(-1 / 2)
+    expect(res[2].y).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[3].x).toBeCloseTo(-1)
+    expect(res[3].y).toBeCloseTo(0)
+  })
+  it('回転ありの近似が正しいこと', () => {
+    const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 0, y: 0 }, Math.PI / 2, 2)
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(1)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(0)
+    expect(res[1].y).toBeCloseTo(2)
+    expect(res[2].x).toBeCloseTo(-1)
+    expect(res[2].y).toBeCloseTo(0)
+  })
+  it('移動ありの近似が正しいこと', () => {
+    const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 1, y: 2 }, Math.PI / 2, 2)
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(2)
+    expect(res[0].y).toBeCloseTo(2)
+    expect(res[1].x).toBeCloseTo(1)
+    expect(res[1].y).toBeCloseTo(4)
+    expect(res[2].x).toBeCloseTo(0)
+    expect(res[2].y).toBeCloseTo(2)
+  })
+})
+
+describe('approximateArcWithPoint 楕円の近似', () => {
+  it('サイズ1の近似が正しいこと', () => {
+    const res = geo.approximateArcWithPoint(
+      1,
+      2,
+      { x: 1, y: 0 },
+      { x: 0, y: 2 },
+      false,
+      false,
+      Math.PI / 4,
+      1
+    )
+    expect(res.length).toBe(2)
+    expect(res[0].x).toBeCloseTo(1)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(0)
+    expect(res[1].y).toBeCloseTo(2)
+  })
+  it('サイズ2の近似が正しいこと(時計回り、小さい円弧)', () => {
+    const res = geo.approximateArcWithPoint(
+      1,
+      1,
+      { x: Math.sqrt(3) / 2, y: 1 / 2 },
+      { x: Math.sqrt(3) / 2, y: -1 / 2 },
+      false,
+      true,
+      Math.PI / 2,
+      2
+    )
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[0].y).toBeCloseTo(1 / 2)
+    expect(res[1].x).toBeCloseTo(Math.sqrt(3) - 1)
+    expect(res[1].y).toBeCloseTo(0)
+    expect(res[2].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[2].y).toBeCloseTo(-1 / 2)
+  })
+  it('サイズ2の近似が正しいこと(時計回り、大きい円弧)', () => {
+    const res = geo.approximateArcWithPoint(
+      1,
+      1,
+      { x: Math.sqrt(3) / 2, y: 1 / 2 },
+      { x: Math.sqrt(3) / 2, y: -1 / 2 },
+      true,
+      true,
+      Math.PI / 2,
+      2
+    )
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[0].y).toBeCloseTo(1 / 2)
+    expect(res[1].x).toBeCloseTo(-1)
+    expect(res[1].y).toBeCloseTo(0)
+    expect(res[2].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[2].y).toBeCloseTo(-1 / 2)
+  })
+  it('サイズ2の近似が正しいこと(反時計回り、小さい円弧)', () => {
+    const res = geo.approximateArcWithPoint(
+      1,
+      1,
+      { x: Math.sqrt(3) / 2, y: 1 / 2 },
+      { x: Math.sqrt(3) / 2, y: -1 / 2 },
+      false,
+      false,
+      Math.PI / 2,
+      2
+    )
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[0].y).toBeCloseTo(1 / 2)
+    expect(res[1].x).toBeCloseTo(1)
+    expect(res[1].y).toBeCloseTo(0)
+    expect(res[2].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[2].y).toBeCloseTo(-1 / 2)
+  })
+  it('サイズ2の近似が正しいこと(反時計回り、大きい円弧)', () => {
+    const res = geo.approximateArcWithPoint(
+      1,
+      1,
+      { x: Math.sqrt(3) / 2, y: 1 / 2 },
+      { x: Math.sqrt(3) / 2, y: -1 / 2 },
+      true,
+      false,
+      Math.PI / 2,
+      2
+    )
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[0].y).toBeCloseTo(1 / 2)
+    expect(res[1].x).toBeCloseTo(Math.sqrt(3) + 1)
+    expect(res[1].y).toBeCloseTo(0)
+    expect(res[2].x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res[2].y).toBeCloseTo(-1 / 2)
+  })
+})
+
+describe('getEllipseCenter 2点を通る楕円の中心', () => {
+  it('正しく取得できること', () => {
+    const res = geo.getEllipseCenter(
+      { x: 1, y: 0 },
+      { x: 0, y: 2 },
+      1,
+      2,
+      0
+    )
+    expect(res.length).toBe(2)
+    expect(res[0].x).toBeCloseTo(0)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(1)
+    expect(res[1].y).toBeCloseTo(2)
+  })
+  it('角度ありの場合、正しく取得できること', () => {
+    const res = geo.getEllipseCenter(
+      { x: 1, y: 0 },
+      { x: 0, y: 2 },
+      2,
+      1,
+      Math.PI / 2
+    )
+    expect(res.length).toBe(2)
+    expect(res[0].x).toBeCloseTo(0)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(1)
+    expect(res[1].y).toBeCloseTo(2)
+  })
+})
+
+describe('getCircleCenter 2点を通る円の中心', () => {
+  it('正しく取得できること', () => {
+    const res = geo.getCircleCenter(
+      { x: 1 / 2, y: Math.sqrt(3) / 2 },
+      { x: 1 / 2, y: -Math.sqrt(3) / 2 },
+      1
+    )
+    expect(res.length).toBe(2)
+    expect(res[0].x).toBeCloseTo(1)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(0)
+    expect(res[1].y).toBeCloseTo(0)
+  })
+  it('2点が直径よりも離れている場合、中点が取得できること', () => {
+    const res = geo.getCircleCenter(
+      { x: 0, y: 0 },
+      { x: 4, y: 0 },
+      1
+    )
+    expect(res.length).toBe(2)
+    expect(res[0].x).toBeCloseTo(2)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(2)
+    expect(res[1].y).toBeCloseTo(0)
+  })
+})

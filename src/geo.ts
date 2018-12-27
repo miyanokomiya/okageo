@@ -595,3 +595,228 @@ export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
 
   return ret
 }
+
+/**
+ * 円弧を直線で近似する
+ * @param rx x軸半径
+ * @param ry y軸半径
+ * @param startRadian 開始ラジアン
+ * @param endRadian 終了ラジアン
+ * @param center 中心座標
+ * @param radian 傾き
+ * @param size 分割数
+ * @return 座標リスト
+ */
+export function approximateArc (
+  rx: number,
+  ry: number,
+  startRadian: number,
+  endRadian: number,
+  center: IVec2,
+  radian: number,
+  size: number
+): IVec2[] {
+  const ret = []
+  const range = endRadian - startRadian
+  const unitT = range / size
+
+  for (let i = 0; i <= size; i++) {
+    const t = unitT * i + startRadian - radian
+    ret.push(add(rotate({
+      x : rx * Math.cos(t),
+      y : ry * Math.sin(t)
+    }, radian), center))
+  }
+
+  return ret
+}
+
+/**
+ * ２点指定の円弧を直線で近似する
+ * @method approximateArcWithPoint
+ * @param rx x軸半径
+ * @param ry y軸半径
+ * @param startPoint 開始点
+ * @param endPoint 終了点
+ * @param largeArcFlag 円弧の大きい側を使うフラグ
+ * @param sweepFlag 時計回り円弧を使うフラグ
+ * @param radian 傾き
+ * @param size 分割数
+ * @return 座標リスト
+ */
+export function approximateArcWithPoint (
+  rx: number,
+  ry: number,
+  startPoint: IVec2,
+  endPoint: IVec2,
+  largeArcFlag: boolean,
+  sweepFlag: boolean,
+  radian: number,
+  size: number
+): IVec2[] {
+  // 楕円中心取得
+  const centers = getEllipseCenter(startPoint, endPoint, rx, ry, radian)
+
+  let center = null
+
+  if ((largeArcFlag && sweepFlag) || (!largeArcFlag && !sweepFlag)) {
+    // 時計回り＆大きい側
+    // 反時計回り＆小さい側
+    // →始点終点中心が反時計回りになる
+    if (getLoopwise([startPoint, endPoint, centers[0]]) < 0) {
+      center = centers[0]
+    } else {
+      center = centers[1]
+    }
+  } else {
+    if (getLoopwise([startPoint, endPoint, centers[0]]) > 0) {
+      center = centers[0]
+    } else {
+      center = centers[1]
+    }
+  }
+
+  // 回り方に応じて始点と終点を設定
+  let startRadian = 0
+  let endRadian = 0
+  const r1 = getRadianOnArc(startPoint, center, radian)
+  const r2 = getRadianOnArc(endPoint, center, radian)
+  if (sweepFlag) {
+    if (r1 > r2) {
+      startRadian = r1 - Math.PI * 2
+      endRadian = r2
+    } else {
+      startRadian = r1
+      endRadian = r2
+    }
+  } else {
+    if (r1 > r2) {
+      startRadian = r1
+      endRadian = r2
+    } else {
+      startRadian = r1
+      endRadian = r2 - Math.PI * 2
+    }
+  }
+
+  return approximateArc(
+    rx,
+    ry,
+    startRadian,
+    endRadian,
+    center,
+    radian,
+    size
+  )
+}
+
+/**
+ * 円弧上の点の角度を求める
+ * @param a 円弧上の点
+ * @param center 中心座標
+ * @param radian 傾き
+ * @return ラジアン(0 <= t <= 2 * Math.PI)
+ */
+function getRadianOnArc (
+  a: IVec2,
+  center: IVec2,
+  radian: number
+): number {
+  // 回転打ち消し
+  a = rotate(a, -radian, center)
+  let ret = Math.acos((a.x - center.x))
+
+  // y座標の位置をみて絞り込み
+  if (a.y - center.y < 0) {
+    ret = -ret + Math.PI * 2
+  }
+
+  // 回転戻す
+  ret += radian
+  ret %= Math.PI * 2
+
+  return ret
+}
+
+/**
+ * @param a 点a
+ * @param b 点b
+ * @param rx x軸半径
+ * @param ry y軸半径
+ * @param radian 傾き
+ * @return 解となる２点
+ */
+export function getEllipseCenter (
+  a: IVec2,
+  b: IVec2,
+  rx: number,
+  ry: number,
+  radian: number
+): IVec2[] {
+  // 回転を打ち消す
+  a = rotate(a, -radian)
+  b = rotate(b, -radian)
+
+  // 媒介変数を利用して円の中心問題にする
+  const A = {
+    x : a.x / rx,
+    y : a.y / ry
+  }
+  const B = {
+    x : b.x / rx,
+    y : b.y / ry
+  }
+
+  // 円の中心取得
+  const C = getCircleCenter(A, B, 1)
+
+  // 楕円に戻す
+  let ans1 = {
+    x : C[0].x * rx,
+    y : C[0].y * ry
+  }
+  let ans2 = {
+    x : C[1].x * rx,
+    y : C[1].y * ry
+  }
+
+  // 回転を戻す
+  ans1 = rotate(ans1, radian)
+  ans2 = rotate(ans2, radian)
+
+  return [ans1, ans2]
+}
+
+/**
+ * ２点を通る円の中心を求める
+ * @param a 点a
+ * @param b 点b
+ * @param radius 半径
+ * @return 解となる２点
+ */
+export function getCircleCenter (a: IVec2, b: IVec2, radius: number): IVec2[] {
+  const u1 = (a.x + b.x) / 2
+  const u2 = (a.x - b.x) / 2
+  const v1 = (a.y + b.y) / 2
+  const v2 = (a.y - b.y) / 2
+  const L = Math.sqrt(u2 * u2 + v2 * v2)
+  const t2 = Math.pow((radius / L), 2) - 1
+
+  // 2点が直径以上に離れている => 2点を直径とみなす
+  if (t2 < 0) {
+    const center = getCenter(a, b)
+    return [center, center]
+  }
+
+  const t = Math.sqrt(t2)
+  const ans1 = {
+    x : u1 + v2 * t,
+    y : v1 - u2 * t
+  }
+  const ans2 = {
+    x : u1 - v2 * t,
+    y : v1 + u2 * t
+  }
+
+  return [ans1, ans2]
+}
