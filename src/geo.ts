@@ -562,9 +562,9 @@ export function getArea (polygon: IVec2[], allowNegative: boolean = false): numb
  */
 export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
   const ret: IVec2[] = []
+  const unitT: number = 1 / size
   let i: number
   let p: IVec2
-  let unitT: number
   let t: number
   let c0: IVec2
   let c1: IVec2
@@ -573,8 +573,6 @@ export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
 
   if (pointList.length === 3) {
     // ２次ベジェの場合
-    // 分割単位
-    unitT = 1 / size
     for (i = 0; i <= size; i++) {
       t = unitT * i
       c0 = multi(pointList[0], (1 - t) * (1 - t))
@@ -588,8 +586,6 @@ export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
     }
   } else if (pointList.length === 4) {
     // 3次ベジェの場合
-    // 分割単位
-    unitT = 1 / size
     for (i = 0; i <= size; i++) {
       t = unitT * i
       c0 = multi(pointList[0], (1 - t) * (1 - t) * (1 - t))
