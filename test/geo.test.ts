@@ -212,3 +212,107 @@ describe('getPedal 垂線の足', () => {
     }).toThrow()
   })
 })
+
+describe('getCrossLineAndBezier 2次ベジェ曲線と直線の交点', () => {
+  describe('交点が1つの場合', () => {
+    it('計算結果が正しいこと', () => {
+      const p0: IVec2 = { x: 0, y: 0 }
+      const p1: IVec2 = { x: 1, y: 2 }
+      const p2: IVec2 = { x: 2, y: 0 }
+      const p: IVec2 = { x: 1, y: 2 }
+      const q: IVec2 = { x: 2, y: 0 }
+      const res = geo.getCrossLineAndBezier(p0, p1, p2, p, q)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(2)
+      expect(res[0].y).toBeCloseTo(0)
+    })
+  })
+  describe('交点が2つの場合', () => {
+    it('計算結果が正しいこと', () => {
+      const p0: IVec2 = { x: 0, y: 0 }
+      const p1: IVec2 = { x: 1, y: 2 }
+      const p2: IVec2 = { x: 2, y: 0 }
+      const p: IVec2 = { x: 0, y: 0 }
+      const q: IVec2 = { x: 2, y: 0 }
+      const res = geo.getCrossLineAndBezier(p0, p1, p2, p, q)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(2)
+      expect(res[0].y).toBeCloseTo(0)
+      expect(res[1].x).toBeCloseTo(0)
+      expect(res[1].y).toBeCloseTo(0)
+    })
+  })
+  describe('交点がない場合', () => {
+    it('計算結果が正しいこと', () => {
+      const p0: IVec2 = { x: 0, y: 0 }
+      const p1: IVec2 = { x: 1, y: 2 }
+      const p2: IVec2 = { x: 2, y: 0 }
+      const p: IVec2 = { x: 0, y: 3 }
+      const q: IVec2 = { x: 2, y: 3 }
+      const res = geo.getCrossLineAndBezier(p0, p1, p2, p, q)
+      expect(res.length).toBe(0)
+    })
+  })
+})
+
+describe('isCrossSegAndSeg 線分交差判定', () => {
+  it('交差している場合trueが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: 1 }, { x: 4, y: -1 }]
+    expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(true)
+  })
+  it('交差していない場合falseが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: 1 }, { x: 4, y: 2 }]
+    expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(false)
+  })
+})
+
+describe('isParallel 平行判定', () => {
+  it('平行な場合trueが取得できること', () => {
+    const a: IVec2 = { x: 4, y: 0 }
+    const b: IVec2 = { x: -2, y: 0 }
+    expect(geo.isParallel(a, b)).toBe(true)
+  })
+  it('平行ではない場合falseが取得できること', () => {
+    const a: IVec2 = { x: 4, y: 0 }
+    const b: IVec2 = { x: -2, y: 1 }
+    expect(geo.isParallel(a, b)).toBe(false)
+  })
+})
+
+describe('isOnLine 直線上判定', () => {
+  it('直線上の場合trueが取得できること', () => {
+    const a: IVec2 = { x: 1, y: 0 }
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.isOnLine(a, line)).toBe(true)
+  })
+  it('直線上ではない場合falseが取得できること', () => {
+    const a: IVec2 = { x: 1, y: 1 }
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.isOnLine(a, line)).toBe(false)
+  })
+})
+
+describe('getCrossSegAndLine 線分と直線の交点', () => {
+  it('平行な場合、nullが取得できること', () => {
+    const seg: IVec2[] = [{ x: 0, y: 1 }, { x: 2, y: 1 }]
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.getCrossSegAndLine(seg, line)).toBe(null)
+  })
+  it('線分始点で交わる場合、その点が取得できること', () => {
+    const seg: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 1 }]
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.getCrossSegAndLine(seg, line)).toEqual({ x: 0, y: 0 })
+  })
+  it('線分終点で交わる場合、その点が取得できること', () => {
+    const seg: IVec2[] = [{ x: 0, y: 1 }, { x: 2, y: 0 }]
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.getCrossSegAndLine(seg, line)).toEqual({ x: 2, y: 0 })
+  })
+  it('線分内で交わる場合、その点が取得できること', () => {
+    const seg: IVec2[] = [{ x: 0, y: 1 }, { x: 2, y: -1 }]
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: -2, y: 0 }]
+    expect(geo.getCrossSegAndLine(seg, line)).toEqual({ x: 1, y: 0 })
+  })
+})

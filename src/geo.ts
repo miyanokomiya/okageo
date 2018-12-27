@@ -127,3 +127,113 @@ export function getPedal (p: IVec2, line: IVec2[]): IVec2 {
   const rate = inner / getInner(vecST, vecST)
   return add(s, multi(vecST, rate))
 }
+
+/**
+ * 2次ベジェ曲線と直線の当たり判定用パラメータを取得する
+ * @param p0 ベジェ曲線始点
+ * @param p1 ベジェ曲線制御点
+ * @param p2 ベジェ曲線終点
+ * @param p 直線始点
+ * @param q 直線終点
+ * @return ベジェ曲線パラメータ配列
+ */
+function rayToBezier (p0: IVec2, p1: IVec2, p2: IVec2, p: IVec2, q: IVec2): number[] {
+  const vx: number = q.x - p.x
+  const vy: number = q.y - p.y
+  const a: number = p0.x - 2 * p1.x + p2.x
+  const b: number = 2 * (p1.x - p0.x)
+  const c: number = p0.x
+  const d: number = p0.y - 2 * p1.y + p2.y
+  const e: number = 2 * (p1.y - p0.y)
+  const f: number = p0.y
+
+  return solveEquationOrder2(
+    a * vy - vx * d,
+    b * vy - vx * e,
+    vy * c - vy * p.x - vx * f + vx * p.y
+  )
+}
+
+/**
+ * 2次ベジェ曲「線分」と「直線」の交点を取得する
+ * @method crossLineAndBezier
+ * @param p0 ベジェ曲線始点
+ * @param p1 ベジェ曲線制御点
+ * @param p2 ベジェ曲線終点
+ * @param p 直線始点
+ * @param q 直線終点
+ * @return 交点リスト
+ */
+export function getCrossLineAndBezier (p0: IVec2, p1: IVec2, p2: IVec2, p: IVec2, q: IVec2) {
+  return rayToBezier(p0, p1, p2, p, q)
+    .filter((t) => 0 <= t && t <= 1)
+    .map((t) => ({
+      x: (p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x,
+      y: (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y
+    }))
+}
+
+/**
+ * 線分と線分の交差判定
+ * @param seg1 線分1
+ * @param seg2 線分2
+ * @return 交差しているフラグ
+ */
+export function isCrossSegAndSeg (seg1: IVec2[], seg2: IVec2[]): boolean {
+  const ax = seg1[0].x
+  const ay = seg1[0].y
+  const bx = seg1[1].x
+  const by = seg1[1].y
+  const cx = seg2[0].x
+  const cy = seg2[0].y
+  const dx = seg2[1].x
+  const dy = seg2[1].y
+  const ta = (cx - dx) * (ay - cy) + (cy - dy) * (cx - ax)
+  const tb = (cx - dx) * (by - cy) + (cy - dy) * (cx - bx)
+  const tc = (ax - bx) * (cy - ay) + (ay - by) * (ax - cx)
+  const td = (ax - bx) * (dy - ay) + (ay - by) * (ax - dx)
+  return tc * td < 0 && ta * tb < 0
+}
+
+/**
+ * 平行判定
+ * @param a ベクトル or 2点の配列
+ * @param b 同上
+ * @return 平行であるフラグ
+ */
+export function isParallel (a: IVec2, b: IVec2): boolean {
+  const cross = getCross(a, b)
+  return Math.abs(cross) < MINVALUE
+}
+
+/**
+ * 点が直線上にあるか判定
+ * @param p 点
+ * @param line 直線
+ * @return 直線上にあるフラグ
+ */
+export function isOnLine (p: IVec2, line: IVec2[]): boolean {
+  return isZero(sub(p, getPedal(p, line)))
+}
+
+/**
+ * 線分と直線の交点取得
+ * @param seg 線分
+ * @param line 直線
+ * @return 交点
+ */
+export function getCrossSegAndLine (seg: IVec2[], line: IVec2[]): IVec2 | null {
+  if (isParallel(sub(seg[0], seg[1]), sub(line[0], line[1]))) return null
+  if (isOnLine(seg[0], line)) return { ...seg[0] }
+  if (isOnLine(seg[1], line)) return { ...seg[1] }
+
+  const s1 = ((line[1].x - line[0].x) * (seg[0].y - line[0].y) - (line[1].y - line[0].y) * (seg[0].x - line[0].x)) / 2
+  const s2 = ((line[1].x - line[0].x) * (line[0].y - seg[1].y) - (line[1].y - line[0].y) * (line[0].x - seg[1].x)) / 2
+  const rate = s1 / (s1 + s2)
+  const isExistCorss = 0 < rate && rate < 1
+
+  return isExistCorss ? {
+    x: seg[0].x + (seg[1].x - seg[0].x) * rate,
+    y: seg[0].y + (seg[1].y - seg[0].y) * rate
+  } : null
+}
