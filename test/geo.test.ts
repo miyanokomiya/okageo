@@ -526,3 +526,75 @@ describe('getArea 面積取得', () => {
     expect(geo.getArea(pol, true)).toBeCloseTo(-1 / 2)
   })
 })
+
+describe('approximateBezier ベジェ曲線近似', () => {
+  describe('2次ベジェの場合', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 2 },
+      { x: 2, y: 0 }
+    ]
+    it('サイズ1の近似が正しいこと', () => {
+      const res = geo.approximateBezier(pol, 1)
+      expect(res.length).toBe(2)
+      expect(res[0]).toEqual({ x: 0, y: 0 })
+      expect(res[1]).toEqual({ x: 2, y: 0 })
+    })
+    it('サイズ2の近似が正しいこと', () => {
+      const res = geo.approximateBezier(pol, 2)
+      expect(res.length).toBe(3)
+      expect(res[0]).toEqual({ x: 0, y: 0 })
+      expect(res[1]).toEqual({ x: 1, y: 1 })
+      expect(res[2]).toEqual({ x: 2, y: 0 })
+    })
+  })
+  describe('3次ベジェの場合', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 2 },
+      { x: 3, y: -2 },
+      { x: 4, y: 0 }
+    ]
+    it('サイズ1の近似が正しいこと', () => {
+      const res = geo.approximateBezier(pol, 1)
+      expect(res.length).toBe(2)
+      expect(res[0]).toEqual({ x: 0, y: 0 })
+      expect(res[1]).toEqual({ x: 4, y: 0 })
+    })
+    it('サイズ2の近似が正しいこと', () => {
+      const res = geo.approximateBezier(pol, 2)
+      expect(res.length).toBe(3)
+      expect(res[0]).toEqual({ x: 0, y: 0 })
+      expect(res[1]).toEqual({ x: 2, y: 0 })
+      expect(res[2]).toEqual({ x: 4, y: 0 })
+    })
+    it('サイズ3の近似が正しいこと', () => {
+      const res = geo.approximateBezier(pol, 3)
+      expect(res.length).toBe(4)
+      expect(res[0]).toEqual({ x: 0, y: 0 })
+      expect(res[1].x).toBeGreaterThan(1.1)
+      expect(res[1].x).toBeLessThan(1.9)
+      expect(res[1].y).toBeGreaterThan(0.1)
+      expect(res[1].y).toBeLessThan(1.9)
+      expect(res[2].x).toBeGreaterThan(2.1)
+      expect(res[2].x).toBeLessThan(2.9)
+      expect(res[2].y).toBeGreaterThan(-1.9)
+      expect(res[2].y).toBeLessThan(-0.1)
+      expect(res[3]).toEqual({ x: 4, y: 0 })
+    })
+  })
+  describe('3次より高次ベジェの場合', () => {
+    const pol: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 2 },
+      { x: 3, y: -2 },
+      { x: 4, y: 0 },
+      { x: 5, y: 1 }
+    ]
+    it('例外が投げられること', () => {
+      expect(() => {
+        geo.approximateBezier(pol, 1)
+      }).toThrow()
+    })
+  })
+})
