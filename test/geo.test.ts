@@ -892,3 +892,17 @@ describe('getCircleCenter 2点を通る円の中心', () => {
     expect(centers[1].y).toBeCloseTo(0)
   })
 })
+
+describe('transform 2次元アフィン変換', () => {
+  it('正しく取得できること', () => {
+    const res = geo.transform(
+      [
+        { x: 1, y: 2 }
+      ],
+      [1, 2, 3, 4, 5, 6]
+    )
+    expect(res.length).toBe(1)
+    expect(res[0].x).toBeCloseTo(1 + 2 * 3 + 5)
+    expect(res[0].y).toBeCloseTo(2 + 2 * 4 + 6)
+  })
+})

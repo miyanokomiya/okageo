@@ -853,3 +853,26 @@ export function getCircleCenter (
     radiusRate: 1
   }
 }
+
+/**
+ * 2次元アフィン変換を行う
+ * paramsには以下の行列をa b c d e fの順で指定する
+ * a c e
+ * b d f
+ * @param points 変換前の座標リスト
+ * @param params 行列成分
+ * @return 座標リスト
+ */
+export function transform (points: IVec2[], params: number[]): IVec2[] {
+  const a = params[0]
+  const b = params[1]
+  const c = params[2]
+  const d = params[3]
+  const e = params[4]
+  const f = params[5]
+
+  return points.map((p) => ({
+    x : a * p.x + c * p.y + e,
+    y : b * p.x + d * p.y + f
+  }))
+}
