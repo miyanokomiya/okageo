@@ -41,3 +41,11 @@ interface ISvgStyle {
   fillStyle: string
   fillGlobalAlpha: number
 }
+
+/**
+ * path情報
+ */
+interface ISvgPath {
+  d: IVec2[]
+  style: ISvgStyle
+}

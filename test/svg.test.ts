@@ -21,6 +21,264 @@ function parseSvgElement (elmString: string): SVGElement {
   return svgDom.childNodes[0] as SVGElement
 }
 
+describe('adoptTransform 変形実行', () => {
+  const points: IVec2[] = [{ x: 1, y: 2 }]
+  describe('matrix', () => {
+    it('結果が正しいこと', () => {
+      const str = 'matrix(1,2,3,4,5,6)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(1 + 2 * 3 + 5)
+      expect(res[0].y).toBeCloseTo(2 + 2 * 4 + 6)
+    })
+  })
+  describe('translate', () => {
+    it('結果が正しいこと', () => {
+      const str = 'translate(1,2)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(2)
+      expect(res[0].y).toBeCloseTo(4)
+    })
+  })
+  describe('scale', () => {
+    it('x,y等倍の場合、結果が正しいこと', () => {
+      const str = 'scale(2)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(2)
+      expect(res[0].y).toBeCloseTo(4)
+    })
+    it('x,y異なる倍率の場合、結果が正しいこと', () => {
+      const str = 'scale(2, 3)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(2)
+      expect(res[0].y).toBeCloseTo(6)
+    })
+  })
+  describe('rotate', () => {
+    it('基準点省略の場合、結果が正しいこと', () => {
+      const str = 'rotate(90)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(-2)
+      expect(res[0].y).toBeCloseTo(1)
+    })
+    it('基準点指定の場合、結果が正しいこと', () => {
+      const str = 'rotate(90,1,1)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(0)
+      expect(res[0].y).toBeCloseTo(1)
+    })
+  })
+  describe('skewx', () => {
+    it('結果が正しいこと', () => {
+      const str = 'skewx(45)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(3)
+      expect(res[0].y).toBeCloseTo(2)
+    })
+  })
+  describe('skewy', () => {
+    it('結果が正しいこと', () => {
+      const str = 'skewy(45)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(3)
+    })
+  })
+  describe('重ねがけ変換', () => {
+    it('結果が正しいこと', () => {
+      const str = 'translate(1,2)skewy(45)'
+      const res = svg.adoptTransform(str, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(2)
+      expect(res[0].y).toBeCloseTo(6)
+    })
+  })
+})
+
+describe('splitD pathのd要素分解', () => {
+  describe('Z zの分解', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'Z z'
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(2)
+      expect(res[0]).toEqual(['Z'])
+      expect(res[1]).toEqual(['z'])
+    })
+  })
+  describe('V v H hの分解', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'V 0,1 H 2,3 v 4,5 h 0,1'
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(4)
+      expect(res[0]).toEqual(['V', '0', '1'])
+      expect(res[1]).toEqual(['H', '2', '3'])
+      expect(res[2]).toEqual(['v', '4', '5'])
+      expect(res[3]).toEqual(['h', '0', '1'])
+    })
+  })
+  describe('M m L l T tの分解', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'M 0,1 L 2,3 T 4,5 m 0,1 l 2,3 t 4,5'
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(6)
+      expect(res[0]).toEqual(['M', '0', '1'])
+      expect(res[1]).toEqual(['L', '2', '3'])
+      expect(res[2]).toEqual(['T', '4', '5'])
+      expect(res[3]).toEqual(['m', '0', '1'])
+      expect(res[4]).toEqual(['l', '2', '3'])
+      expect(res[5]).toEqual(['t', '4', '5'])
+    })
+  })
+  describe('Q q S sの分解', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'Q 0,1 2,3 q 4,5 6,7 S 8,9 10,11 s 12,13 14,15'
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(4)
+      expect(res[0]).toEqual(['Q', '0', '1', '2', '3'])
+      expect(res[1]).toEqual(['q', '4', '5', '6', '7'])
+      expect(res[2]).toEqual(['S', '8', '9', '10', '11'])
+      expect(res[3]).toEqual(['s', '12', '13', '14', '15'])
+    })
+  })
+  describe('C cの分解', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'C 0,1 2,3 4,5 c 6,7 8,9 10,11'
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(2)
+      expect(res[0]).toEqual(['C', '0', '1', '2', '3', '4', '5'])
+      expect(res[1]).toEqual(['c', '6', '7', '8', '9', '10', '11'])
+    })
+  })
+  describe('A aの分解', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'A 0,1,2,3,4,5,6 a 7 8 9 10 11 12 13'
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(2)
+      expect(res[0]).toEqual(['A', '0', '1', '2', '3', '4', '5', '6'])
+      expect(res[1]).toEqual(['a', '7', '8', '9', '10', '11', '12', '13'])
+    })
+  })
+  describe('コマンド省略対応', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'M 0,1 L 2,3 4,5'
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(3)
+      expect(res[0]).toEqual(['M', '0', '1'])
+      expect(res[1]).toEqual(['L', '2', '3'])
+      expect(res[2]).toEqual(['L', '4', '5'])
+    })
+  })
+  describe('ホワイトスペース対応', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'M 0,   1  L  2,3  '
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(2)
+      expect(res[0]).toEqual(['M', '0', '1'])
+      expect(res[1]).toEqual(['L', '2', '3'])
+    })
+  })
+})
+
+describe.skip('serializeSvgString svg文字列生成(XMLSerializerがテスト環境で未定義なためskip)', () => {
+  it('結果が正しいこと', () => {
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
+    const style: ISvgStyle = {
+      fill: true,
+      fillGlobalAlpha: 1,
+      fillStyle: 'red',
+      lineCap: '',
+      lineDash: [],
+      lineJoin: '',
+      lineWidth: 1,
+      stroke: false,
+      strokeGlobalAlpha: 1,
+      strokeStyle: ''
+    }
+    const svgStr: string = svg.serializeSvgString([{ d: points, style }])
+    expect(svgStr).toEqual(expect.stringContaining('<svg'))
+    expect(svgStr).toEqual(expect.stringContaining('</svg>'))
+  })
+})
+
+describe('serializeSvg svgタグ生成', () => {
+  it('結果が正しいこと', () => {
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
+    const style: ISvgStyle = {
+      fill: true,
+      fillGlobalAlpha: 1,
+      fillStyle: 'red',
+      lineCap: '',
+      lineDash: [],
+      lineJoin: '',
+      lineWidth: 1,
+      stroke: false,
+      strokeGlobalAlpha: 1,
+      strokeStyle: ''
+    }
+    const svgElm = svg.serializeSvg([{ d: points, style }])
+    const widthStr = svgElm.getAttribute('width')
+    const heightStr = svgElm.getAttribute('height')
+    expect(widthStr).not.toBeNull()
+    expect(heightStr).not.toBeNull()
+    expect(parseFloat(widthStr || '0')).toBeCloseTo(2.2)
+    expect(parseFloat(heightStr || '0')).toBeCloseTo(2.2)
+    const elm = svgElm.childNodes[0] as SVGPathElement
+    expect(elm.getAttribute('d')).toBe('M 1,1 L 2,1 L 1,2 Z')
+    expect(elm.getAttribute('style')).toEqual(expect.stringContaining('fill:red;'))
+  })
+})
+
+describe('serializePath pathタグ生成', () => {
+  it('結果が正しいこと', () => {
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
+    const style: ISvgStyle = {
+      fill: true,
+      fillGlobalAlpha: 1,
+      fillStyle: 'red',
+      lineCap: '',
+      lineDash: [],
+      lineJoin: '',
+      lineWidth: 1,
+      stroke: false,
+      strokeGlobalAlpha: 1,
+      strokeStyle: ''
+    }
+    const elm = svg.serializePath(points, style)
+    expect(elm.getAttribute('d')).toBe('M 1,1 L 2,1 L 1,2 Z')
+    expect(elm.getAttribute('style')).toEqual(expect.stringContaining('fill:red;'))
+  })
+})
+
+describe('serializePointList d属性へのシリアライス', () => {
+  it('結果が正しいこと', () => {
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
+    expect(svg.serializePointList(points)).toBe('M 1,1 L 2,1 L 1,2 Z')
+  })
+})
+
 describe('parseTagStyle スタイル取得', () => {
   describe('属性から取得', () => {
     describe('fillなし', () => {
