@@ -738,6 +738,77 @@ describe('approximateArcWithPoint 楕円の近似', () => {
     expect(res[2].x).toBeCloseTo(Math.sqrt(3) / 2)
     expect(res[2].y).toBeCloseTo(-1 / 2)
   })
+  it('2点に届くよう径長が拡大されること', () => {
+    const res = geo.approximateArcWithPoint(
+      1,
+      1,
+      { x: -2, y: 0 },
+      { x: 2, y: 0 },
+      false,
+      false,
+      0,
+      2
+    )
+    expect(res.length).toBe(3)
+    expect(res[0].x).toBeCloseTo(-2)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(0)
+    expect(res[1].y).toBeCloseTo(2)
+    expect(res[2].x).toBeCloseTo(2)
+    expect(res[2].y).toBeCloseTo(0)
+  })
+  it('x径長0の場合は直線になること', () => {
+    const res = geo.approximateArcWithPoint(
+      0,
+      1,
+      { x: -2, y: 0 },
+      { x: 2, y: 0 },
+      false,
+      false,
+      0,
+      2
+    )
+    expect(res.length).toBe(2)
+    expect(res[0].x).toBeCloseTo(-2)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(2)
+    expect(res[1].y).toBeCloseTo(0)
+  })
+  it('y径長0の場合は直線になること', () => {
+    const res = geo.approximateArcWithPoint(
+      1,
+      0,
+      { x: -2, y: 0 },
+      { x: 2, y: 0 },
+      false,
+      false,
+      0,
+      2
+    )
+    expect(res.length).toBe(2)
+    expect(res[0].x).toBeCloseTo(-2)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(2)
+    expect(res[1].y).toBeCloseTo(0)
+  })
+  it('負の径長の場合は正に補正されること', () => {
+    const res = geo.approximateArcWithPoint(
+      -1,
+      -1,
+      { x: -2, y: 0 },
+      { x: 2, y: 0 },
+      false,
+      false,
+      0,
+      2
+    )
+    expect(res.length).toBe(3)
+    expect(res[0].y).toBeCloseTo(0)
+    expect(res[1].x).toBeCloseTo(0)
+    expect(res[1].y).toBeCloseTo(2)
+    expect(res[2].x).toBeCloseTo(2)
+    expect(res[2].y).toBeCloseTo(0)
+  })
 })
 
 describe('getEllipseCenter 2点を通る楕円の中心', () => {
@@ -749,11 +820,13 @@ describe('getEllipseCenter 2点を通る楕円の中心', () => {
       2,
       0
     )
-    expect(res.length).toBe(2)
-    expect(res[0].x).toBeCloseTo(0)
-    expect(res[0].y).toBeCloseTo(0)
-    expect(res[1].x).toBeCloseTo(1)
-    expect(res[1].y).toBeCloseTo(2)
+    const centers = res.centers
+    expect(res.radiusRate).toBe(1)
+    expect(centers.length).toBe(2)
+    expect(centers[0].x).toBeCloseTo(0)
+    expect(centers[0].y).toBeCloseTo(0)
+    expect(centers[1].x).toBeCloseTo(1)
+    expect(centers[1].y).toBeCloseTo(2)
   })
   it('角度ありの場合、正しく取得できること', () => {
     const res = geo.getEllipseCenter(
@@ -763,11 +836,29 @@ describe('getEllipseCenter 2点を通る楕円の中心', () => {
       1,
       Math.PI / 2
     )
-    expect(res.length).toBe(2)
-    expect(res[0].x).toBeCloseTo(0)
-    expect(res[0].y).toBeCloseTo(0)
-    expect(res[1].x).toBeCloseTo(1)
-    expect(res[1].y).toBeCloseTo(2)
+    const centers = res.centers
+    expect(res.radiusRate).toBe(1)
+    expect(centers.length).toBe(2)
+    expect(centers[0].x).toBeCloseTo(0)
+    expect(centers[0].y).toBeCloseTo(0)
+    expect(centers[1].x).toBeCloseTo(1)
+    expect(centers[1].y).toBeCloseTo(2)
+  })
+  it('2点が直径よりも離れている場合、中点と補正係数が取得できること', () => {
+    const res = geo.getEllipseCenter(
+      { x: 0, y: 0 },
+      { x: 4, y: 0 },
+      1,
+      1,
+      0
+    )
+    const centers = res.centers
+    expect(res.radiusRate).toBe(2)
+    expect(centers.length).toBe(2)
+    expect(centers[0].x).toBeCloseTo(2)
+    expect(centers[0].y).toBeCloseTo(0)
+    expect(centers[1].x).toBeCloseTo(2)
+    expect(centers[1].y).toBeCloseTo(0)
   })
 })
 
@@ -778,22 +869,26 @@ describe('getCircleCenter 2点を通る円の中心', () => {
       { x: 1 / 2, y: -Math.sqrt(3) / 2 },
       1
     )
-    expect(res.length).toBe(2)
-    expect(res[0].x).toBeCloseTo(1)
-    expect(res[0].y).toBeCloseTo(0)
-    expect(res[1].x).toBeCloseTo(0)
-    expect(res[1].y).toBeCloseTo(0)
+    const centers = res.centers
+    expect(res.radiusRate).toBe(1)
+    expect(centers.length).toBe(2)
+    expect(centers[0].x).toBeCloseTo(1)
+    expect(centers[0].y).toBeCloseTo(0)
+    expect(centers[1].x).toBeCloseTo(0)
+    expect(centers[1].y).toBeCloseTo(0)
   })
-  it('2点が直径よりも離れている場合、中点が取得できること', () => {
+  it('2点が直径よりも離れている場合、中点と補正係数が取得できること', () => {
     const res = geo.getCircleCenter(
       { x: 0, y: 0 },
       { x: 4, y: 0 },
       1
     )
-    expect(res.length).toBe(2)
-    expect(res[0].x).toBeCloseTo(2)
-    expect(res[0].y).toBeCloseTo(0)
-    expect(res[1].x).toBeCloseTo(2)
-    expect(res[1].y).toBeCloseTo(0)
+    const centers = res.centers
+    expect(res.radiusRate).toBe(2)
+    expect(centers.length).toBe(2)
+    expect(centers[0].x).toBeCloseTo(2)
+    expect(centers[0].y).toBeCloseTo(0)
+    expect(centers[1].x).toBeCloseTo(2)
+    expect(centers[1].y).toBeCloseTo(0)
   })
 })

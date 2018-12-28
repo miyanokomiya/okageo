@@ -633,6 +633,7 @@ export function approximateArc (
 
 /**
  * ２点指定の円弧を直線で近似する
+ * https://triple-underscore.github.io/SVG11/paths.html#PathDataEllipticalArcCommands
  * @method approximateArcWithPoint
  * @param rx x軸半径
  * @param ry y軸半径
@@ -654,8 +655,22 @@ export function approximateArcWithPoint (
   radian: number,
   size: number
 ): IVec2[] {
+  // 範囲外の径の修正
+  // https://triple-underscore.github.io/SVG11/implnote.html#ArcImplementationNotes
+  // 径長ゼロを弾く
+  if (rx * ry === 0) return [startPoint, endPoint]
+
+  // 負の径長を訂正する
+  rx = Math.abs(rx)
+  ry = Math.abs(ry)
+
   // 楕円中心取得
-  const centers = getEllipseCenter(startPoint, endPoint, rx, ry, radian)
+  const centerInfo = getEllipseCenter(startPoint, endPoint, rx, ry, radian)
+  const centers = centerInfo.centers
+
+  // 径長を十分大きくする
+  rx *= centerInfo.radiusRate
+  ry *= centerInfo.radiusRate
 
   let center = null
 
@@ -679,8 +694,8 @@ export function approximateArcWithPoint (
   // 回り方に応じて始点と終点を設定
   let startRadian = 0
   let endRadian = 0
-  const r1 = getRadianOnArc(startPoint, center, radian)
-  const r2 = getRadianOnArc(endPoint, center, radian)
+  const r1 = getRadianOnArc(startPoint, rx, center, radian)
+  const r2 = getRadianOnArc(endPoint, rx, center, radian)
   if (sweepFlag) {
     if (r1 > r2) {
       startRadian = r1 - Math.PI * 2
@@ -713,18 +728,20 @@ export function approximateArcWithPoint (
 /**
  * 円弧上の点の角度を求める
  * @param a 円弧上の点
+ * @param rx x径長
  * @param center 中心座標
  * @param radian 傾き
  * @return ラジアン(0 <= t <= 2 * Math.PI)
  */
 function getRadianOnArc (
   a: IVec2,
+  rx: number,
   center: IVec2,
   radian: number
 ): number {
   // 回転打ち消し
   a = rotate(a, -radian, center)
-  let ret = Math.acos((a.x - center.x))
+  let ret = Math.acos((a.x - center.x) / rx)
 
   // y座標の位置をみて絞り込み
   if (a.y - center.y < 0) {
@@ -739,12 +756,14 @@ function getRadianOnArc (
 }
 
 /**
+ * ２点を通る楕円の中心を求める
  * @param a 点a
  * @param b 点b
  * @param rx x軸半径
  * @param ry y軸半径
  * @param radian 傾き
  * @return 解となる２点
+ * @return { centers: 解となる２点, radiusRate: 半径補正係数 }
  */
 export function getEllipseCenter (
   a: IVec2,
@@ -752,7 +771,7 @@ export function getEllipseCenter (
   rx: number,
   ry: number,
   radian: number
-): IVec2[] {
+): { centers: IVec2[], radiusRate: number } {
   // 回転を打ち消す
   a = rotate(a, -radian)
   b = rotate(b, -radian)
@@ -768,7 +787,8 @@ export function getEllipseCenter (
   }
 
   // 円の中心取得
-  const C = getCircleCenter(A, B, 1)
+  const centerInfo = getCircleCenter(A, B, 1)
+  const C = centerInfo.centers
 
   // 楕円に戻す
   let ans1 = {
@@ -784,7 +804,10 @@ export function getEllipseCenter (
   ans1 = rotate(ans1, radian)
   ans2 = rotate(ans2, radian)
 
-  return [ans1, ans2]
+  return {
+    centers: [ans1, ans2],
+    radiusRate: centerInfo.radiusRate
+  }
 }
 
 /**
@@ -792,9 +815,13 @@ export function getEllipseCenter (
  * @param a 点a
  * @param b 点b
  * @param radius 半径
- * @return 解となる２点
+ * @return { centers: 解となる２点, radiusRate: 半径補正係数 }
  */
-export function getCircleCenter (a: IVec2, b: IVec2, radius: number): IVec2[] {
+export function getCircleCenter (
+  a: IVec2,
+  b: IVec2,
+  radius: number
+): { centers: IVec2[], radiusRate: number } {
   const u1 = (a.x + b.x) / 2
   const u2 = (a.x - b.x) / 2
   const v1 = (a.y + b.y) / 2
@@ -805,7 +832,10 @@ export function getCircleCenter (a: IVec2, b: IVec2, radius: number): IVec2[] {
   // 2点が直径以上に離れている => 2点を直径とみなす
   if (t2 < 0) {
     const center = getCenter(a, b)
-    return [center, center]
+    return {
+      centers: [center, center],
+      radiusRate: L / radius
+    }
   }
 
   const t = Math.sqrt(t2)
@@ -818,5 +848,8 @@ export function getCircleCenter (a: IVec2, b: IVec2, radius: number): IVec2[] {
     y : v1 + u2 * t
   }
 
-  return [ans1, ans2]
+  return {
+    centers: [ans1, ans2],
+    radiusRate: 1
+  }
 }
