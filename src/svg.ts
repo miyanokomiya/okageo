@@ -6,18 +6,64 @@ export const configs: ISvgConfigs = {
 }
 
 /**
+ * ellipseタグを解析する
+ * @param svgEllipse SVGのellipseタグDOM
+ * @return 座標リスト
+ */
+export function parseEllipse (svgEllipse: SVGEllipseElement): IVec2[] {
+  let ret = []
+
+  const cx = parseFloat(svgEllipse.getAttribute('cx') || '0')
+  const cy = parseFloat(svgEllipse.getAttribute('cy') || '0')
+  const rx = parseFloat(svgEllipse.getAttribute('rx') || '1')
+  const ry = parseFloat(svgEllipse.getAttribute('ry') || '1')
+
+  ret = geo.approximateArc(
+    rx, ry,
+    0, Math.PI * 2,
+    { x: cx,y: cy },
+    0, configs.ellipseSplitSize
+  )
+
+  // トランスフォーム
+  ret = adoptTransform(svgEllipse.getAttribute('transform'), ret)
+  return ret
+}
+
+/**
+ * circleタグを解析する
+ * @param svgCircle  SVGのcircleタグDOM
+ * @return 座標リスト
+ */
+export function parseCircle (svgCircle: SVGCircleElement): IVec2[] {
+  let ret = []
+  const cx = parseFloat(svgCircle.getAttribute('cx') || '0')
+  const cy = parseFloat(svgCircle.getAttribute('cy') || '0')
+  const r = parseFloat(svgCircle.getAttribute('r') || '1')
+
+  // 近似方法は楕円と同様
+  ret = geo.approximateArc(
+    r, r,
+    0, Math.PI * 2,
+    { x: cx,y: cy },
+    0, configs.ellipseSplitSize
+  )
+
+  // トランスフォーム
+  ret = adoptTransform(svgCircle.getAttribute('transform'), ret)
+  return ret
+}
+
+/**
  * transformを行う
  * @param commandStr コマンド文字列
  * @param points 変換前座標リスト
  * @return 変形後座標リスト
  */
-export function adoptTransform (commandStr: string, points: IVec2[]): IVec2[] {
+export function adoptTransform (commandStr: string | null, points: IVec2[]): IVec2[] {
+  if (!commandStr) return points
+
   let ret: IVec2[] = geo.cloneVectors(points)
-
-  // transformタグない場合もある
-  // const transformAttr = svgTag.getAttributeNode('transform')
-  // if (!transformAttr) return ret
-
   // 複数コマンドの場合もあるのでループ
   const commandList = commandStr.split(/\)/)
   commandList.forEach((current) => {

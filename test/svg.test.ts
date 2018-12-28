@@ -21,6 +21,28 @@ function parseSvgElement (elmString: string): SVGElement {
   return svgDom.childNodes[0] as SVGElement
 }
 
+describe('parseEllipse ellipse解析', () => {
+  it('結果が正しいこと', () => {
+    const str = '<ellipse cx="1" cy="2" rx="3" ry="4" transform="translate(1,2)" />'
+    const elm = parseSvgElement(str) as SVGEllipseElement
+    const res = svg.parseEllipse(elm)
+    expect(res.length).toBe(svg.configs.ellipseSplitSize + 1)
+    expect(res[0].x).toBeCloseTo(5)
+    expect(res[0].y).toBeCloseTo(4)
+  })
+})
+
+describe('parseCircle circle解析', () => {
+  it('結果が正しいこと', () => {
+    const str = '<circle cx="1" cy="2" r="1" transform="translate(1,2)" />'
+    const elm = parseSvgElement(str) as SVGCircleElement
+    const res = svg.parseCircle(elm)
+    expect(res.length).toBe(svg.configs.ellipseSplitSize + 1)
+    expect(res[0].x).toBeCloseTo(3)
+    expect(res[0].y).toBeCloseTo(4)
+  })
+})
+
 describe('adoptTransform 変形実行', () => {
   const points: IVec2[] = [{ x: 1, y: 2 }]
   describe('matrix', () => {
@@ -98,6 +120,14 @@ describe('adoptTransform 変形実行', () => {
       expect(res.length).toBe(1)
       expect(res[0].x).toBeCloseTo(2)
       expect(res[0].y).toBeCloseTo(6)
+    })
+  })
+  describe('変換なし', () => {
+    it('結果が正しいこと', () => {
+      const res = svg.adoptTransform(null, points)
+      expect(res.length).toBe(1)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
     })
   })
 })
