@@ -1,7 +1,7 @@
 /**
  * ベクトル
  */
-interface IVec2 {
+export interface IVec2 {
   /**
    * x成分
    */
@@ -15,7 +15,7 @@ interface IVec2 {
 /**
  * SVG設定
  */
-interface ISvgConfigs {
+export interface ISvgConfigs {
   /**
    * ベジェ曲線の近似精度
    */
@@ -29,7 +29,7 @@ interface ISvgConfigs {
 /**
  * SVGスタイル情報
  */
-interface ISvgStyle {
+export interface ISvgStyle {
   stroke: boolean
   strokeStyle: string
   lineWidth: number
@@ -45,7 +45,7 @@ interface ISvgStyle {
 /**
  * path情報
  */
-interface ISvgPath {
+export interface ISvgPath {
   d: IVec2[]
   style: ISvgStyle
 }
