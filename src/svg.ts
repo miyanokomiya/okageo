@@ -6,6 +6,72 @@ export const configs: ISvgConfigs = {
 }
 
 /**
+ * SVG文字列から図形のパス情報を取得する
+ * 対応タグ: path,rect,ellipse,circle
+ * @param svgString SVGリソース文字列
+ * @return パス情報リスト
+ */
+export function parseSvgGraphicsStr (svgString: string): ISvgPath[] {
+  const domParser = new DOMParser()
+  const svgDom = domParser.parseFromString(svgString, 'image/svg+xml')
+  return parseSvgGraphics(svgDom.childNodes[0] as SVGElement)
+}
+
+/**
+ * SVGタグから図形のパス情報を取得する
+ * 対応タグ: path,rect,ellipse,circle
+ * @param svgTag SVGタグ
+ * @return パス情報リスト
+ */
+export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
+  const ret: ISvgPath[] = []
+
+  // パス
+  const tagPathList = svgTag.getElementsByTagName('path')
+  for (let i = 0; i < tagPathList.length; i++) {
+    const elm = tagPathList[i] as SVGPathElement
+    ret.push({
+      d: parsePath(elm),
+      style:  parseTagStyle(elm)
+    })
+  }
+
+  // 矩形
+  const tagRectList = svgTag.getElementsByTagName('rect')
+  for (let i = 0; i < tagRectList.length; i++) {
+    const elm = tagRectList[i] as SVGRectElement
+    ret.push({
+      d : parseRect(elm),
+      style : parseTagStyle(elm)
+    })
+  }
+
+  // 楕円
+  const tagEllipseList = svgTag.getElementsByTagName('ellipse')
+  for (let i = 0; i < tagEllipseList.length; i++) {
+    const elm = tagEllipseList[i] as SVGEllipseElement
+    ret.push({
+      d : parseEllipse(elm),
+      style : parseTagStyle(elm)
+    })
+  }
+
+  // 円
+  const tagCircleList = svgTag.getElementsByTagName('circle')
+  for (let i = 0; i < tagCircleList.length; i++) {
+    const elm = tagCircleList[i] as SVGCircleElement
+    ret.push({
+      d : parseCircle(elm),
+      style : parseTagStyle(elm)
+    })
+  }
+
+  // gタグ→「getElementsByTagName」は子孫全検索なので再帰必要なし
+
+  return ret
+}
+
+/**
  * pathタグを解析する
  * @param svgPath SVGのpathタグDOM
  * @return 座標リスト
@@ -17,7 +83,7 @@ export function parsePath (svgPath: SVGPathElement): IVec2[] {
   if (!dStr) return []
 
   // d属性分解
-  const elementList = splitD(dStr)
+  const elementList: string[][] = splitD(dStr)
 
   // 前回座標
   let pastVec: IVec2 = { x: 0, y: 0 }

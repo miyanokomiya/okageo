@@ -5,7 +5,9 @@
         "tslint-config-standard"
     ],
     "jsRules": {},
-    "rules": {},
+    "rules": {
+      "prefer-for-of": null
+    },
     "rulesDirectory": [],
     "linterOptions": {
       "exclude": [

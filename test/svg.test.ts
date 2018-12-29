@@ -22,6 +22,75 @@ function parseSvgElement (elmString: string): SVGElement {
   return svgDom.childNodes[0] as SVGElement
 }
 
+describe('loadSvgGraphicsPath svg文字列解析', () => {
+  it('結果が正しいこと', () => {
+    const elmStr = '<path d="M 1,2 L 3,4 L 5,6 z" fill="red" />'
+    const svgStr = wrapSvg(elmStr)
+    const res = svg.parseSvgGraphicsStr(svgStr)
+    expect(res.length).toBe(1)
+    expect(res[0].d).toEqual([{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }])
+    expect(res[0].style.fillStyle).toBe('red')
+  })
+})
+
+describe('parseSvgGraphics svg解析', () => {
+  describe('path解析', () => {
+    it('結果が正しいこと', () => {
+      const elmStr = '<path d="M 1,2 L 3,4 L 5,6 z" fill="red" />'
+      const svgDom: SVGElement = parseSvg(wrapSvg(elmStr)).childNodes[0] as SVGElement
+      const res = svg.parseSvgGraphics(svgDom)
+      expect(res.length).toBe(1)
+      expect(res[0].d).toEqual([{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }])
+      expect(res[0].style.fillStyle).toBe('red')
+    })
+  })
+  describe('rect解析', () => {
+    it('結果が正しいこと', () => {
+      const elmStr = '<rect x="1" y="2" width="3" height="4" fill="red" />'
+      const svgDom: SVGElement = parseSvg(wrapSvg(elmStr)).childNodes[0] as SVGElement
+      const res = svg.parseSvgGraphics(svgDom)
+      expect(res.length).toBe(1)
+      expect(res[0].d).toEqual([
+        { x: 1, y: 2 },
+        { x: 4, y: 2 },
+        { x: 4, y: 6 },
+        { x: 1, y: 6 }
+      ])
+      expect(res[0].style.fillStyle).toBe('red')
+    })
+  })
+  describe('ellipse解析', () => {
+    it('結果が正しいこと', () => {
+      const elmStr = '<ellipse x="1" y="2" rx="1" ry="2" fill="red" />'
+      const svgDom: SVGElement = parseSvg(wrapSvg(elmStr)).childNodes[0] as SVGElement
+      const res = svg.parseSvgGraphics(svgDom)
+      expect(res.length).toBe(1)
+      expect(res[0].d.length).toBe(svg.configs.ellipseSplitSize + 1)
+      expect(res[0].style.fillStyle).toBe('red')
+    })
+  })
+  describe('circle解析', () => {
+    it('結果が正しいこと', () => {
+      const elmStr = '<circle x="1" y="2" r="1" fill="red" />'
+      const svgDom: SVGElement = parseSvg(wrapSvg(elmStr)).childNodes[0] as SVGElement
+      const res = svg.parseSvgGraphics(svgDom)
+      expect(res.length).toBe(1)
+      expect(res[0].d.length).toBe(svg.configs.ellipseSplitSize + 1)
+      expect(res[0].style.fillStyle).toBe('red')
+    })
+  })
+  describe('g考慮', () => {
+    it('g内も取得されること', () => {
+      const elmStr = '<g><circle x="1" y="2" r="1" fill="red" /></g>'
+      const svgDom: SVGElement = parseSvg(wrapSvg(elmStr)).childNodes[0] as SVGElement
+      const res = svg.parseSvgGraphics(svgDom)
+      expect(res.length).toBe(1)
+      expect(res[0].d.length).toBe(svg.configs.ellipseSplitSize + 1)
+      expect(res[0].style.fillStyle).toBe('red')
+    })
+  })
+})
+
 describe('parsePath path解析', () => {
   describe('M L解析', () => {
     it('結果が正しいこと', () => {
@@ -267,6 +336,26 @@ describe('parsePath path解析', () => {
       expect(res[1].y).toBeCloseTo(4)
       expect(res[2].x).toBeCloseTo(4)
       expect(res[2].y).toBeCloseTo(6)
+    })
+  })
+  describe('d属性なし', () => {
+    it('空配列が取得できること', () => {
+      const str = '<path />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(0)
+    })
+  })
+  describe('変形あり', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 L 3,4" transform="translate(1,2)" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(2)
+      expect(res[0].y).toBeCloseTo(4)
+      expect(res[1].x).toBeCloseTo(4)
+      expect(res[1].y).toBeCloseTo(6)
     })
   })
 })
