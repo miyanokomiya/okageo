@@ -1,4 +1,5 @@
 import * as geo from '../src/geo'
+import { IVec2 } from '../types/index'
 
 describe('add ベクトル足し算', () => {
   it('計算結果が正しいこと', () => {
@@ -904,5 +905,25 @@ describe('transform 2次元アフィン変換', () => {
     expect(res.length).toBe(1)
     expect(res[0].x).toBeCloseTo(1 + 2 * 3 + 5)
     expect(res[0].y).toBeCloseTo(2 + 2 * 4 + 6)
+  })
+})
+
+describe('omitSamePoint 隣接同一点オミット', () => {
+  it('正しく取得できること', () => {
+    const res = geo.omitSamePoint([
+      { x: 1, y: 2 },
+      { x: 1, y: 3 },
+      { x: 2, y: 2 },
+      { x: 2, y: 2 },
+      { x: 2, y: 2 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 },
+      { x: 1, y: 2 }
+    ])
+    expect(res.length).toBe(4)
+    expect(res[0]).toEqual({ x: 1, y: 2 })
+    expect(res[1]).toEqual({ x: 1, y: 3 })
+    expect(res[2]).toEqual({ x: 2, y: 2 })
+    expect(res[3]).toEqual({ x: 2, y: 1 })
   })
 })

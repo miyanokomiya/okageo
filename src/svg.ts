@@ -1,3 +1,4 @@
+import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from '../types/index'
 import * as geo from './geo'
 
 export const configs: ISvgConfigs = {
@@ -697,9 +698,9 @@ export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
     fill: false,
     fillGlobalAlpha: 1,
     fillStyle: '',
-    lineCap: '',
+    lineCap: 'butt',
     lineDash: [],
-    lineJoin: '',
+    lineJoin: 'bevel',
     lineWidth: 1,
     stroke: false,
     strokeGlobalAlpha: 1,

@@ -1,3 +1,5 @@
+import { IVec2 } from '../types/index'
+
 export const MINVALUE: number = 0.000001
 
 export function add (a: IVec2, b: IVec2): IVec2 {
@@ -385,7 +387,7 @@ export function triangleSplit (polygon: IVec2[]): IVec2[][] {
   polygon = convertLoopwise(polygon)
 
   // ポリゴン複製
-  const targetPoly = polygon.concat()
+  const targetPoly = omitSamePoint(polygon)
 
   // 最遠点のインデックス
   let farthestIndex = 0
@@ -425,6 +427,9 @@ export function triangleSplit (polygon: IVec2[]): IVec2[][] {
         if (tmpCross * currentCross > 0) {
               // 判定続行
           tri = getTriangle(targetPoly, index)
+        }
+        if (index === farthestIndex) {
+          throw new Error('failed to split triangles')
         }
       }
 
@@ -875,4 +880,31 @@ export function transform (points: IVec2[], params: number[]): IVec2[] {
     x : a * p.x + c * p.y + e,
     y : b * p.x + d * p.y + f
   }))
+}
+
+/**
+ * 隣り合う同一点をオミットする
+ * @method omitSamePoint
+ * @param polygon ポリゴン
+ * @return オミット後のポリゴン
+ */
+export function omitSamePoint (polygon: IVec2[]): IVec2[] {
+  let ret = polygon.concat()
+
+  // サイズ
+  const size = polygon.length
+  // 同一点探す
+  for (let i = 0; i < size; i++) {
+    const p1 = ret[i]
+    const p2 = ret[(i + 1) % size]
+    if (isSame(p1, p2)) {
+      // 同一
+      ret.splice(i, 1)
+      // 再帰
+      ret = omitSamePoint(ret)
+      break
+    }
+  }
+
+  return ret
 }

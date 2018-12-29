@@ -1,5 +1,6 @@
 import * as geo from '../src/geo'
 import * as svg from '../src/svg'
+import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from '../types/index'
 
 function parseSvg (svgString: string): Document {
   const domParser = new DOMParser()
