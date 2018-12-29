@@ -21,6 +21,23 @@ function parseSvgElement (elmString: string): SVGElement {
   return svgDom.childNodes[0] as SVGElement
 }
 
+describe('parseRect rect解析', () => {
+  it('結果が正しいこと', () => {
+    const str = '<rect x="1" y="2" width="3" height="4" transform="translate(1,2)" />'
+    const elm = parseSvgElement(str) as SVGRectElement
+    const res = svg.parseRect(elm)
+    expect(res.length).toBe(4)
+    expect(res[0].x).toBeCloseTo(2)
+    expect(res[0].y).toBeCloseTo(4)
+    expect(res[1].x).toBeCloseTo(5)
+    expect(res[1].y).toBeCloseTo(4)
+    expect(res[2].x).toBeCloseTo(5)
+    expect(res[2].y).toBeCloseTo(8)
+    expect(res[3].x).toBeCloseTo(2)
+    expect(res[3].y).toBeCloseTo(8)
+  })
+})
+
 describe('parseEllipse ellipse解析', () => {
   it('結果が正しいこと', () => {
     const str = '<ellipse cx="1" cy="2" rx="3" ry="4" transform="translate(1,2)" />'

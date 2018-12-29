@@ -6,6 +6,30 @@ export const configs: ISvgConfigs = {
 }
 
 /**
+ * rectタグを解析する
+ * @param SVGのrectタグDOM
+ * @return 座標リスト
+ */
+export function parseRect (svgRect: SVGRectElement): IVec2[] {
+  let ret = []
+
+  const x = parseFloat(svgRect.getAttribute('x') || '0')
+  const y = parseFloat(svgRect.getAttribute('y') || '0')
+  const width = parseFloat(svgRect.getAttribute('width') || '0')
+  const height = parseFloat(svgRect.getAttribute('height') || '0')
+
+  ret.push({ x, y })
+  ret.push({ x : x + width, y })
+  ret.push({ x : x + width, y : y + height })
+  ret.push({ x, y : y + height })
+
+  // トランスフォーム
+  ret = adoptTransform(svgRect.getAttribute('transform'), ret)
+
+  return ret
+}
+
+/**
  * ellipseタグを解析する
  * @param svgEllipse SVGのellipseタグDOM
  * @return 座標リスト
