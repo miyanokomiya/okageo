@@ -1,9 +1,17 @@
 {
   "name": "okageo",
   "version": "1.0.0",
+  "description": "parse SVG to polygons",
   "main": "./dist/okageo.js",
   "author": "miyanokomiya",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miyanokomiya/okageo.git"
+  },
+  "keywords": [
+    "svg"
+  ],
   "scripts": {
     "test": "jest",
     "tsc": "tsc",
