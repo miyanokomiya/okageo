@@ -22,6 +22,71 @@ function parseSvgElement (elmString: string): SVGElement {
   return svgDom.childNodes[0] as SVGElement
 }
 
+describe('fitRect 矩形内調整', () => {
+  const style: ISvgStyle = {
+    fill: false,
+    fillGlobalAlpha: 1,
+    fillStyle: '',
+    lineCap: '',
+    lineDash: [],
+    lineJoin: '',
+    lineWidth: 1,
+    stroke: false,
+    strokeGlobalAlpha: 1,
+    strokeStyle: ''
+  }
+  describe('拡大', () => {
+    it('結果が正しいこと', () => {
+      const pathInfoList: ISvgPath[] = [
+        {
+          d: [{ x: 0, y: 0 }, { x: 1, y: 2 }],
+          style
+        }
+      ]
+      const res = svg.fitRect(pathInfoList, 0, 0, 2, 4)
+      expect(res.length).toBe(1)
+      expect(res[0].d).toEqual([{ x: 0, y: 0 }, { x: 2, y: 4 }])
+    })
+  })
+  describe('縮小', () => {
+    it('結果が正しいこと', () => {
+      const pathInfoList: ISvgPath[] = [
+        {
+          d: [{ x: 0, y: 0 }, { x: 2, y: 4 }],
+          style
+        }
+      ]
+      const res = svg.fitRect(pathInfoList, 0, 0, 1, 2)
+      expect(res.length).toBe(1)
+      expect(res[0].d).toEqual([{ x: 0, y: 0 }, { x: 1, y: 2 }])
+    })
+  })
+  describe('中央揃え', () => {
+    it('縦方向、結果が正しいこと', () => {
+      const pathInfoList: ISvgPath[] = [
+        {
+          d: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+          style
+        }
+      ]
+      const res = svg.fitRect(pathInfoList, 0, 0, 1, 2)
+      expect(res.length).toBe(1)
+      expect(res[0].d).toEqual([{ x: 0, y: 0.5 }, { x: 1, y: 1.5 }])
+    })
+    it('横方向、結果が正しいこと', () => {
+      const pathInfoList: ISvgPath[] = [
+        {
+          d: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+          style
+        }
+      ]
+      const res = svg.fitRect(pathInfoList, 0, 0, 2, 1)
+      expect(res.length).toBe(1)
+      expect(res[0].d).toEqual([{ x: 0.5, y: 0 }, { x: 1.5, y: 1 }])
+    })
+  })
+})
+
 describe('loadSvgGraphicsPath svg文字列解析', () => {
   it('結果が正しいこと', () => {
     const elmStr = '<path d="M 1,2 L 3,4 L 5,6 z" fill="red" />'

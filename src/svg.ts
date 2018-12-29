@@ -6,6 +6,97 @@ export const configs: ISvgConfigs = {
 }
 
 /**
+ * 描画
+ * @param ctx 描画要素
+ * @param pathInfo 図形情報
+ */
+export function draw (ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
+  ctx.lineCap = pathInfo.style.lineCap as CanvasLineCap
+  ctx.lineJoin = pathInfo.style.lineJoin as CanvasLineJoin
+
+  ctx.beginPath()
+  pathInfo.d.forEach((p, i) => {
+    if (i === 0) {
+      ctx.moveTo(p.x, p.y)
+    } else {
+      ctx.lineTo(p.x, p.y)
+    }
+  })
+  ctx.closePath()
+
+  if (pathInfo.style.fill) {
+    ctx.fillStyle = pathInfo.style.fillStyle
+    ctx.globalAlpha = pathInfo.style.fillGlobalAlpha
+    ctx.fill()
+  }
+
+    // 枠
+  if (pathInfo.style.stroke) {
+    ctx.strokeStyle = pathInfo.style.strokeStyle
+    ctx.globalAlpha = pathInfo.style.strokeGlobalAlpha
+    ctx.lineWidth = pathInfo.style.lineWidth
+    ctx.setLineDash(pathInfo.style.lineDash)
+    ctx.stroke()
+  }
+  ctx.globalAlpha = 1
+}
+
+/**
+ * 矩形に収まるよう調整
+ * @param pathInfoList パス情報リスト
+ * @param x 矩形x座標
+ * @param y 矩形y座標
+ * @param width 矩形width
+ * @param height 矩形height
+ * @return 調整後パス情報リスト
+ */
+export function fitRect (
+  pathInfoList: ISvgPath[],
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): ISvgPath[] {
+  let minX: number = Infinity
+  let maxX: number = -Infinity
+  let minY: number = Infinity
+  let maxY: number = -Infinity
+  pathInfoList.forEach((info) => {
+    info.d.forEach((p) => {
+      minX = Math.min(minX, p.x)
+      maxX = Math.max(maxX, p.x)
+      minY = Math.min(minY, p.y)
+      maxY = Math.max(maxY, p.y)
+    })
+  })
+
+  // 原点基準に移動
+  const fromBaseList = pathInfoList.map((info) => ({
+    ...info,
+    d: info.d.map((p) => ({ x: p.x - minX, y: p.y - minY }))
+  }))
+  // 伸縮
+  const orgWidth = maxX - minX
+  const orgHeight = maxY - minY
+  const rateX = width / orgWidth
+  const rateY = height / orgHeight
+  const rate = Math.min(rateX, rateY)
+  const scaledList = fromBaseList.map((info) => ({
+    ...info,
+    d: info.d.map((p) => ({ x: p.x * rate, y: p.y * rate }))
+  }))
+  // 矩形位置に移動
+  const difX = x + (width - orgWidth * rate) / 2
+  const difY = y + (height - orgHeight * rate) / 2
+  const convertedList = scaledList.map((info) => ({
+    ...info,
+    d: info.d.map((p) => ({ x: p.x + difX, y: p.y + difY }))
+  }))
+
+  return convertedList
+}
+
+/**
  * SVG文字列から図形のパス情報を取得する
  * 対応タグ: path,rect,ellipse,circle
  * @param svgString SVGリソース文字列
@@ -14,7 +105,9 @@ export const configs: ISvgConfigs = {
 export function parseSvgGraphicsStr (svgString: string): ISvgPath[] {
   const domParser = new DOMParser()
   const svgDom = domParser.parseFromString(svgString, 'image/svg+xml')
-  return parseSvgGraphics(svgDom.childNodes[0] as SVGElement)
+  const svgTags = svgDom.getElementsByTagName('svg')
+  if (!svgTags || svgTags.length === 0) return []
+  return parseSvgGraphics(svgTags[0] as SVGElement)
 }
 
 /**

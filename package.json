@@ -8,7 +8,8 @@
     "test": "jest",
     "tsc": "tsc",
     "build": "parcel build src/okageo.ts",
-    "doc": "typedoc --out doc"
+    "doc": "typedoc --out doc",
+    "demo": "parcel demo/index.html"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
