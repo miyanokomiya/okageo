@@ -6,6 +6,250 @@ export const configs: ISvgConfigs = {
 }
 
 /**
+ * pathタグを解析する
+ * @param svgPath SVGのpathタグDOM
+ * @return 座標リスト
+ */
+export function parsePath (svgPath: SVGPathElement): IVec2[] {
+  let ret: IVec2[] = []
+
+  const dStr = svgPath.getAttribute('d')
+  if (!dStr) return []
+
+  // d属性分解
+  const elementList = splitD(dStr)
+
+  // 前回座標
+  let pastVec: IVec2 = { x: 0, y: 0 }
+  // 前回制御点
+  let pastControlVec: IVec2 = { x: 0,y: 0 }
+  elementList.forEach((current) => {
+    let pList: IVec2[] = []
+
+    let b0: IVec2 | null = null
+    let b1: IVec2 | null = null
+    let b2: IVec2 | null = null
+    let b3: IVec2 | null = null
+
+    switch (current[0]) {
+      case 'M':
+      case 'L':
+        // 直線(絶対)
+        pList.push({ x: parseFloat(current[1]), y: parseFloat(current[2]) })
+        break
+      case 'm':
+      case 'l':
+        // 直線(相対)
+        pList.push({ x: pastVec.x + parseFloat(current[1]), y: pastVec.y + parseFloat(current[2]) })
+        break
+      case 'H':
+        // 水平(絶対)
+        pList.push({ x: parseFloat(current[1]), y: pastVec.y })
+        break
+      case 'V':
+        // 垂直(絶対)
+        pList.push({ x: pastVec.x, y: parseFloat(current[1]) })
+        break
+      case 'h':
+        // 垂直(相対)
+        pList.push({ x: pastVec.x + parseFloat(current[1]), y: pastVec.y })
+        break
+      case 'v':
+        // 垂直(相対)
+        pList.push({ x: pastVec.x, y: pastVec.y + parseFloat(current[1]) })
+        break
+      case 'Q' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = {
+          x: parseFloat(current[1]),
+          y: parseFloat(current[2])
+        }
+        b2 = {
+          x: parseFloat(current[3]),
+          y: parseFloat(current[4])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 'q' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = {
+          x : b0.x + parseFloat(current[1]),
+          y : b0.y + parseFloat(current[2])
+        }
+        b2 = {
+          x : b0.x + parseFloat(current[3]),
+          y : b0.y + parseFloat(current[4])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 'T' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = geo.getSymmetry(b0, pastControlVec)
+        b2 = {
+          x : parseFloat(current[1]),
+          y : parseFloat(current[2])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 't' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = geo.getSymmetry(b0, pastControlVec)
+        b2 = {
+          x : b0.x + parseFloat(current[1]),
+          y : b0.y + parseFloat(current[2])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 'C' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = {
+          x : parseFloat(current[1]),
+          y : parseFloat(current[2])
+        }
+        b2 = {
+          x : parseFloat(current[3]),
+          y : parseFloat(current[4])
+        }
+        b3 = {
+          x : parseFloat(current[5]),
+          y : parseFloat(current[6])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 'c' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = {
+          x : b0.x + parseFloat(current[1]),
+          y : b0.y + parseFloat(current[2])
+        }
+        b2 = {
+          x : b0.x + parseFloat(current[3]),
+          y : b0.y + parseFloat(current[4])
+        }
+        b3 = {
+          x : b0.x + parseFloat(current[5]),
+          y : b0.y + parseFloat(current[6])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 'S' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = geo.getSymmetry(b0, pastControlVec)
+        b2 = {
+          x : parseFloat(current[1]),
+          y : parseFloat(current[2])
+        }
+        b3 = {
+          x : parseFloat(current[3]),
+          y : parseFloat(current[4])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 's' :
+        // 制御点準備
+        b0 = pastVec
+        b1 = geo.getSymmetry(b0, pastControlVec)
+        b2 = {
+          x : b0.x + parseFloat(current[1]),
+          y : b0.y + parseFloat(current[2])
+        }
+        b3 = {
+          x : b0.x + parseFloat(current[3]),
+          y : b0.y + parseFloat(current[4])
+        }
+        // 近似
+        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 'A':
+        b0 = pastVec
+        b1 = {
+          x : parseFloat(current[6]),
+          y : parseFloat(current[7])
+        }
+
+        pList = geo.approximateArcWithPoint(
+          parseFloat(current[1]),
+          parseFloat(current[2]),
+          b0,
+          b1,
+          !!parseInt(current[4], 10),
+          !!parseInt(current[5], 10),
+          parseFloat(current[3]) / 180 * Math.PI,
+          configs.bezierSplitSize
+        )
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+      case 'a':
+        b0 = pastVec
+        b1 = {
+          x : b0.x + parseFloat(current[6]),
+          y : b0.y + parseFloat(current[7])
+        }
+
+        pList = geo.approximateArcWithPoint(
+          parseFloat(current[1]),
+          parseFloat(current[2]),
+          b0,
+          b1,
+          !!parseInt(current[4], 10),
+          !!parseInt(current[5], 10),
+          parseFloat(current[3]) / 180 * Math.PI,
+          configs.bezierSplitSize
+        )
+        // 始点は前回点なので除去
+        pList.shift()
+        break
+    }
+
+    if (pList.length > 0) {
+      pastVec = pList[pList.length - 1]
+      ret = ret.concat(pList)
+
+      if (pList.length > 1) {
+        // 前回制御点記録
+        pastControlVec = pList[pList.length - 2]
+      }
+    }
+  })
+
+  // トランスフォーム
+  ret = adoptTransform(svgPath.getAttribute('transform'), ret)
+
+  return ret
+}
+
+/**
  * rectタグを解析する
  * @param SVGのrectタグDOM
  * @return 座標リスト
@@ -178,9 +422,9 @@ export function splitD (dString: string): string[][] {
     if (info[0].match(/Z|z/)) {
       // 0つ
     } else if (info[0].match(/V|v|H|h/)) {
-      // 2つ
-      info = info.concat(strList.slice(i, i + 2))
-      i += 2
+      // 1つ
+      info = info.concat(strList.slice(i, i + 1))
+      i += 1
     } else if (info[0].match(/M|m|L|l|T|t/)) {
       // 2つ
       info = info.concat(strList.slice(i, i + 2))

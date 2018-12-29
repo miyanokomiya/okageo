@@ -1,3 +1,4 @@
+import * as geo from '../src/geo'
 import * as svg from '../src/svg'
 
 function parseSvg (svgString: string): Document {
@@ -20,6 +21,255 @@ function parseSvgElement (elmString: string): SVGElement {
   const svgDom: SVGElement = parseSvg(wrapSvg(elmString)).childNodes[0] as SVGElement
   return svgDom.childNodes[0] as SVGElement
 }
+
+describe('parsePath path解析', () => {
+  describe('M L解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 L 3,4" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
+      expect(res[1].x).toBeCloseTo(3)
+      expect(res[1].y).toBeCloseTo(4)
+    })
+  })
+  describe('m l解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="m 1,2 l 3,4" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
+      expect(res[1].x).toBeCloseTo(4)
+      expect(res[1].y).toBeCloseTo(6)
+    })
+  })
+  describe('H解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 H 3" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
+      expect(res[1].x).toBeCloseTo(3)
+      expect(res[1].y).toBeCloseTo(2)
+    })
+  })
+  describe('h解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 h 3" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
+      expect(res[1].x).toBeCloseTo(4)
+      expect(res[1].y).toBeCloseTo(2)
+    })
+  })
+  describe('V解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 V 3" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
+      expect(res[1].x).toBeCloseTo(1)
+      expect(res[1].y).toBeCloseTo(3)
+    })
+  })
+  describe('v解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 v 3" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(2)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
+      expect(res[1].x).toBeCloseTo(1)
+      expect(res[1].y).toBeCloseTo(5)
+    })
+  })
+  describe('Q解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 Q 3,4 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('q解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 q 3,4 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: 4, y: 6 }, { x: 6, y: 8 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('T解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 T 3,4" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 3, y: 4 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('t解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 t 3,4" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 4, y: 6 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('C解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 C 3,4 5,6 7,8" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }, { x: 7, y: 8 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('c解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 c 3,4 5,6 7,8" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: 4, y: 6 }, { x: 6, y: 8 }, { x: 8, y: 10 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('S解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 S 3,4 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 3, y: 4 }, { x: 5, y: 6 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('s解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 s 3,4 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateBezier(
+        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 4, y: 6 }, { x: 6, y: 8 }],
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('A解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 A 3 4 30 1 0 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateArcWithPoint(
+        3, 4, { x: 1, y: 2 }, { x: 5, y: 6 }, true, false, 30 / 180 * Math.PI,
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('a解析', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 a 3 4 30 1 0 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const pList = geo.approximateArcWithPoint(
+        3, 4, { x: 1, y: 2 }, { x: 6, y: 8 }, true, false, 30 / 180 * Math.PI,
+        svg.configs.bezierSplitSize
+      )
+      expect(pList.length).toBe(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+  })
+  describe('コマンド連続', () => {
+    it('結果が正しいこと', () => {
+      const str = '<path d="M 1,2 L 3,4 l 1,2" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      expect(res.length).toBe(3)
+      expect(res[0].x).toBeCloseTo(1)
+      expect(res[0].y).toBeCloseTo(2)
+      expect(res[1].x).toBeCloseTo(3)
+      expect(res[1].y).toBeCloseTo(4)
+      expect(res[2].x).toBeCloseTo(4)
+      expect(res[2].y).toBeCloseTo(6)
+    })
+  })
+})
 
 describe('parseRect rect解析', () => {
   it('結果が正しいこと', () => {
@@ -161,13 +411,13 @@ describe('splitD pathのd要素分解', () => {
   })
   describe('V v H hの分解', () => {
     it('結果が正しいこと', () => {
-      const dString = 'V 0,1 H 2,3 v 4,5 h 0,1'
+      const dString = 'V 1 H 2 v 3 h 4'
       const res = svg.splitD(dString)
       expect(res.length).toBe(4)
-      expect(res[0]).toEqual(['V', '0', '1'])
-      expect(res[1]).toEqual(['H', '2', '3'])
-      expect(res[2]).toEqual(['v', '4', '5'])
-      expect(res[3]).toEqual(['h', '0', '1'])
+      expect(res[0]).toEqual(['V', '1'])
+      expect(res[1]).toEqual(['H', '2'])
+      expect(res[2]).toEqual(['v', '3'])
+      expect(res[3]).toEqual(['h', '4'])
     })
   })
   describe('M m L l T tの分解', () => {
