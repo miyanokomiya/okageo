@@ -1,7 +1,7 @@
 {
   "name": "okageo",
-  "version": "0.0.1",
-  "main": "index.js",
+  "version": "1.0.0",
+  "main": "./dist/okageo.js",
   "author": "miyanokomiya",
   "license": "MIT",
   "scripts": {
