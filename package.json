@@ -1,6 +1,6 @@
 {
   "name": "okageo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "parse SVG to polygons",
   "main": "./dist/okageo.js",
   "author": "miyanokomiya",
@@ -12,6 +12,7 @@
   "keywords": [
     "svg"
   ],
+  "types": "./types/index.d.ts",
   "scripts": {
     "test": "jest",
     "tsc": "tsc",
