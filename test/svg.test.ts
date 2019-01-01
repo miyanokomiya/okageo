@@ -645,6 +645,15 @@ describe('splitD pathのd要素分解', () => {
       expect(res[1]).toEqual(['L', '2', '3'])
     })
   })
+  describe('指数表記', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'M0,1L1e-2 ,3  '
+      const res = svg.splitD(dString)
+      expect(res.length).toBe(2)
+      expect(res[0]).toEqual(['M', '0', '1'])
+      expect(res[1]).toEqual(['L', '1e-2', '3'])
+    })
+  })
 })
 
 describe.skip('serializeSvgString svg文字列生成(XMLSerializerがテスト環境で未定義なためskip)', () => {
