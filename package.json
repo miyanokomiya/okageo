@@ -1,6 +1,6 @@
 {
   "name": "okageo",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "parse SVG to polygons",
   "main": "./dist/okageo.js",
   "author": "miyanokomiya",
@@ -18,7 +18,8 @@
     "tsc": "tsc",
     "build": "parcel build src/okageo.ts",
     "doc": "typedoc --out doc",
-    "demo": "parcel demo/index.html"
+    "demo": "parcel demo/index.html",
+    "prepare": "yarn build"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
