@@ -559,7 +559,7 @@ export function splitD (dString: string): string[][] {
   // 全コマンドリスト(BbRr非対応)
   const allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/
   // 要素分割
-  const strList = dString.trim().split(/,| /).filter((str) => str)
+  const strList = dString.replace(/[a-zA-Z]/g, ' $& ').split(/,| /).filter((str) => str)
   // 直前のコマンド
   let pastCommand = 'M'
 
