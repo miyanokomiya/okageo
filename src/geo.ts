@@ -908,3 +908,27 @@ export function omitSamePoint (polygon: IVec2[]): IVec2[] {
 
   return ret
 }
+
+/**
+ * 正多角形の面積を内接円の半径から求める
+ * @param radius 半径
+ * @param n 角数
+ * @return 面積
+ */
+export function getRegularPolygonArea (radius: number, n: number): number {
+  const unitRad = Math.PI / n
+  const unitArea = Math.pow(radius, 2) * Math.sin(unitRad) * Math.cos(unitRad)
+  return unitArea * n
+}
+
+/**
+ * 正多角形の面積から内接円の半径を求める
+ * @param area 面積
+ * @param n 角数
+ * @return 半径
+ */
+export function getRegularPolygonRadius (area: number, n: number): number {
+  const unitRad = Math.PI / n
+  const unitArea = area / n
+  return Math.sqrt(unitArea / Math.sin(unitRad) / Math.cos(unitRad))
+}

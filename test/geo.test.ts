@@ -927,3 +927,33 @@ describe('omitSamePoint 隣接同一点オミット', () => {
     expect(res[3]).toEqual({ x: 2, y: 1 })
   })
 })
+
+describe('getRegularPolygonArea', () => {
+  it('正三角形の面積が正しいこと', () => {
+    const area = geo.getRegularPolygonArea(2, 3)
+    expect(area).toBeCloseTo(2 * Math.sqrt(3) / 2 * 3)
+  })
+  it('正四角形の面積が正しいこと', () => {
+    const area = geo.getRegularPolygonArea(2, 4)
+    expect(area).toBeCloseTo(2 * 2 * 2 / 2 * 2)
+  })
+  it('正六角形の面積が正しいこと', () => {
+    const area = geo.getRegularPolygonArea(2, 6)
+    expect(area).toBeCloseTo(2 * Math.sqrt(3) / 2 * 6)
+  })
+})
+
+describe('getRegularPolygonRadius', () => {
+  it('正三角形の半径が正しいこと', () => {
+    const area = geo.getRegularPolygonRadius(2 * Math.sqrt(3) / 2 * 3, 3)
+    expect(area).toBeCloseTo(2)
+  })
+  it('正四角形の半径が正しいこと', () => {
+    const area = geo.getRegularPolygonRadius(2 * 2 * 2 / 2 * 2, 4)
+    expect(area).toBeCloseTo(2)
+  })
+  it('正六角形の半径が正しいこと', () => {
+    const area = geo.getRegularPolygonRadius(2 * Math.sqrt(3) / 2 * 6, 6)
+    expect(area).toBeCloseTo(2)
+  })
+})
