@@ -157,6 +157,41 @@ describe('parseSvgGraphics svg解析', () => {
   })
 })
 
+describe('openCommandToD', () => {
+  describe('x y パラメータ', () => {
+    it('結果が正しいこと', () => {
+      const res = svg.openCommandToD({ type: 'M', x: 0, y: 10 })
+      expect(res).toBe('M 0 10')
+    })
+  })
+  describe('x y x1 y1 パラメータ', () => {
+    it('結果が正しいこと', () => {
+      const res = svg.openCommandToD({
+        type: 'S',
+        x: 0,
+        x1: 1,
+        y: 10,
+        y1: 11
+      })
+      expect(res).toBe('S 0 10 1 11')
+    })
+  })
+  describe('x y x1 y1 x2 y2 パラメータ', () => {
+    it('結果が正しいこと', () => {
+      const res = svg.openCommandToD({
+        type: 'C',
+        x: 0,
+        x1: 1,
+        x2: 2,
+        y: 10,
+        y1: 11,
+        y2: 12
+      })
+      expect(res).toBe('C 0 10 1 11 2 12')
+    })
+  })
+})
+
 describe('parseOpenPath', () => {
   it('結果が正しいこと', () => {
     const res = svg.parseOpenPath({

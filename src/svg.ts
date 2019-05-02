@@ -166,6 +166,24 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
 }
 
 /**
+ * opentype.jsのpath.commandをd文字列に変換する
+ * @param fontPath opentype.jsのpath.command
+ * @return d文字列
+ */
+export function openCommandToD (command: any): string {
+  let d: string = command.type
+  if ('x' in command) d += ` ${command.x}`
+  if ('y' in command) d += ` ${command.y}`
+  if ('x1' in command) d += ` ${command.x1}`
+  if ('y1' in command) d += ` ${command.y1}`
+  if ('x2' in command) d += ` ${command.x2}`
+  if ('y2' in command) d += ` ${command.y2}`
+  if ('x3' in command) d += ` ${command.x3}`
+  if ('y3' in command) d += ` ${command.y3}`
+  return d
+}
+
+/**
  * opentype.jsのpathを解析する
  * @param fontPath opentype.jsのpath
  * @return パス情報リスト
@@ -174,9 +192,7 @@ export function parseOpenPath (fontPath: { commands: any[] }): ISvgPath[] {
   const pathInfoList: ISvgPath[] = []
   let current: string = ''
   fontPath.commands.forEach((c: any) => {
-    const { type, ...values } = c
-    current += type + ' '
-    current += Object.keys(values).sort().map((key: string) => c[key]).join(' ') + ' '
+    current += openCommandToD(c) + ' '
     if (current && c.type.toUpperCase() === 'Z') {
       const pathList = parsePathD(current)
       pathInfoList.push({
