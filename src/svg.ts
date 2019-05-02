@@ -166,15 +166,36 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
 }
 
 /**
+ * opentype.jsのpathを解析する
+ * @param fontPath opentype.jsのpath
+ * @return パス情報リスト
+ */
+export function parseOpenPath (fontPath: { commands: any[] }): ISvgPath[] {
+  const pathInfoList: ISvgPath[] = []
+  let current: string = ''
+  fontPath.commands.forEach((c: any) => {
+    const { type, ...values } = c
+    current += type + ' '
+    current += Object.keys(values).sort().map((key: string) => c[key]).join(' ') + ' '
+    if (current && c.type.toUpperCase() === 'Z') {
+      const pathList = parsePathD(current)
+      pathInfoList.push({
+        d: pathList,
+        style:  { ...createStyle(), fill: true, fillStyle: 'black', stroke: false }
+      })
+      current = ''
+    }
+  })
+  return pathInfoList
+}
+
+/**
  * pathタグを解析する
- * @param svgPath SVGのpathタグDOM
+ * @param dStr SVGのpathタグd文字列
  * @return 座標リスト
  */
-export function parsePath (svgPath: SVGPathElement): IVec2[] {
+export function parsePathD (dStr: string): IVec2[] {
   let ret: IVec2[] = []
-
-  const dStr = svgPath.getAttribute('d')
-  if (!dStr) return []
 
   // d属性分解
   const elementList: string[][] = splitD(dStr)
@@ -403,10 +424,19 @@ export function parsePath (svgPath: SVGPathElement): IVec2[] {
     }
   })
 
-  // トランスフォーム
-  ret = adoptTransform(svgPath.getAttribute('transform'), ret)
-
   return ret
+}
+
+/**
+ * pathタグを解析する
+ * @param svgPath SVGのpathタグDOM
+ * @return 座標リスト
+ */
+export function parsePath (svgPath: SVGPathElement): IVec2[] {
+  const dStr = svgPath.getAttribute('d')
+  if (!dStr) return []
+
+  return adoptTransform(svgPath.getAttribute('transform'), parsePathD(dStr))
 }
 
 /**
@@ -689,12 +719,11 @@ export function serializePointList (pointList: IVec2[]): string {
 }
 
 /**
- * pathタグのスタイルを取得する
- * @param svgPath SVGのpathタグDOM
+ * デフォルトstyle作成
  * @return スタイルオブジェクト
  */
-export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
-  const ret: ISvgStyle = {
+function createStyle () {
+  return {
     fill: false,
     fillGlobalAlpha: 1,
     fillStyle: '',
@@ -706,6 +735,15 @@ export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
     strokeGlobalAlpha: 1,
     strokeStyle: ''
   }
+}
+
+/**
+ * pathタグのスタイルを取得する
+ * @param svgPath SVGのpathタグDOM
+ * @return スタイルオブジェクト
+ */
+export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
+  const ret: ISvgStyle = createStyle()
 
   // スタイル候補要素リスト
   const styleObject: any = {}

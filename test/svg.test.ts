@@ -157,6 +157,28 @@ describe('parseSvgGraphics svg解析', () => {
   })
 })
 
+describe('parseOpenPath', () => {
+  it('結果が正しいこと', () => {
+    const res = svg.parseOpenPath({
+      commands: [
+        { type: 'M', x: 0, y: 0 },
+        { type: 'L', x: 1, y: 0 },
+        { type: 'L', x: 1, y: 1 },
+        { type: 'Z' }
+      ]
+    })
+    expect(res[0].d[0].x).toBeCloseTo(0)
+    expect(res[0].d[0].y).toBeCloseTo(0)
+    expect(res[0].d[1].x).toBeCloseTo(1)
+    expect(res[0].d[1].y).toBeCloseTo(0)
+    expect(res[0].d[2].x).toBeCloseTo(1)
+    expect(res[0].d[2].y).toBeCloseTo(1)
+    expect(res[0].style.fill).toBeTruthy()
+    expect(res[0].style.fillStyle).toBe('black')
+    expect(res[0].style.stroke).toBeFalsy()
+  })
+})
+
 describe('parsePath path解析', () => {
   describe('M L解析', () => {
     it('結果が正しいこと', () => {
