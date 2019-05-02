@@ -369,8 +369,7 @@ export function splitPolyByLine (pol: IVec2[], line: IVec2[]): IVec2[][] {
     if (splited.length === 0) {
       recursiveResult.push(polygon)
     } else {
-      recursiveResult.push(splited[0])
-      recursiveResult.push(splited[1])
+      recursiveResult.push(...splited)
     }
   })
 
