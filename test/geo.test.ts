@@ -991,3 +991,18 @@ describe('getRegularPolygonRadius', () => {
     expect(area).toBeCloseTo(2)
   })
 })
+
+describe('getIncludedPolygonGroups', () => {
+  it('包含関係でグループ化されること', () => {
+    const p1 = [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }]
+    const p2 = [{ x: -1, y: -1 }, { x: 2, y: -1 }, { x: -1, y: 4 }]
+    const p3 = [{ x: -2, y: -2 }, { x: 3, y: -2 }, { x: -2, y: 6 }]
+    const p4 = [{ x: 0, y: 10 }, { x: 1, y: 10 }, { x: 0, y: 11 }]
+    const polygons = [p1, p2, p3, p4]
+    const res = geo.getIncludedPolygonGroups(polygons)
+    expect(res).toEqual([
+      [p3, p2, p1],
+      [p4]
+    ])
+  })
+})

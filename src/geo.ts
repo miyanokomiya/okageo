@@ -955,3 +955,30 @@ export function getRegularPolygonRadius (area: number, n: number): number {
   const unitArea = area / n
   return Math.sqrt(unitArea / Math.sin(unitRad) / Math.cos(unitRad))
 }
+
+/**
+ * 包含関係にあるポリゴンをグループ化する
+ * @param polygons ポリゴン一覧
+ * @return グループ化したポリゴン一覧、グループ内は面積降順
+ */
+export function getIncludedPolygonGroups (polygons: IVec2[][]): IVec2[][][] {
+  const sorted = polygons.concat()
+  sorted.sort((a, b) => {
+    return getArea(b) - getArea(a)
+  })
+  const hit: { [s: string]: boolean } = {}
+  const ret: IVec2[][][] = []
+  sorted.forEach((p, i) => {
+    if (hit[i]) return
+    hit[i] = true
+    const group = [p].concat(sorted.filter((c, j) => {
+      if (hit[j]) return false
+      const pointsOnPolygon = c.filter((point) => isOnPolygon(point, p))
+      if (pointsOnPolygon.length !== c.length) return false
+      hit[j] = true
+      return true
+    }))
+    ret.push(group)
+  })
+  return ret
+}
