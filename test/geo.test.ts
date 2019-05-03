@@ -295,6 +295,40 @@ describe('isOnLine 直線上判定', () => {
   })
 })
 
+describe('isOnPolygon 面上判定', () => {
+  describe('凸面', () => {
+    const polygon: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 }]
+    it('面上の場合trueが取得できること', () => {
+      const a: IVec2 = { x: 1, y: 0.5 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(true)
+    })
+    it('面外の場合falseが取得できること', () => {
+      const a: IVec2 = { x: 1, y: 2 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(false)
+    })
+  })
+  describe('凹面', () => {
+    const polygon: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 1 },
+      { x: 4, y: 1 },
+      { x: 4, y: 0 },
+      { x: 6, y: 0 },
+      { x: 6, y: 2 },
+      { x: 0, y: 2 }
+    ]
+    it('面上の場合trueが取得できること', () => {
+      const a: IVec2 = { x: 1, y: 0.5 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(true)
+    })
+    it('面外の場合falseが取得できること', () => {
+      const a: IVec2 = { x: 3, y: 0.5 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(false)
+    })
+  })
+})
+
 describe('getCrossSegAndLine 線分と直線の交点', () => {
   it('平行な場合、nullが取得できること', () => {
     const seg: IVec2[] = [{ x: 0, y: 1 }, { x: 2, y: 1 }]

@@ -219,6 +219,30 @@ export function isOnLine (p: IVec2, line: IVec2[]): boolean {
 }
 
 /**
+ * 点が面上にあるか判定
+ * @param p 点
+ * @param polygon 面
+ * @return 面上にあるフラグ
+ */
+export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
+  const segs: IVec2[][] = polygon.map((point, i) => {
+    return [point, i < polygon.length - 1 ? polygon[i + 1] : polygon[0]]
+  })
+  // pからx方向への直線と面の各辺との交差回数から判定する
+  const hitSegs = segs.filter((seg) => {
+    const maxX: number = Math.max(seg[0].x, seg[1].x)
+    if (maxX < p.x) return false
+    if (seg[0].y < p.y && seg[1].y < p.y) return false
+    if (p.y < seg[0].y && p.y < seg[1].y) return false
+    return isCrossSegAndSeg(
+      seg,
+      [p, { x: maxX + 1, y: p.y }]
+    )
+  })
+  return hitSegs.length % 2 === 1
+}
+
+/**
  * 線分と直線の交点取得
  * @param seg 線分
  * @param line 直線
