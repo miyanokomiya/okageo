@@ -262,10 +262,43 @@ describe('isCrossSegAndSeg 線分交差判定', () => {
     const seg2: IVec2[] = [{ x: 0, y: 1 }, { x: 4, y: -1 }]
     expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(true)
   })
+  it('端点で接触している場合falseが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: -1 }, { x: 0, y: 1 }]
+    expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(false)
+  })
+  it('端点同士で接触している場合falseが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }]
+    expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(false)
+  })
   it('交差していない場合falseが取得できること', () => {
     const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
     const seg2: IVec2[] = [{ x: 0, y: 1 }, { x: 4, y: 2 }]
     expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(false)
+  })
+})
+
+describe('isTouchSegAndSeg 線分交差判定', () => {
+  it('交差している場合trueが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: 1 }, { x: 4, y: -1 }]
+    expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(true)
+  })
+  it('端点で接触している場合trueが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: -1 }, { x: 0, y: 1 }]
+    expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(true)
+  })
+  it('端点同士で接触している場合trueが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }]
+    expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(true)
+  })
+  it('交差していない場合falseが取得できること', () => {
+    const seg1: IVec2[] = [{ x: 0, y: 0 }, { x: 4, y: 0 }]
+    const seg2: IVec2[] = [{ x: 0, y: 1 }, { x: 4, y: 2 }]
+    expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(false)
   })
 })
 
@@ -325,6 +358,28 @@ describe('isOnPolygon 面上判定', () => {
     it('面外の場合falseが取得できること', () => {
       const a: IVec2 = { x: 3, y: 0.5 }
       expect(geo.isOnPolygon(a, polygon)).toBe(false)
+    })
+  })
+  describe('頂点上の場合', () => {
+    const polygon: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 }]
+    it('trueが取得できること', () => {
+      const a: IVec2 = { x: 0, y: 0 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(true)
+    })
+  })
+  describe('辺上の場合', () => {
+    const polygon: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 }]
+    describe('水平な辺上の場合（判定方法依存の特殊ケース）', () => {
+      it('trueが取得できること', () => {
+        const a: IVec2 = { x: 1, y: 0 }
+        expect(geo.isOnPolygon(a, polygon)).toBe(true)
+      })
+    })
+    describe('水平でない辺上の場合', () => {
+      it('trueが取得できること', () => {
+        const a: IVec2 = { x: 2, y: 1 }
+        expect(geo.isOnPolygon(a, polygon)).toBe(true)
+      })
     })
   })
 })

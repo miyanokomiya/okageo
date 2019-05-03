@@ -176,12 +176,33 @@ export function getCrossLineAndBezier (p0: IVec2, p1: IVec2, p2: IVec2, p: IVec2
 }
 
 /**
- * 線分と線分の交差判定
+ * 線分と線分の交差判定（端点での接触は含まない）
  * @param seg1 線分1
  * @param seg2 線分2
  * @return 交差しているフラグ
  */
 export function isCrossSegAndSeg (seg1: IVec2[], seg2: IVec2[]): boolean {
+  const { ta, tb, tc, td } = getCrossSegAndSegParams(seg1, seg2)
+  return tc * td < 0 && ta * tb < 0
+}
+
+/**
+ * 線分と線分の接触判定（端点での接触含む）
+ * @param seg1 線分1
+ * @param seg2 線分2
+ * @return 接触しているフラグ
+ */
+export function isTouchSegAndSeg (seg1: IVec2[], seg2: IVec2[]): boolean {
+  const { ta, tb, tc, td } = getCrossSegAndSegParams(seg1, seg2)
+  return tc * td <= 0 && ta * tb <= 0
+}
+
+function getCrossSegAndSegParams (seg1: IVec2[], seg2: IVec2[]): {
+  ta: number,
+  tb: number,
+  tc: number,
+  td: number
+} {
   const ax = seg1[0].x
   const ay = seg1[0].y
   const bx = seg1[1].x
@@ -194,7 +215,7 @@ export function isCrossSegAndSeg (seg1: IVec2[], seg2: IVec2[]): boolean {
   const tb = (cx - dx) * (by - cy) + (cy - dy) * (cx - bx)
   const tc = (ax - bx) * (cy - ay) + (ay - by) * (ax - cx)
   const td = (ax - bx) * (dy - ay) + (ay - by) * (ax - dx)
-  return tc * td < 0 && ta * tb < 0
+  return { ta, tb, tc, td }
 }
 
 /**
@@ -219,22 +240,30 @@ export function isOnLine (p: IVec2, line: IVec2[]): boolean {
 }
 
 /**
- * 点が面上にあるか判定
+ * 点が面上にあるか判定（境界線上を含む）
  * @param p 点
  * @param polygon 面
  * @return 面上にあるフラグ
  */
 export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
+  // 頂点上判定
+  if (polygon.find((point) => p.x === point.x && p.y === point.y)) return true
+
   const segs: IVec2[][] = polygon.map((point, i) => {
     return [point, i < polygon.length - 1 ? polygon[i + 1] : polygon[0]]
   })
+
   // pからx方向への直線と面の各辺との交差回数から判定する
   const hitSegs = segs.filter((seg) => {
     const maxX: number = Math.max(seg[0].x, seg[1].x)
     if (maxX < p.x) return false
     if (seg[0].y < p.y && seg[1].y < p.y) return false
     if (p.y < seg[0].y && p.y < seg[1].y) return false
-    return isCrossSegAndSeg(
+    if (seg[0].y === seg[1].y) {
+      // 水平な辺上の場合、他の辺の端点もカウントされて偶奇がずれるので無視
+      return false
+    }
+    return isTouchSegAndSeg(
       seg,
       [p, { x: maxX + 1, y: p.y }]
     )
