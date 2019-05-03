@@ -984,6 +984,14 @@ describe('parseTagStyle スタイル取得', () => {
   })
 })
 
+describe('createStyle', () => {
+  it('スタイルオブジェクトが取得できること', () => {
+    const res = svg.createStyle()
+    expect(res.fill).toBe(false)
+    expect(res.strokeGlobalAlpha).toBe(1)
+  })
+})
+
 describe('serializeStyle', () => {
   const style: ISvgStyle = {
     fill: false,

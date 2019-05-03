@@ -47,5 +47,6 @@ export interface ISvgStyle {
  */
 export interface ISvgPath {
   d: IVec2[]
+  included?: IVec2[][]
   style: ISvgStyle
 }

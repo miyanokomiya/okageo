@@ -25,6 +25,19 @@ export function draw (ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
   })
   ctx.closePath()
 
+  if (pathInfo.included) {
+    pathInfo.included.forEach((poly) => {
+      poly.forEach((p, i) => {
+        if (i === 0) {
+          ctx.moveTo(p.x, p.y)
+        } else {
+          ctx.lineTo(p.x, p.y)
+        }
+      })
+      ctx.closePath()
+    })
+  }
+
   if (pathInfo.style.fill) {
     ctx.fillStyle = pathInfo.style.fillStyle
     ctx.globalAlpha = pathInfo.style.fillGlobalAlpha
@@ -89,9 +102,12 @@ export function fitRect (
   // 矩形位置に移動
   const difX = x + (width - orgWidth * rate) / 2
   const difY = y + (height - orgHeight * rate) / 2
-  const convertedList = scaledList.map((info) => ({
+  const convertedList: ISvgPath[] = scaledList.map((info) => ({
     ...info,
-    d: info.d.map((p) => ({ x: p.x + difX, y: p.y + difY }))
+    d: info.d.map((p) => ({ x: p.x + difX, y: p.y + difY })),
+    included: (info.included || []).map((poly: IVec2[]) => {
+      return poly.map((p) => ({ x: (p.x - minX) * rate + difX, y: (p.y - minY) * rate + difY }))
+    })
   }))
 
   return convertedList
@@ -738,7 +754,7 @@ export function serializePointList (pointList: IVec2[]): string {
  * デフォルトstyle作成
  * @return スタイルオブジェクト
  */
-function createStyle () {
+export function createStyle () {
   return {
     fill: false,
     fillGlobalAlpha: 1,
