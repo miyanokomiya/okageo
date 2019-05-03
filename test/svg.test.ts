@@ -173,7 +173,7 @@ describe('openCommandToD', () => {
         y: 10,
         y1: 11
       })
-      expect(res).toBe('S 0 10 1 11')
+      expect(res).toBe('S 1 11 0 10')
     })
   })
   describe('x y x1 y1 x2 y2 パラメータ', () => {
@@ -187,7 +187,7 @@ describe('openCommandToD', () => {
         y1: 11,
         y2: 12
       })
-      expect(res).toBe('C 0 10 1 11 2 12')
+      expect(res).toBe('C 1 11 2 12 0 10')
     })
   })
 })

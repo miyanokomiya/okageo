@@ -172,14 +172,14 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
  */
 export function openCommandToD (command: any): string {
   let d: string = command.type
-  if ('x' in command) d += ` ${command.x}`
-  if ('y' in command) d += ` ${command.y}`
   if ('x1' in command) d += ` ${command.x1}`
   if ('y1' in command) d += ` ${command.y1}`
   if ('x2' in command) d += ` ${command.x2}`
   if ('y2' in command) d += ` ${command.y2}`
   if ('x3' in command) d += ` ${command.x3}`
   if ('y3' in command) d += ` ${command.y3}`
+  if ('x' in command) d += ` ${command.x}`
+  if ('y' in command) d += ` ${command.y}`
   return d
 }
 
