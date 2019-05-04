@@ -382,6 +382,24 @@ describe('isOnPolygon 面上判定', () => {
       })
     })
   })
+  describe('L字のくぼみと同じ水平線上の場合', () => {
+    const polygon: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 2, y: 2 },
+      { x: 2, y: 0 }
+    ]
+    it('領域内はtrueが取得できること', () => {
+      const a: IVec2 = { x: 0.5, y: 1 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(true)
+    })
+    it('領域外はfalseが取得できること', () => {
+      const a: IVec2 = { x: -1, y: 1 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(false)
+    })
+  })
 })
 
 describe('getCrossSegAndLine 線分と直線の交点', () => {

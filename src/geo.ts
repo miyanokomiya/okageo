@@ -253,6 +253,19 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
     return [point, i < polygon.length - 1 ? polygon[i + 1] : polygon[0]]
   })
 
+  // 水平な辺は特殊なので先に判定
+  for (let i = 0; i < segs.length; i++) {
+    const seg = segs[i]
+    if (seg[0].y === seg[1].y) {
+      // 水平な辺上にあるかを判定
+      if (p.y === seg[0].y
+        && Math.min(seg[0].x, seg[1].x) <= p.x
+        && p.x <= Math.max(seg[0].x, seg[1].x)) {
+        return true
+      }
+    }
+  }
+
   // pからx方向への直線と面の各辺との交差回数から判定する
   const hitSegs = segs.filter((seg) => {
     const maxX: number = Math.max(seg[0].x, seg[1].x)
@@ -260,8 +273,8 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
     if (seg[0].y < p.y && seg[1].y < p.y) return false
     if (p.y < seg[0].y && p.y < seg[1].y) return false
     if (seg[0].y === seg[1].y) {
-      // 水平な辺上の場合、他の辺の端点もカウントされて偶奇がずれるので無視
-      return false
+      // 水平な辺はヒットとする
+      return true
     }
     return isTouchSegAndSeg(
       seg,
