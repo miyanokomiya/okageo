@@ -1117,4 +1117,29 @@ describe('getPolygonNotPolygon', () => {
       { x: 2, y: 4 }
     ])
   })
+  it('サンプルケース1', () => {
+    const p1 = [
+      { x: 1, y: 0 },
+      { x: 1, y: 10 },
+      { x: 50, y: 10 },
+      { x: 50, y: 0 }
+    ]
+    const p2 = [
+      { x: 10, y: 30 },
+      { x: 10, y: 5 },
+      { x: 40, y: 5 },
+      { x: 40, y: 30 }
+    ]
+    const res = geo.getPolygonNotPolygon(p1, p2)
+    expect(res).toEqual([
+      { x: 50, y: 10 },
+      { x: 50, y: 0 },
+      { x: 1, y: 0 },
+      { x: 1, y: 10 },
+      { x: 10, y: 10 },
+      { x: 10, y: 5 },
+      { x: 40, y: 5 },
+      { x: 40, y: 10 }
+    ])
+  })
 })

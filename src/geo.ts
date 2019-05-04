@@ -1049,7 +1049,7 @@ export function getPolygonNotPolygon (target: IVec2[], poly: IVec2[]): IVec2[] {
 
   // target辺の始点に最も近い交点を探す
   const distList = cross.map((p) => getDistance(p, target[targetCrossIndex]))
-  const sortedDistList = distList.concat().sort()
+  const sortedDistList = distList.concat().sort((a, b) => a - b)
   const nearestCrossIndex = distList.indexOf(sortedDistList[0])
   const nearestIndex = polyCrossIndexList[nearestCrossIndex]
 
