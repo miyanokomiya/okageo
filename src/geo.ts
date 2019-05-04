@@ -1011,3 +1011,78 @@ export function getIncludedPolygonGroups (polygons: IVec2[][]): IVec2[][][] {
   })
   return ret
 }
+
+/**
+ * ポリゴンブーリアン演算差
+ * 突き抜けは非対応
+ * targetは1辺のみでpolyと交差する前提
+ * targetとpolyは観点方向が逆である前提
+ * @param target ポリゴン
+ * @param poly 切り取り範囲ポリゴン
+ * @return 切り取った後のポリゴン
+ */
+export function getPolygonNotPolygon (target: IVec2[], poly: IVec2[]): IVec2[] {
+  const ret: IVec2[] = []
+
+  // targetの辺と交差するpolyの辺インデックスを探索
+  let targetCrossIndex: number = -1
+  const polyCrossIndexList: number[] = []
+  const cross: IVec2[] = []
+  for (let i = 0; i < target.length; i++) {
+    const currentSeg = [target[i], target[(i + 1) % target.length]]
+    for (let j = 0; j < poly.length; j++) {
+      const seg = [poly[j], poly[(j + 1) % poly.length]]
+      if (isCrossSegAndSeg(currentSeg, seg)) {
+        const p = getCrossSegAndLine(currentSeg, seg)
+        if (p) {
+          targetCrossIndex = i
+          polyCrossIndexList.push(j)
+          cross.push(p)
+        }
+      }
+    }
+    if (targetCrossIndex !== -1) break
+  }
+
+  if (targetCrossIndex === -1) return target
+  if (polyCrossIndexList.length % 2 !== 0) return target
+
+  // target辺の始点に最も近い交点を探す
+  const distList = cross.map((p) => getDistance(p, target[targetCrossIndex]))
+  const sortedDistList = distList.concat().sort()
+  const nearestCrossIndex = distList.indexOf(sortedDistList[0])
+  const nearestIndex = polyCrossIndexList[nearestCrossIndex]
+
+  // nearestIndexが始点となるようpolyを調整
+  const adjustedPoly: IVec2[] = poly.concat()
+  for (let j = 0; j < nearestIndex; j++) {
+    adjustedPoly.push(adjustedPoly.shift() as IVec2)
+  }
+  // nearestIndexが先頭になるよう調整
+  const adjustedPolyCrossIndexList: number[] = polyCrossIndexList.map((n) => {
+    return (n - nearestIndex + poly.length) % poly.length
+  })
+  const adjustedCross: IVec2[] = cross.concat()
+  for (let k = 0; k < nearestCrossIndex; k++) {
+    adjustedPolyCrossIndexList.push(adjustedPolyCrossIndexList.shift() as number)
+    adjustedCross.push(adjustedCross.shift() as IVec2)
+  }
+
+  // polyと交差する辺が始点と終点になるよう調整
+  for (let i = 0; i < target.length; i++) {
+    ret.push(target[(i + targetCrossIndex + 1) % target.length])
+  }
+
+  // 交点からpolyに突入
+  for (let i = 0; i < adjustedPolyCrossIndexList.length / 2; i++) {
+    const startIndex = adjustedPolyCrossIndexList[i * 2]
+    const endIndex = adjustedPolyCrossIndexList[i * 2 + 1]
+    ret.push(adjustedCross[i * 2])
+    for (let j = startIndex + 1; j <= endIndex; j++) {
+      ret.push(adjustedPoly[j])
+    }
+    ret.push(adjustedCross[i * 2 + 1])
+  }
+
+  return ret
+}

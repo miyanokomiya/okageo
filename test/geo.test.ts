@@ -1061,3 +1061,60 @@ describe('getIncludedPolygonGroups', () => {
     ])
   })
 })
+
+describe('getPolygonNotPolygon', () => {
+  it('シンプルなケース', () => {
+    const p1 = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 3 }, { x: 0, y: 3 }]
+    const p2 = [{ x: 3, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 2 }, { x: 3, y: 2 }]
+    const res = geo.getPolygonNotPolygon(p1, p2)
+    expect(res).toEqual([
+      { x: 2, y: 3 },
+      { x: 0, y: 3 },
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 2, y: 2 }
+    ])
+  })
+  it('ロジックの隙間を狙ったケース', () => {
+    const p1 = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 3 }, { x: 0, y: 3 }]
+    const p2 = [{ x: 1, y: 2 }, { x: 3, y: 2 }, { x: 3, y: 1 }, { x: 1, y: 1 }]
+    const res = geo.getPolygonNotPolygon(p1, p2)
+    expect(res).toEqual([
+      { x: 2, y: 3 },
+      { x: 0, y: 3 },
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 2, y: 2 }
+    ])
+  })
+  it('2箇所で差をとる必要があるケース', () => {
+    const p1 = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 5 }, { x: 0, y: 5 }]
+    const p2 = [
+      { x: 3, y: 1 }, { x: 1, y: 1 },
+      { x: 1, y: 2 }, { x: 3, y: 2 },
+      { x: 3, y: 3 }, { x: 1, y: 3 },
+      { x: 1, y: 4 }, { x: 3, y: 4 }
+    ]
+    const res = geo.getPolygonNotPolygon(p1, p2)
+    expect(res).toEqual([
+      { x: 2, y: 5 },
+      { x: 0, y: 5 },
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 2, y: 2 },
+      { x: 2, y: 3 },
+      { x: 1, y: 3 },
+      { x: 1, y: 4 },
+      { x: 2, y: 4 }
+    ])
+  })
+})
