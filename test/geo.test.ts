@@ -449,6 +449,23 @@ describe('isOnPolygon 面上判定', () => {
       expect(geo.isOnPolygon(a, polygon)).toBe(false)
     })
   })
+  describe('長さ0の辺が存在する場合', () => {
+    const polygon: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 2 },
+      { x: 3, y: 2 },
+      { x: 3, y: 0 },
+      { x: 0, y: 0 }
+    ]
+    it('領域内はtrueが取得できること', () => {
+      const a: IVec2 = { x: 1, y: 1 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(true)
+    })
+    it('領域外はfalseが取得できること', () => {
+      const a: IVec2 = { x: -1, y: 1 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(false)
+    })
+  })
 })
 
 describe('getCrossSegAndLine 線分と直線の交点', () => {

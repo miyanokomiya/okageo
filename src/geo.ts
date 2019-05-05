@@ -264,9 +264,12 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
   // 頂点上判定
   if (polygon.find((point) => p.x === point.x && p.y === point.y)) return true
 
-  const segs: IVec2[][] = polygon.map((point, i) => {
-    return [point, i < polygon.length - 1 ? polygon[i + 1] : polygon[0]]
-  })
+  const segs: IVec2[][] = polygon
+    .map((point, i) => {
+      return [point, i < polygon.length - 1 ? polygon[i + 1] : polygon[0]]
+    })
+    // 長さ0の辺は扱わない
+    .filter((seg) => !isSame(seg[0], seg[1]))
 
   // 辺上判定
   for (let i = 0; i < segs.length; i++) {
@@ -283,11 +286,15 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
 
   // 全ての辺と平行にならないベクトルを見つける
   let v = { x: 1, y: 0 }
+  let stack = 0
   for (let i = 0; i < segs.length; i++) {
     const seg = segs[i]
     if (isParallel(sub(seg[0], seg[1]), v)) {
-      v = { x: 1, y: Math.random() * 10 }
+      v = { x: Math.random() * 10, y: Math.random() * 10 }
       i = -1
+      stack++
+      // 無限ループは回避
+      if (stack > 100) throw new Error('cannot calc')
     }
   }
 
