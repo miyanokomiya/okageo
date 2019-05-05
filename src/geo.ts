@@ -240,6 +240,21 @@ export function isOnLine (p: IVec2, line: IVec2[]): boolean {
 }
 
 /**
+ * 点が線分上にあるか判定
+ * @param p 点
+ * @param seg 線分
+ * @return 線分上にあるフラグ
+ */
+export function isOnSeg (p: IVec2, seg: IVec2[]): boolean {
+  if (!isZero(sub(p, getPedal(p, seg)))) return false
+  const v1 = sub(seg[1], seg[0])
+  const v2 = sub(p, seg[0])
+  if (getInner(v1, v2) < 0) return false
+  if (getNorm(v1) < getNorm(v2)) return false
+  return true
+}
+
+/**
  * 点が面上にあるか判定（境界線上を含む）
  * @param p 点
  * @param polygon 面
@@ -253,33 +268,40 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
     return [point, i < polygon.length - 1 ? polygon[i + 1] : polygon[0]]
   })
 
-  // 水平な辺は特殊なので先に判定
+  // 辺上判定
   for (let i = 0; i < segs.length; i++) {
     const seg = segs[i]
-    if (seg[0].y === seg[1].y) {
-      // 水平な辺上にあるかを判定
-      if (p.y === seg[0].y
-        && Math.min(seg[0].x, seg[1].x) <= p.x
-        && p.x <= Math.max(seg[0].x, seg[1].x)) {
-        return true
-      }
+    if (isOnSeg(p, seg)) {
+      return true
     }
   }
 
-  // pからx方向への直線と面の各辺との交差回数から判定する
+  // 周を計測
+  const dist = segs.reduce((d, seg) => {
+    return d + getDistance(seg[0], seg[1])
+  }, 0)
+
+  // 全ての辺と平行にならないベクトルを見つける
+  let v = { x: 1, y: 0 }
+  for (let i = 0; i < segs.length; i++) {
+    const seg = segs[i]
+    if (isParallel(sub(seg[0], seg[1]), v)) {
+      v = { x: 1, y: Math.random() * 10 }
+      i = -1
+    }
+  }
+
+  // 辺との交差判定を行う疑似直線を生成
+  const ray = [p, add(p, multi(v, dist * 2))]
+  // rayと面の各辺との交差回数から判定する
   const hitSegs = segs.filter((seg) => {
     const maxX: number = Math.max(seg[0].x, seg[1].x)
+    const maxY: number = Math.max(seg[0].y, seg[1].y)
+    // rayは第一象限に向かうベクトルなので絞り込む
     if (maxX < p.x) return false
-    if (seg[0].y < p.y && seg[1].y < p.y) return false
-    if (p.y < seg[0].y && p.y < seg[1].y) return false
-    if (seg[0].y === seg[1].y) {
-      // 水平な辺はヒットとする
-      return true
-    }
-    return isTouchSegAndSeg(
-      seg,
-      [p, { x: maxX + 1, y: p.y }]
-    )
+    if (maxY < p.y) return false
+
+    return isTouchSegAndSeg(seg, ray)
   })
   return hitSegs.length % 2 === 1
 }

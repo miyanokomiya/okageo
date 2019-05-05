@@ -328,6 +328,35 @@ describe('isOnLine 直線上判定', () => {
   })
 })
 
+describe('isOnSeg 線分上判定', () => {
+  it('線分上の場合trueが取得できること', () => {
+    const a: IVec2 = { x: 1, y: 0 }
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.isOnSeg(a, line)).toBe(true)
+  })
+  it('端点上の場合trueが取得できること', () => {
+    const a: IVec2 = { x: 0, y: 0 }
+    const b: IVec2 = { x: 2, y: 0 }
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.isOnSeg(a, line)).toBe(true)
+    expect(geo.isOnSeg(b, line)).toBe(true)
+  })
+  it('線分上ではない場合falseが取得できること', () => {
+    const a: IVec2 = { x: 1, y: 1 }
+    const b: IVec2 = { x: 1, y: -1 }
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.isOnSeg(a, line)).toBe(false)
+    expect(geo.isOnSeg(b, line)).toBe(false)
+  })
+  it('直線上だが線分上ではない場合falseが取得できること', () => {
+    const a: IVec2 = { x: -1, y: 0 }
+    const b: IVec2 = { x: 3, y: 0 }
+    const line: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }]
+    expect(geo.isOnSeg(a, line)).toBe(false)
+    expect(geo.isOnSeg(b, line)).toBe(false)
+  })
+})
+
 describe('isOnPolygon 面上判定', () => {
   describe('凸面', () => {
     const polygon: IVec2[] = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 }]
@@ -390,6 +419,26 @@ describe('isOnPolygon 面上判定', () => {
       { x: 1, y: 2 },
       { x: 2, y: 2 },
       { x: 2, y: 0 }
+    ]
+    it('領域内はtrueが取得できること', () => {
+      const a: IVec2 = { x: 0.5, y: 1 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(true)
+    })
+    it('領域外はfalseが取得できること', () => {
+      const a: IVec2 = { x: -1, y: 1 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(false)
+    })
+  })
+  describe('2箇所のL字のくぼみと同じ水平線上の場合', () => {
+    const polygon: IVec2[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 2 },
+      { x: 3, y: 2 },
+      { x: 3, y: 0 },
+      { x: 2, y: 0 },
+      { x: 2, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 0 }
     ]
     it('領域内はtrueが取得できること', () => {
       const a: IVec2 = { x: 0.5, y: 1 }
