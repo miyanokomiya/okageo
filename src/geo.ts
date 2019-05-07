@@ -284,18 +284,22 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
     return d + getDistance(seg[0], seg[1])
   }, 0)
 
-  // 全ての辺と平行にならないベクトルを見つける
+  // 全ての辺と平行にならず、頂点と接触しないベクトルを見つける
+  // FIXME もう少し効率の良い方法にしたい
   let v = { x: 1, y: 0 }
   let stack = 0
   for (let i = 0; i < segs.length; i++) {
     const seg = segs[i]
-    if (isParallel(sub(seg[0], seg[1]), v)) {
-      v = { x: Math.random() * 10, y: Math.random() * 10 }
-      i = -1
-      stack++
-      // 無限ループは回避
-      if (stack > 100) throw new Error('cannot calc')
+    if (!isParallel(sub(seg[0], seg[1]), v)) {
+      if (!polygon.find((point) => isOnLine(p, [point, add(p, v)]))) {
+        break
+      }
     }
+    v = { x: Math.random() * 10, y: Math.random() * 10 }
+    i = -1
+    stack++
+    // 無限ループは回避
+    if (stack > 100) throw new Error('cannot calc')
   }
 
   // 辺との交差判定を行う疑似直線を生成

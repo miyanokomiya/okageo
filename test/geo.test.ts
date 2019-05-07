@@ -466,6 +466,18 @@ describe('isOnPolygon 面上判定', () => {
       expect(geo.isOnPolygon(a, polygon)).toBe(false)
     })
   })
+  describe('判定点と同一y座標上に正多角形の頂点がある場合', () => {
+    const polygon: IVec2[] = [
+      { x: 2, y: 0 },
+      { x: 0, y: 2 },
+      { x: 4, y: 2 },
+      { x: 2, y: 4 }
+    ]
+    it('領域内はtrueが取得できること', () => {
+      const a: IVec2 = { x: 2, y: 2 }
+      expect(geo.isOnPolygon(a, polygon)).toBe(true)
+    })
+  })
 })
 
 describe('getCrossSegAndLine 線分と直線の交点', () => {
