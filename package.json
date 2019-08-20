@@ -14,8 +14,8 @@
   ],
   "types": "./types/index.d.ts",
   "scripts": {
+    "lint": "yarn tslint --project ./",
     "test": "jest --coverage",
-    "tsc": "tsc",
     "build": "parcel build src/okageo.ts",
     "doc": "typedoc --out doc",
     "demo": "parcel demo/index.html",

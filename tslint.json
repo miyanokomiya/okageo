@@ -6,7 +6,8 @@
     ],
     "jsRules": {},
     "rules": {
-      "prefer-for-of": null
+      "prefer-for-of": null,
+      "no-unnecessary-type-assertion": ["error"]
     },
     "rulesDirectory": [],
     "linterOptions": {
