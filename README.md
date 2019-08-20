@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/miyanokomiya/okageo.svg?branch=master)](https://travis-ci.org/miyanokomiya/okageo)
+[![Coverage Status](https://coveralls.io/repos/github/miyanokomiya/okageo/badge.svg?branch=master)](https://coveralls.io/github/miyanokomiya/okageo?branch=master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # okageo
 
 parse SVG to polygons
@@ -28,6 +32,9 @@ inRectList.forEach((info) => okageo.svg.draw(ctx, info))
 ``` bash
 # install dependencies
 $ yarn install
+
+# lint
+$ yarn lint
 
 # test
 $ yarn test [--watch]
