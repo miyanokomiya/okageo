@@ -14,7 +14,7 @@
   ],
   "types": "./types/index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "tsc": "tsc",
     "build": "parcel build src/okageo.ts",
     "doc": "typedoc --out doc",
@@ -30,19 +30,5 @@
     "tslint-config-standard": "^8.0.1",
     "typedoc": "^0.13.0",
     "typescript": "^3.2.2"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
   }
 }
