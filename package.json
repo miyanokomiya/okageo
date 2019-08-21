@@ -14,7 +14,7 @@
   ],
   "types": "./types/index.d.ts",
   "scripts": {
-    "lint": "yarn eslint ./src ./test ./types ./*.js --ext .js,.ts && yarn prettier ./*.json ./.*.json",
+    "lint": "yarn eslint ./src ./test ./types ./*.js --ext .js,.ts && yarn prettier -c ./*.json ./.*.json",
     "lint:fix": "yarn eslint --fix ./src ./test ./types ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
     "test": "jest --coverage",
     "build": "parcel build src/okageo.ts",
@@ -38,11 +38,17 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-standard": "^4.0.1",
+    "husky": "^3.0.4",
     "jest": "^24.9.0",
     "parcel-bundler": "^1.11.0",
     "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
     "typedoc": "^0.15.0",
     "typescript": "^3.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint"
+    }
   }
 }
