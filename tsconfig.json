@@ -3,10 +3,9 @@
     "target": "es5",
     "module": "commonjs",
     "strict": true,
+    "allowJs": true,
     "esModuleInterop": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
+    "typeRoots": ["node_modules/@types"],
     "declaration": true,
     "lib": ["dom", "es2015"]
   }
