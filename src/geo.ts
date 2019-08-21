@@ -2,59 +2,59 @@ import { IVec2 } from '../types/index'
 
 export const MINVALUE: number = 0.000001
 
-export function add (a: IVec2, b: IVec2): IVec2 {
+export function add(a: IVec2, b: IVec2): IVec2 {
   return { x: a.x + b.x, y: a.y + b.y }
 }
 
-export function sub (a: IVec2, b: IVec2): IVec2 {
+export function sub(a: IVec2, b: IVec2): IVec2 {
   return { x: a.x - b.x, y: a.y - b.y }
 }
 
-export function multi (a: IVec2, b: number): IVec2 {
+export function multi(a: IVec2, b: number): IVec2 {
   return { x: a.x * b, y: a.y * b }
 }
 
-export function isSame (a: IVec2, b: IVec2): boolean {
+export function isSame(a: IVec2, b: IVec2): boolean {
   const dif: IVec2 = sub(a, b)
-  return (Math.abs(dif.x) < MINVALUE) && (Math.abs(dif.y) < MINVALUE)
+  return Math.abs(dif.x) < MINVALUE && Math.abs(dif.y) < MINVALUE
 }
 
-export function getDistance (a: IVec2, b: IVec2): number {
+export function getDistance(a: IVec2, b: IVec2): number {
   const dif: IVec2 = sub(a, b)
   return Math.sqrt(dif.x * dif.x + dif.y * dif.y)
 }
 
-export function getNorm (a: IVec2): number {
+export function getNorm(a: IVec2): number {
   return getDistance(a, { x: 0, y: 0 })
 }
 
-export function isZero (a: IVec2): boolean {
+export function isZero(a: IVec2): boolean {
   return getNorm(a) < MINVALUE
 }
 
-export function getUnit (a: IVec2): IVec2 {
+export function getUnit(a: IVec2): IVec2 {
   const d = getNorm(a)
   if (d < MINVALUE) throw new Error('cannot get unit vector of zero vector')
   return multi(a, 1 / d)
 }
 
-export function getCross (a: IVec2, b: IVec2): number {
+export function getCross(a: IVec2, b: IVec2): number {
   return a.x * b.y - a.y * b.x
 }
 
-export function getInner (a: IVec2, b: IVec2): number {
+export function getInner(a: IVec2, b: IVec2): number {
   return a.x * b.x + a.y * b.y
 }
 
-export function cloneVectors (vectors: IVec2[]): IVec2[] {
-  return vectors.map((v) => ({ ...v }))
+export function cloneVectors(vectors: IVec2[]): IVec2[] {
+  return vectors.map(v => ({ ...v }))
 }
 
-export function getCenter (a: IVec2, b: IVec2): IVec2 {
+export function getCenter(a: IVec2, b: IVec2): IVec2 {
   return multi(add(a, b), 1 / 2)
 }
 
-export function getRadian (a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
+export function getRadian(a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
   const dif = sub(a, from)
   return Math.atan2(dif.y, dif.x)
 }
@@ -65,7 +65,7 @@ export function getRadian (a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
  * @param from 基点
  * @param 点対称ベクトル
  */
-export function getSymmetry (a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
+export function getSymmetry(a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
   return add(multi(sub(from, a), 2), a)
 }
 
@@ -76,12 +76,19 @@ export function getSymmetry (a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
  * @param from 基点
  * @param 回転後のベクトル
  */
-export function rotate (a: IVec2, radian: number, from: IVec2 = { x: 0, y: 0 }): IVec2 {
+export function rotate(
+  a: IVec2,
+  radian: number,
+  from: IVec2 = { x: 0, y: 0 }
+): IVec2 {
   const fromBase: IVec2 = sub(a, from)
-  return add({
-    x: Math.cos(radian) * fromBase.x - Math.sin(radian) * fromBase.y,
-    y: Math.sin(radian) * fromBase.x + Math.cos(radian) * fromBase.y
-  }, from)
+  return add(
+    {
+      x: Math.cos(radian) * fromBase.x - Math.sin(radian) * fromBase.y,
+      y: Math.sin(radian) * fromBase.x + Math.cos(radian) * fromBase.y
+    },
+    from
+  )
 }
 
 /**
@@ -93,7 +100,7 @@ export function rotate (a: IVec2, radian: number, from: IVec2 = { x: 0, y: 0 }):
  * @param c 定数
  * @return 解の配列
  */
-export function solveEquationOrder2 (a: number, b: number, c: number): number[] {
+export function solveEquationOrder2(a: number, b: number, c: number): number[] {
   if (a === 0) {
     return b === 0 ? [] : [-c / b]
   }
@@ -119,7 +126,7 @@ export function solveEquationOrder2 (a: number, b: number, c: number): number[] 
  * @param line 直線
  * @return 垂線の足
  */
-export function getPedal (p: IVec2, line: IVec2[]): IVec2 {
+export function getPedal(p: IVec2, line: IVec2[]): IVec2 {
   if (line.length !== 2) throw new Error('line must be length = 2')
   const s = line[0]
   const t = line[1]
@@ -139,7 +146,13 @@ export function getPedal (p: IVec2, line: IVec2[]): IVec2 {
  * @param q 直線終点
  * @return ベジェ曲線パラメータ配列
  */
-function rayToBezier (p0: IVec2, p1: IVec2, p2: IVec2, p: IVec2, q: IVec2): number[] {
+function rayToBezier(
+  p0: IVec2,
+  p1: IVec2,
+  p2: IVec2,
+  p: IVec2,
+  q: IVec2
+): number[] {
   const vx: number = q.x - p.x
   const vy: number = q.y - p.y
   const a: number = p0.x - 2 * p1.x + p2.x
@@ -166,10 +179,16 @@ function rayToBezier (p0: IVec2, p1: IVec2, p2: IVec2, p: IVec2, q: IVec2): numb
  * @param q 直線終点
  * @return 交点リスト
  */
-export function getCrossLineAndBezier (p0: IVec2, p1: IVec2, p2: IVec2, p: IVec2, q: IVec2) {
+export function getCrossLineAndBezier(
+  p0: IVec2,
+  p1: IVec2,
+  p2: IVec2,
+  p: IVec2,
+  q: IVec2
+) {
   return rayToBezier(p0, p1, p2, p, q)
-    .filter((t) => 0 <= t && t <= 1)
-    .map((t) => ({
+    .filter(t => 0 <= t && t <= 1)
+    .map(t => ({
       x: (p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x,
       y: (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y
     }))
@@ -181,7 +200,7 @@ export function getCrossLineAndBezier (p0: IVec2, p1: IVec2, p2: IVec2, p: IVec2
  * @param seg2 線分2
  * @return 交差しているフラグ
  */
-export function isCrossSegAndSeg (seg1: IVec2[], seg2: IVec2[]): boolean {
+export function isCrossSegAndSeg(seg1: IVec2[], seg2: IVec2[]): boolean {
   const { ta, tb, tc, td } = getCrossSegAndSegParams(seg1, seg2)
   return tc * td < 0 && ta * tb < 0
 }
@@ -192,15 +211,18 @@ export function isCrossSegAndSeg (seg1: IVec2[], seg2: IVec2[]): boolean {
  * @param seg2 線分2
  * @return 接触しているフラグ
  */
-export function isTouchSegAndSeg (seg1: IVec2[], seg2: IVec2[]): boolean {
+export function isTouchSegAndSeg(seg1: IVec2[], seg2: IVec2[]): boolean {
   const { ta, tb, tc, td } = getCrossSegAndSegParams(seg1, seg2)
   return tc * td <= 0 && ta * tb <= 0
 }
 
-function getCrossSegAndSegParams (seg1: IVec2[], seg2: IVec2[]): {
-  ta: number,
-  tb: number,
-  tc: number,
+function getCrossSegAndSegParams(
+  seg1: IVec2[],
+  seg2: IVec2[]
+): {
+  ta: number
+  tb: number
+  tc: number
   td: number
 } {
   const ax = seg1[0].x
@@ -224,7 +246,7 @@ function getCrossSegAndSegParams (seg1: IVec2[], seg2: IVec2[]): {
  * @param b 同上
  * @return 平行であるフラグ
  */
-export function isParallel (a: IVec2, b: IVec2): boolean {
+export function isParallel(a: IVec2, b: IVec2): boolean {
   const cross = getCross(a, b)
   return Math.abs(cross) < MINVALUE
 }
@@ -235,7 +257,7 @@ export function isParallel (a: IVec2, b: IVec2): boolean {
  * @param line 直線
  * @return 直線上にあるフラグ
  */
-export function isOnLine (p: IVec2, line: IVec2[]): boolean {
+export function isOnLine(p: IVec2, line: IVec2[]): boolean {
   return isZero(sub(p, getPedal(p, line)))
 }
 
@@ -245,7 +267,7 @@ export function isOnLine (p: IVec2, line: IVec2[]): boolean {
  * @param seg 線分
  * @return 線分上にあるフラグ
  */
-export function isOnSeg (p: IVec2, seg: IVec2[]): boolean {
+export function isOnSeg(p: IVec2, seg: IVec2[]): boolean {
   if (!isZero(sub(p, getPedal(p, seg)))) return false
   const v1 = sub(seg[1], seg[0])
   const v2 = sub(p, seg[0])
@@ -260,16 +282,16 @@ export function isOnSeg (p: IVec2, seg: IVec2[]): boolean {
  * @param polygon 面
  * @return 面上にあるフラグ
  */
-export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
+export function isOnPolygon(p: IVec2, polygon: IVec2[]): boolean {
   // 頂点上判定
-  if (polygon.find((point) => p.x === point.x && p.y === point.y)) return true
+  if (polygon.find(point => p.x === point.x && p.y === point.y)) return true
 
   const segs: IVec2[][] = polygon
     .map((point, i) => {
       return [point, i < polygon.length - 1 ? polygon[i + 1] : polygon[0]]
     })
     // 長さ0の辺は扱わない
-    .filter((seg) => !isSame(seg[0], seg[1]))
+    .filter(seg => !isSame(seg[0], seg[1]))
 
   // 辺上判定
   for (let i = 0; i < segs.length; i++) {
@@ -291,7 +313,7 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
   for (let i = 0; i < segs.length; i++) {
     const seg = segs[i]
     if (!isParallel(sub(seg[0], seg[1]), v)) {
-      if (!polygon.find((point) => isOnLine(p, [point, add(p, v)]))) {
+      if (!polygon.find(point => isOnLine(p, [point, add(p, v)]))) {
         break
       }
     }
@@ -305,7 +327,7 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
   // 辺との交差判定を行う疑似直線を生成
   const ray = [p, add(p, multi(v, dist * 2))]
   // rayと面の各辺との交差回数から判定する
-  const hitSegs = segs.filter((seg) => {
+  const hitSegs = segs.filter(seg => {
     const maxX: number = Math.max(seg[0].x, seg[1].x)
     const maxY: number = Math.max(seg[0].y, seg[1].y)
     // rayは第一象限に向かうベクトルなので絞り込む
@@ -323,20 +345,28 @@ export function isOnPolygon (p: IVec2, polygon: IVec2[]): boolean {
  * @param line 直線
  * @return 交点
  */
-export function getCrossSegAndLine (seg: IVec2[], line: IVec2[]): IVec2 | null {
+export function getCrossSegAndLine(seg: IVec2[], line: IVec2[]): IVec2 | null {
   if (isParallel(sub(seg[0], seg[1]), sub(line[0], line[1]))) return null
   if (isOnLine(seg[0], line)) return { ...seg[0] }
   if (isOnLine(seg[1], line)) return { ...seg[1] }
 
-  const s1 = ((line[1].x - line[0].x) * (seg[0].y - line[0].y) - (line[1].y - line[0].y) * (seg[0].x - line[0].x)) / 2
-  const s2 = ((line[1].x - line[0].x) * (line[0].y - seg[1].y) - (line[1].y - line[0].y) * (line[0].x - seg[1].x)) / 2
+  const s1 =
+    ((line[1].x - line[0].x) * (seg[0].y - line[0].y) -
+      (line[1].y - line[0].y) * (seg[0].x - line[0].x)) /
+    2
+  const s2 =
+    ((line[1].x - line[0].x) * (line[0].y - seg[1].y) -
+      (line[1].y - line[0].y) * (line[0].x - seg[1].x)) /
+    2
   const rate = s1 / (s1 + s2)
   const isExistCorss = 0 < rate && rate < 1
 
-  return isExistCorss ? {
-    x: seg[0].x + (seg[1].x - seg[0].x) * rate,
-    y: seg[0].y + (seg[1].y - seg[0].y) * rate
-  } : null
+  return isExistCorss
+    ? {
+        x: seg[0].x + (seg[1].x - seg[0].x) * rate,
+        y: seg[0].y + (seg[1].y - seg[0].y) * rate
+      }
+    : null
 }
 
 /**
@@ -345,7 +375,7 @@ export function getCrossSegAndLine (seg: IVec2[], line: IVec2[]): IVec2 | null {
  * @param cd 線分cd
  * @return 同一であるフラグ
  */
-export function isSameSeg (ab: IVec2[], cd: IVec2[]): boolean {
+export function isSameSeg(ab: IVec2[], cd: IVec2[]): boolean {
   if (isSame(ab[0], cd[0]) && isSame(ab[1], cd[1])) return true
   if (isSame(ab[0], cd[1]) && isSame(ab[1], cd[0])) return true
   return false
@@ -357,7 +387,7 @@ export function isSameSeg (ab: IVec2[], cd: IVec2[]): boolean {
  * @param line 直線
  * @return 分割された点配列の配列
  */
-export function splitPolyByLine (pol: IVec2[], line: IVec2[]): IVec2[][] {
+export function splitPolyByLine(pol: IVec2[], line: IVec2[]): IVec2[][] {
   let points: IVec2[] = []
   let crossIndex: number[] = []
   let crossList: IVec2[] = []
@@ -410,7 +440,7 @@ export function splitPolyByLine (pol: IVec2[], line: IVec2[]): IVec2[][] {
     dropList.splice(tmpIndex, 1)
   }
   const tmpList = points.concat()
-  dropList.forEach((p) => {
+  dropList.forEach(p => {
     const i = tmpList.indexOf(p)
     tmpList.splice(i, 1)
   })
@@ -463,7 +493,7 @@ export function splitPolyByLine (pol: IVec2[], line: IVec2[]): IVec2[][] {
 
   // 再帰的に分割
   const recursiveResult: IVec2[][] = []
-  splitedPolygons.forEach((polygon) => {
+  splitedPolygons.forEach(polygon => {
     const splited = splitPolyByLine(polygon, line)
     if (splited.length === 0) {
       recursiveResult.push(polygon)
@@ -480,7 +510,7 @@ export function splitPolyByLine (pol: IVec2[], line: IVec2[]): IVec2[][] {
  * @param polygon 面
  * @return 分割面リスト
  */
-export function triangleSplit (polygon: IVec2[]): IVec2[][] {
+export function triangleSplit(polygon: IVec2[]): IVec2[][] {
   // 時計周りに揃える
   polygon = convertLoopwise(polygon)
 
@@ -494,7 +524,7 @@ export function triangleSplit (polygon: IVec2[]): IVec2[][] {
   // 分割後の面リスト
   const triangleList = []
 
-      // ループ
+  // ループ
   while (targetPoly.length >= 3) {
     // 最遠点インデックス取得
     const sorted = targetPoly.concat()
@@ -509,8 +539,14 @@ export function triangleSplit (polygon: IVec2[]): IVec2[][] {
       // 最遠点では失敗
       const size = targetPoly.length
       // 外積計算
-      const pa = sub(targetPoly[(farthestIndex + 1) % size], targetPoly[farthestIndex])
-      const pb = sub(targetPoly[(farthestIndex - 1 < 0) ? size - 1 : farthestIndex - 1], targetPoly[farthestIndex])
+      const pa = sub(
+        targetPoly[(farthestIndex + 1) % size],
+        targetPoly[farthestIndex]
+      )
+      const pb = sub(
+        targetPoly[farthestIndex - 1 < 0 ? size - 1 : farthestIndex - 1],
+        targetPoly[farthestIndex]
+      )
 
       currentCross = getCross(pa, pb)
 
@@ -520,10 +556,13 @@ export function triangleSplit (polygon: IVec2[]): IVec2[][] {
         index = (index + 1) % size
         // 最遠点の外積と同じ符号かを判定
         const v1 = sub(targetPoly[(index + 1) % size], targetPoly[index])
-        const v2 = sub(targetPoly[(index - 1 < 0) ? size - 1 : index - 1], targetPoly[index])
+        const v2 = sub(
+          targetPoly[index - 1 < 0 ? size - 1 : index - 1],
+          targetPoly[index]
+        )
         const tmpCross = getCross(v1, v2)
         if (tmpCross * currentCross > 0) {
-              // 判定続行
+          // 判定続行
           tri = getTriangle(targetPoly, index)
         }
         if (index === farthestIndex) {
@@ -548,21 +587,21 @@ export function triangleSplit (polygon: IVec2[]): IVec2[][] {
  * @param index このインデックスの点とその両側の点で三角形を作る
  * @return 三角形、内部に入り込む点がある場合はnull
  */
-function getTriangle (polygon: IVec2[], index: number): IVec2[] | null {
+function getTriangle(polygon: IVec2[], index: number): IVec2[] | null {
   // indexとその前後点で三角形作成
   const size = polygon.length
   const p0 = polygon[index]
   const p1 = polygon[(index + 1) % size]
-  const p2 = polygon[(index - 1 < 0) ? size - 1 : index - 1]
+  const p2 = polygon[index - 1 < 0 ? size - 1 : index - 1]
 
   const tri: IVec2[] = [p0, p1, p2]
 
   // 内部に点が入り込まないか判定
   let invalid: boolean = false
-  polygon.some((p) => {
+  polygon.some(p => {
     if (p !== p0 && p !== p1 && p !== p2) {
       if (isPointOnTriangle(tri, p)) {
-            // 失敗
+        // 失敗
         invalid = true
       }
     }
@@ -579,7 +618,7 @@ function getTriangle (polygon: IVec2[], index: number): IVec2[] | null {
  * @param p 点
  * @return 内部にあるフラグ
  */
-export function isPointOnTriangle (tri: IVec2[], p: IVec2): boolean {
+export function isPointOnTriangle(tri: IVec2[], p: IVec2): boolean {
   // 三角形の3つのベクトル
   const ab = sub(tri[1], tri[0])
   const bc = sub(tri[2], tri[1])
@@ -597,8 +636,10 @@ export function isPointOnTriangle (tri: IVec2[], p: IVec2): boolean {
 
   // 外積の符号が全て同じなら内部にある
   // 0も含む→境界も含む
-  if ((crossABP >= 0 && crossBCP >= 0 && crossCAP >= 0) ||
-        (crossABP <= 0 && crossBCP <= 0 && crossCAP <= 0)) {
+  if (
+    (crossABP >= 0 && crossBCP >= 0 && crossCAP >= 0) ||
+    (crossABP <= 0 && crossBCP <= 0 && crossCAP <= 0)
+  ) {
     return true
   }
 
@@ -610,7 +651,7 @@ export function isPointOnTriangle (tri: IVec2[], p: IVec2): boolean {
  * @param {vector[]} 面
  * @return 時計回りにした面(引数とは別配列にする)
  */
-export function convertLoopwise (polygon: IVec2[]): IVec2[] {
+export function convertLoopwise(polygon: IVec2[]): IVec2[] {
   const ret = polygon.concat()
   if (getLoopwise(polygon) === -1) {
     ret.reverse()
@@ -623,7 +664,7 @@ export function convertLoopwise (polygon: IVec2[]): IVec2[] {
  * @param polygon 面
  * @return -1:反時計 0:不定 1:時計
  */
-export function getLoopwise (polygon: IVec2[]): number {
+export function getLoopwise(polygon: IVec2[]): number {
   const area = getArea(polygon, true)
   if (area > 0) return 1
   if (area < 0) return -1
@@ -636,16 +677,21 @@ export function getLoopwise (polygon: IVec2[]): number {
  * @param allowNegative 負値を許すフラグ
  * @return 面積
  */
-export function getArea (polygon: IVec2[], allowNegative: boolean = false): number {
+export function getArea(
+  polygon: IVec2[],
+  allowNegative: boolean = false
+): number {
   if (polygon.length < 3) return 0
 
   let area = 0
   const size = polygon.length
   for (let i = 0; i < size - 1; i++) {
-    area += (polygon[i].x - polygon[i + 1].x) * (polygon[i].y + polygon[i + 1].y)
+    area +=
+      (polygon[i].x - polygon[i + 1].x) * (polygon[i].y + polygon[i + 1].y)
   }
   // 最後分
-  area += (polygon[size - 1].x - polygon[0].x) * (polygon[size - 1].y + polygon[0].y)
+  area +=
+    (polygon[size - 1].x - polygon[0].x) * (polygon[size - 1].y + polygon[0].y)
 
   area /= 2
 
@@ -663,7 +709,7 @@ export function getArea (polygon: IVec2[], allowNegative: boolean = false): numb
  * @param size 分割数(1なら制御点両端のみ)
  * @return 座標リスト
  */
-export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
+export function approximateBezier(pointList: IVec2[], size: number): IVec2[] {
   const ret: IVec2[] = []
   const unitT: number = 1 / size
 
@@ -675,8 +721,8 @@ export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
       const c1 = multi(pointList[1], 2 * t * (1 - t))
       const c2 = multi(pointList[2], t * t)
       ret.push({
-        x : c0.x + c1.x + c2.x,
-        y : c0.y + c1.y + c2.y
+        x: c0.x + c1.x + c2.x,
+        y: c0.y + c1.y + c2.y
       })
     }
   } else if (pointList.length === 4) {
@@ -688,8 +734,8 @@ export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
       const c2 = multi(pointList[2], 3 * t * t * (1 - t))
       const c3 = multi(pointList[3], t * t * t)
       ret.push({
-        x : c0.x + c1.x + c2.x + c3.x,
-        y : c0.y + c1.y + c2.y + c3.y
+        x: c0.x + c1.x + c2.x + c3.x,
+        y: c0.y + c1.y + c2.y + c3.y
       })
     }
   } else {
@@ -710,7 +756,7 @@ export function approximateBezier (pointList: IVec2[], size: number): IVec2[] {
  * @param size 分割数
  * @return 座標リスト
  */
-export function approximateArc (
+export function approximateArc(
   rx: number,
   ry: number,
   startRadian: number,
@@ -725,10 +771,18 @@ export function approximateArc (
 
   for (let i = 0; i <= size; i++) {
     const t = unitT * i + startRadian - radian
-    ret.push(add(rotate({
-      x : rx * Math.cos(t),
-      y : ry * Math.sin(t)
-    }, radian), center))
+    ret.push(
+      add(
+        rotate(
+          {
+            x: rx * Math.cos(t),
+            y: ry * Math.sin(t)
+          },
+          radian
+        ),
+        center
+      )
+    )
   }
 
   return ret
@@ -748,7 +802,7 @@ export function approximateArc (
  * @param size 分割数
  * @return 座標リスト
  */
-export function approximateArcWithPoint (
+export function approximateArcWithPoint(
   rx: number,
   ry: number,
   startPoint: IVec2,
@@ -817,15 +871,7 @@ export function approximateArcWithPoint (
     }
   }
 
-  return approximateArc(
-    rx,
-    ry,
-    startRadian,
-    endRadian,
-    center,
-    radian,
-    size
-  )
+  return approximateArc(rx, ry, startRadian, endRadian, center, radian, size)
 }
 
 /**
@@ -836,7 +882,7 @@ export function approximateArcWithPoint (
  * @param radian 傾き
  * @return ラジアン(0 <= t <= 2 * Math.PI)
  */
-function getRadianOnArc (
+function getRadianOnArc(
   a: IVec2,
   rx: number,
   center: IVec2,
@@ -868,25 +914,25 @@ function getRadianOnArc (
  * @return 解となる２点
  * @return { centers: 解となる２点, radiusRate: 半径補正係数 }
  */
-export function getEllipseCenter (
+export function getEllipseCenter(
   a: IVec2,
   b: IVec2,
   rx: number,
   ry: number,
   radian: number
-): { centers: IVec2[], radiusRate: number } {
+): { centers: IVec2[]; radiusRate: number } {
   // 回転を打ち消す
   a = rotate(a, -radian)
   b = rotate(b, -radian)
 
   // 媒介変数を利用して円の中心問題にする
   const A = {
-    x : a.x / rx,
-    y : a.y / ry
+    x: a.x / rx,
+    y: a.y / ry
   }
   const B = {
-    x : b.x / rx,
-    y : b.y / ry
+    x: b.x / rx,
+    y: b.y / ry
   }
 
   // 円の中心取得
@@ -895,12 +941,12 @@ export function getEllipseCenter (
 
   // 楕円に戻す
   let ans1 = {
-    x : C[0].x * rx,
-    y : C[0].y * ry
+    x: C[0].x * rx,
+    y: C[0].y * ry
   }
   let ans2 = {
-    x : C[1].x * rx,
-    y : C[1].y * ry
+    x: C[1].x * rx,
+    y: C[1].y * ry
   }
 
   // 回転を戻す
@@ -920,17 +966,17 @@ export function getEllipseCenter (
  * @param radius 半径
  * @return { centers: 解となる２点, radiusRate: 半径補正係数 }
  */
-export function getCircleCenter (
+export function getCircleCenter(
   a: IVec2,
   b: IVec2,
   radius: number
-): { centers: IVec2[], radiusRate: number } {
+): { centers: IVec2[]; radiusRate: number } {
   const u1 = (a.x + b.x) / 2
   const u2 = (a.x - b.x) / 2
   const v1 = (a.y + b.y) / 2
   const v2 = (a.y - b.y) / 2
   const L = Math.sqrt(u2 * u2 + v2 * v2)
-  const t2 = Math.pow((radius / L), 2) - 1
+  const t2 = Math.pow(radius / L, 2) - 1
 
   // 2点が直径以上に離れている => 2点を直径とみなす
   if (t2 < 0) {
@@ -943,12 +989,12 @@ export function getCircleCenter (
 
   const t = Math.sqrt(t2)
   const ans1 = {
-    x : u1 + v2 * t,
-    y : v1 - u2 * t
+    x: u1 + v2 * t,
+    y: v1 - u2 * t
   }
   const ans2 = {
-    x : u1 - v2 * t,
-    y : v1 + u2 * t
+    x: u1 - v2 * t,
+    y: v1 + u2 * t
   }
 
   return {
@@ -966,7 +1012,7 @@ export function getCircleCenter (
  * @param params 行列成分
  * @return 座標リスト
  */
-export function transform (points: IVec2[], params: number[]): IVec2[] {
+export function transform(points: IVec2[], params: number[]): IVec2[] {
   const a = params[0]
   const b = params[1]
   const c = params[2]
@@ -974,9 +1020,9 @@ export function transform (points: IVec2[], params: number[]): IVec2[] {
   const e = params[4]
   const f = params[5]
 
-  return points.map((p) => ({
-    x : a * p.x + c * p.y + e,
-    y : b * p.x + d * p.y + f
+  return points.map(p => ({
+    x: a * p.x + c * p.y + e,
+    y: b * p.x + d * p.y + f
   }))
 }
 
@@ -986,7 +1032,7 @@ export function transform (points: IVec2[], params: number[]): IVec2[] {
  * @param polygon ポリゴン
  * @return オミット後のポリゴン
  */
-export function omitSamePoint (polygon: IVec2[]): IVec2[] {
+export function omitSamePoint(polygon: IVec2[]): IVec2[] {
   let ret = polygon.concat()
 
   // サイズ
@@ -1013,7 +1059,7 @@ export function omitSamePoint (polygon: IVec2[]): IVec2[] {
  * @param n 角数
  * @return 面積
  */
-export function getRegularPolygonArea (radius: number, n: number): number {
+export function getRegularPolygonArea(radius: number, n: number): number {
   const unitRad = Math.PI / n
   const unitArea = Math.pow(radius, 2) * Math.sin(unitRad) * Math.cos(unitRad)
   return unitArea * n
@@ -1025,7 +1071,7 @@ export function getRegularPolygonArea (radius: number, n: number): number {
  * @param n 角数
  * @return 半径
  */
-export function getRegularPolygonRadius (area: number, n: number): number {
+export function getRegularPolygonRadius(area: number, n: number): number {
   const unitRad = Math.PI / n
   const unitArea = area / n
   return Math.sqrt(unitArea / Math.sin(unitRad) / Math.cos(unitRad))
@@ -1036,7 +1082,7 @@ export function getRegularPolygonRadius (area: number, n: number): number {
  * @param polygons ポリゴン一覧
  * @return グループ化したポリゴン一覧、グループ内は面積降順
  */
-export function getIncludedPolygonGroups (polygons: IVec2[][]): IVec2[][][] {
+export function getIncludedPolygonGroups(polygons: IVec2[][]): IVec2[][][] {
   const sorted = polygons.concat()
   sorted.sort((a, b) => {
     return getArea(b) - getArea(a)
@@ -1046,13 +1092,15 @@ export function getIncludedPolygonGroups (polygons: IVec2[][]): IVec2[][][] {
   sorted.forEach((p, i) => {
     if (hit[i]) return
     hit[i] = true
-    const group = [p].concat(sorted.filter((c, j) => {
-      if (hit[j]) return false
-      const pointsOnPolygon = c.filter((point) => isOnPolygon(point, p))
-      if (pointsOnPolygon.length !== c.length) return false
-      hit[j] = true
-      return true
-    }))
+    const group = [p].concat(
+      sorted.filter((c, j) => {
+        if (hit[j]) return false
+        const pointsOnPolygon = c.filter(point => isOnPolygon(point, p))
+        if (pointsOnPolygon.length !== c.length) return false
+        hit[j] = true
+        return true
+      })
+    )
     ret.push(group)
   })
   return ret
@@ -1067,7 +1115,7 @@ export function getIncludedPolygonGroups (polygons: IVec2[][]): IVec2[][][] {
  * @param poly 切り取り範囲ポリゴン
  * @return 切り取った後のポリゴン
  */
-export function getPolygonNotPolygon (target: IVec2[], poly: IVec2[]): IVec2[] {
+export function getPolygonNotPolygon(target: IVec2[], poly: IVec2[]): IVec2[] {
   const ret: IVec2[] = []
 
   // targetの辺と交差するpolyの辺インデックスを探索
@@ -1094,7 +1142,7 @@ export function getPolygonNotPolygon (target: IVec2[], poly: IVec2[]): IVec2[] {
   if (polyCrossIndexList.length % 2 !== 0) return target
 
   // target辺の始点に最も近い交点を探す
-  const distList = cross.map((p) => getDistance(p, target[targetCrossIndex]))
+  const distList = cross.map(p => getDistance(p, target[targetCrossIndex]))
   const sortedDistList = distList.concat().sort((a, b) => a - b)
   const nearestCrossIndex = distList.indexOf(sortedDistList[0])
   const nearestIndex = polyCrossIndexList[nearestCrossIndex]
@@ -1105,12 +1153,14 @@ export function getPolygonNotPolygon (target: IVec2[], poly: IVec2[]): IVec2[] {
     adjustedPoly.push(adjustedPoly.shift() as IVec2)
   }
   // nearestIndexが先頭になるよう調整
-  const adjustedPolyCrossIndexList: number[] = polyCrossIndexList.map((n) => {
+  const adjustedPolyCrossIndexList: number[] = polyCrossIndexList.map(n => {
     return (n - nearestIndex + poly.length) % poly.length
   })
   const adjustedCross: IVec2[] = cross.concat()
   for (let k = 0; k < nearestCrossIndex; k++) {
-    adjustedPolyCrossIndexList.push(adjustedPolyCrossIndexList.shift() as number)
+    adjustedPolyCrossIndexList.push(
+      adjustedPolyCrossIndexList.shift() as number
+    )
     adjustedCross.push(adjustedCross.shift() as IVec2)
   }
 

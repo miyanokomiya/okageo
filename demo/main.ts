@@ -12,7 +12,12 @@ if (ctx) {
   const p3 = [{ x: -200, y: -200 }, { x: 300, y: -200 }, { x: -200, y: 600 }]
   const pathInfoList: ISvgPath[] = [
     {
-      d: [{ x: -300, y: 50 }, { x: 200, y: 50 }, { x: 200, y: 100 }, { x: -300, y: 100 }],
+      d: [
+        { x: -300, y: 50 },
+        { x: 200, y: 50 },
+        { x: 200, y: 100 },
+        { x: -300, y: 100 }
+      ],
       style: {
         ...svg.createStyle(),
         fill: true,
@@ -29,12 +34,18 @@ if (ctx) {
       }
     }
   ]
-  const inRectList = svg.fitRect(pathInfoList, 0, 0, canvas.width, canvas.height)
-  inRectList.forEach((info) => svg.draw(ctx, info))
+  const inRectList = svg.fitRect(
+    pathInfoList,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  )
+  inRectList.forEach(info => svg.draw(ctx, info))
 }
 
 const fileInput = document.getElementById('input') as HTMLInputElement
-fileInput.onchange = (e) => {
+fileInput.onchange = e => {
   const file = (e.target as HTMLInputElement).files
   if (!file || file.length === 0) return
 
@@ -44,9 +55,15 @@ fileInput.onchange = (e) => {
     if (!ctx) return
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     const pathInfoList = svg.parseSvgGraphicsStr(reader.result as string)
-    const inRectList = svg.fitRect(pathInfoList, 0, 0, canvas.width, canvas.height)
-    inRectList.forEach((info) => {
-      geo.triangleSplit(info.d).forEach((points) => {
+    const inRectList = svg.fitRect(
+      pathInfoList,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    )
+    inRectList.forEach(info => {
+      geo.triangleSplit(info.d).forEach(points => {
         svg.draw(ctx, { d: points, style: info.style })
       })
     })

@@ -11,7 +11,7 @@ export const configs: ISvgConfigs = {
  * @param ctx 描画要素
  * @param pathInfo 図形情報
  */
-export function draw (ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
+export function draw(ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
   ctx.lineCap = pathInfo.style.lineCap as CanvasLineCap
   ctx.lineJoin = pathInfo.style.lineJoin as CanvasLineJoin
 
@@ -26,7 +26,7 @@ export function draw (ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
   ctx.closePath()
 
   if (pathInfo.included) {
-    pathInfo.included.forEach((poly) => {
+    pathInfo.included.forEach(poly => {
       poly.forEach((p, i) => {
         if (i === 0) {
           ctx.moveTo(p.x, p.y)
@@ -44,7 +44,7 @@ export function draw (ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
     ctx.fill()
   }
 
-    // 枠
+  // 枠
   if (pathInfo.style.stroke) {
     ctx.strokeStyle = pathInfo.style.strokeStyle
     ctx.globalAlpha = pathInfo.style.strokeGlobalAlpha
@@ -64,7 +64,7 @@ export function draw (ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
  * @param height 矩形height
  * @return 調整後パス情報リスト
  */
-export function fitRect (
+export function fitRect(
   pathInfoList: ISvgPath[],
   x: number,
   y: number,
@@ -75,8 +75,8 @@ export function fitRect (
   let maxX: number = -Infinity
   let minY: number = Infinity
   let maxY: number = -Infinity
-  pathInfoList.forEach((info) => {
-    info.d.forEach((p) => {
+  pathInfoList.forEach(info => {
+    info.d.forEach(p => {
       minX = Math.min(minX, p.x)
       maxX = Math.max(maxX, p.x)
       minY = Math.min(minY, p.y)
@@ -85,9 +85,9 @@ export function fitRect (
   })
 
   // 原点基準に移動
-  const fromBaseList = pathInfoList.map((info) => ({
+  const fromBaseList = pathInfoList.map(info => ({
     ...info,
-    d: info.d.map((p) => ({ x: p.x - minX, y: p.y - minY }))
+    d: info.d.map(p => ({ x: p.x - minX, y: p.y - minY }))
   }))
   // 伸縮
   const orgWidth = maxX - minX
@@ -95,18 +95,21 @@ export function fitRect (
   const rateX = width / orgWidth
   const rateY = height / orgHeight
   const rate = Math.min(rateX, rateY)
-  const scaledList = fromBaseList.map((info) => ({
+  const scaledList = fromBaseList.map(info => ({
     ...info,
-    d: info.d.map((p) => ({ x: p.x * rate, y: p.y * rate }))
+    d: info.d.map(p => ({ x: p.x * rate, y: p.y * rate }))
   }))
   // 矩形位置に移動
   const difX = x + (width - orgWidth * rate) / 2
   const difY = y + (height - orgHeight * rate) / 2
-  const convertedList: ISvgPath[] = scaledList.map((info) => ({
+  const convertedList: ISvgPath[] = scaledList.map(info => ({
     ...info,
-    d: info.d.map((p) => ({ x: p.x + difX, y: p.y + difY })),
+    d: info.d.map(p => ({ x: p.x + difX, y: p.y + difY })),
     included: (info.included || []).map((poly: IVec2[]) => {
-      return poly.map((p) => ({ x: (p.x - minX) * rate + difX, y: (p.y - minY) * rate + difY }))
+      return poly.map(p => ({
+        x: (p.x - minX) * rate + difX,
+        y: (p.y - minY) * rate + difY
+      }))
     })
   }))
 
@@ -119,7 +122,7 @@ export function fitRect (
  * @param svgString SVGリソース文字列
  * @return パス情報リスト
  */
-export function parseSvgGraphicsStr (svgString: string): ISvgPath[] {
+export function parseSvgGraphicsStr(svgString: string): ISvgPath[] {
   const domParser = new DOMParser()
   const svgDom = domParser.parseFromString(svgString, 'image/svg+xml')
   const svgTags = svgDom.getElementsByTagName('svg')
@@ -133,7 +136,7 @@ export function parseSvgGraphicsStr (svgString: string): ISvgPath[] {
  * @param svgTag SVGタグ
  * @return パス情報リスト
  */
-export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
+export function parseSvgGraphics(svgTag: SVGElement): ISvgPath[] {
   const ret: ISvgPath[] = []
 
   // パス
@@ -142,7 +145,7 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
     const elm = tagPathList[i] as SVGPathElement
     ret.push({
       d: parsePath(elm),
-      style:  parseTagStyle(elm)
+      style: parseTagStyle(elm)
     })
   }
 
@@ -151,8 +154,8 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
   for (let i = 0; i < tagRectList.length; i++) {
     const elm = tagRectList[i] as SVGRectElement
     ret.push({
-      d : parseRect(elm),
-      style : parseTagStyle(elm)
+      d: parseRect(elm),
+      style: parseTagStyle(elm)
     })
   }
 
@@ -161,8 +164,8 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
   for (let i = 0; i < tagEllipseList.length; i++) {
     const elm = tagEllipseList[i] as SVGEllipseElement
     ret.push({
-      d : parseEllipse(elm),
-      style : parseTagStyle(elm)
+      d: parseEllipse(elm),
+      style: parseTagStyle(elm)
     })
   }
 
@@ -171,8 +174,8 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
   for (let i = 0; i < tagCircleList.length; i++) {
     const elm = tagCircleList[i] as SVGCircleElement
     ret.push({
-      d : parseCircle(elm),
-      style : parseTagStyle(elm)
+      d: parseCircle(elm),
+      style: parseTagStyle(elm)
     })
   }
 
@@ -186,7 +189,7 @@ export function parseSvgGraphics (svgTag: SVGElement): ISvgPath[] {
  * @param fontPath opentype.jsのpath.command
  * @return d文字列
  */
-export function openCommandToD (command: any): string {
+export function openCommandToD(command: any): string {
   let d: string = command.type
   if ('x1' in command) d += ` ${command.x1}`
   if ('y1' in command) d += ` ${command.y1}`
@@ -204,7 +207,7 @@ export function openCommandToD (command: any): string {
  * @param fontPath opentype.jsのpath
  * @return パス情報リスト
  */
-export function parseOpenPath (fontPath: { commands: any[] }): ISvgPath[] {
+export function parseOpenPath(fontPath: { commands: any[] }): ISvgPath[] {
   const pathInfoList: ISvgPath[] = []
   let current: string = ''
   fontPath.commands.forEach((c: any) => {
@@ -213,7 +216,12 @@ export function parseOpenPath (fontPath: { commands: any[] }): ISvgPath[] {
       const pathList = parsePathD(current)
       pathInfoList.push({
         d: pathList,
-        style:  { ...createStyle(), fill: true, fillStyle: 'black', stroke: false }
+        style: {
+          ...createStyle(),
+          fill: true,
+          fillStyle: 'black',
+          stroke: false
+        }
       })
       current = ''
     }
@@ -226,7 +234,7 @@ export function parseOpenPath (fontPath: { commands: any[] }): ISvgPath[] {
  * @param dStr SVGのpathタグd文字列
  * @return 座標リスト
  */
-export function parsePathD (dStr: string): IVec2[] {
+export function parsePathD(dStr: string): IVec2[] {
   let ret: IVec2[] = []
 
   // d属性分解
@@ -235,8 +243,8 @@ export function parsePathD (dStr: string): IVec2[] {
   // 前回座標
   let pastVec: IVec2 = { x: 0, y: 0 }
   // 前回制御点
-  let pastControlVec: IVec2 = { x: 0,y: 0 }
-  elementList.forEach((current) => {
+  let pastControlVec: IVec2 = { x: 0, y: 0 }
+  elementList.forEach(current => {
     let pList: IVec2[] = []
 
     let b0: IVec2 | null = null
@@ -253,7 +261,10 @@ export function parsePathD (dStr: string): IVec2[] {
       case 'm':
       case 'l':
         // 直線(相対)
-        pList.push({ x: pastVec.x + parseFloat(current[1]), y: pastVec.y + parseFloat(current[2]) })
+        pList.push({
+          x: pastVec.x + parseFloat(current[1]),
+          y: pastVec.y + parseFloat(current[2])
+        })
         break
       case 'H':
         // 水平(絶対)
@@ -271,7 +282,7 @@ export function parsePathD (dStr: string): IVec2[] {
         // 垂直(相対)
         pList.push({ x: pastVec.x, y: pastVec.y + parseFloat(current[1]) })
         break
-      case 'Q' :
+      case 'Q':
         // 制御点準備
         b0 = pastVec
         b1 = {
@@ -287,116 +298,116 @@ export function parsePathD (dStr: string): IVec2[] {
         // 始点は前回点なので除去
         pList.shift()
         break
-      case 'q' :
+      case 'q':
         // 制御点準備
         b0 = pastVec
         b1 = {
-          x : b0.x + parseFloat(current[1]),
-          y : b0.y + parseFloat(current[2])
+          x: b0.x + parseFloat(current[1]),
+          y: b0.y + parseFloat(current[2])
         }
         b2 = {
-          x : b0.x + parseFloat(current[3]),
-          y : b0.y + parseFloat(current[4])
+          x: b0.x + parseFloat(current[3]),
+          y: b0.y + parseFloat(current[4])
         }
         // 近似
         pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
-      case 'T' :
+      case 'T':
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
         b2 = {
-          x : parseFloat(current[1]),
-          y : parseFloat(current[2])
+          x: parseFloat(current[1]),
+          y: parseFloat(current[2])
         }
         // 近似
         pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
-      case 't' :
+      case 't':
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
         b2 = {
-          x : b0.x + parseFloat(current[1]),
-          y : b0.y + parseFloat(current[2])
+          x: b0.x + parseFloat(current[1]),
+          y: b0.y + parseFloat(current[2])
         }
         // 近似
         pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
-      case 'C' :
+      case 'C':
         // 制御点準備
         b0 = pastVec
         b1 = {
-          x : parseFloat(current[1]),
-          y : parseFloat(current[2])
+          x: parseFloat(current[1]),
+          y: parseFloat(current[2])
         }
         b2 = {
-          x : parseFloat(current[3]),
-          y : parseFloat(current[4])
+          x: parseFloat(current[3]),
+          y: parseFloat(current[4])
         }
         b3 = {
-          x : parseFloat(current[5]),
-          y : parseFloat(current[6])
+          x: parseFloat(current[5]),
+          y: parseFloat(current[6])
         }
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
-      case 'c' :
+      case 'c':
         // 制御点準備
         b0 = pastVec
         b1 = {
-          x : b0.x + parseFloat(current[1]),
-          y : b0.y + parseFloat(current[2])
+          x: b0.x + parseFloat(current[1]),
+          y: b0.y + parseFloat(current[2])
         }
         b2 = {
-          x : b0.x + parseFloat(current[3]),
-          y : b0.y + parseFloat(current[4])
+          x: b0.x + parseFloat(current[3]),
+          y: b0.y + parseFloat(current[4])
         }
         b3 = {
-          x : b0.x + parseFloat(current[5]),
-          y : b0.y + parseFloat(current[6])
+          x: b0.x + parseFloat(current[5]),
+          y: b0.y + parseFloat(current[6])
         }
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
-      case 'S' :
+      case 'S':
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
         b2 = {
-          x : parseFloat(current[1]),
-          y : parseFloat(current[2])
+          x: parseFloat(current[1]),
+          y: parseFloat(current[2])
         }
         b3 = {
-          x : parseFloat(current[3]),
-          y : parseFloat(current[4])
+          x: parseFloat(current[3]),
+          y: parseFloat(current[4])
         }
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
-      case 's' :
+      case 's':
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
         b2 = {
-          x : b0.x + parseFloat(current[1]),
-          y : b0.y + parseFloat(current[2])
+          x: b0.x + parseFloat(current[1]),
+          y: b0.y + parseFloat(current[2])
         }
         b3 = {
-          x : b0.x + parseFloat(current[3]),
-          y : b0.y + parseFloat(current[4])
+          x: b0.x + parseFloat(current[3]),
+          y: b0.y + parseFloat(current[4])
         }
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
@@ -406,8 +417,8 @@ export function parsePathD (dStr: string): IVec2[] {
       case 'A':
         b0 = pastVec
         b1 = {
-          x : parseFloat(current[6]),
-          y : parseFloat(current[7])
+          x: parseFloat(current[6]),
+          y: parseFloat(current[7])
         }
 
         pList = geo.approximateArcWithPoint(
@@ -417,7 +428,7 @@ export function parsePathD (dStr: string): IVec2[] {
           b1,
           !!parseInt(current[4], 10),
           !!parseInt(current[5], 10),
-          parseFloat(current[3]) / 180 * Math.PI,
+          (parseFloat(current[3]) / 180) * Math.PI,
           configs.bezierSplitSize
         )
         // 始点は前回点なので除去
@@ -426,8 +437,8 @@ export function parsePathD (dStr: string): IVec2[] {
       case 'a':
         b0 = pastVec
         b1 = {
-          x : b0.x + parseFloat(current[6]),
-          y : b0.y + parseFloat(current[7])
+          x: b0.x + parseFloat(current[6]),
+          y: b0.y + parseFloat(current[7])
         }
 
         pList = geo.approximateArcWithPoint(
@@ -437,7 +448,7 @@ export function parsePathD (dStr: string): IVec2[] {
           b1,
           !!parseInt(current[4], 10),
           !!parseInt(current[5], 10),
-          parseFloat(current[3]) / 180 * Math.PI,
+          (parseFloat(current[3]) / 180) * Math.PI,
           configs.bezierSplitSize
         )
         // 始点は前回点なので除去
@@ -464,7 +475,7 @@ export function parsePathD (dStr: string): IVec2[] {
  * @param svgPath SVGのpathタグDOM
  * @return 座標リスト
  */
-export function parsePath (svgPath: SVGPathElement): IVec2[] {
+export function parsePath(svgPath: SVGPathElement): IVec2[] {
   const dStr = svgPath.getAttribute('d')
   if (!dStr) return []
 
@@ -476,7 +487,7 @@ export function parsePath (svgPath: SVGPathElement): IVec2[] {
  * @param SVGのrectタグDOM
  * @return 座標リスト
  */
-export function parseRect (svgRect: SVGRectElement): IVec2[] {
+export function parseRect(svgRect: SVGRectElement): IVec2[] {
   let ret = []
 
   const x = parseFloat(svgRect.getAttribute('x') || '0')
@@ -485,9 +496,9 @@ export function parseRect (svgRect: SVGRectElement): IVec2[] {
   const height = parseFloat(svgRect.getAttribute('height') || '0')
 
   ret.push({ x, y })
-  ret.push({ x : x + width, y })
-  ret.push({ x : x + width, y : y + height })
-  ret.push({ x, y : y + height })
+  ret.push({ x: x + width, y })
+  ret.push({ x: x + width, y: y + height })
+  ret.push({ x, y: y + height })
 
   // トランスフォーム
   ret = adoptTransform(svgRect.getAttribute('transform'), ret)
@@ -500,7 +511,7 @@ export function parseRect (svgRect: SVGRectElement): IVec2[] {
  * @param svgEllipse SVGのellipseタグDOM
  * @return 座標リスト
  */
-export function parseEllipse (svgEllipse: SVGEllipseElement): IVec2[] {
+export function parseEllipse(svgEllipse: SVGEllipseElement): IVec2[] {
   let ret = []
 
   const cx = parseFloat(svgEllipse.getAttribute('cx') || '0')
@@ -509,10 +520,13 @@ export function parseEllipse (svgEllipse: SVGEllipseElement): IVec2[] {
   const ry = parseFloat(svgEllipse.getAttribute('ry') || '1')
 
   ret = geo.approximateArc(
-    rx, ry,
-    0, Math.PI * 2,
-    { x: cx,y: cy },
-    0, configs.ellipseSplitSize
+    rx,
+    ry,
+    0,
+    Math.PI * 2,
+    { x: cx, y: cy },
+    0,
+    configs.ellipseSplitSize
   )
 
   // トランスフォーム
@@ -525,7 +539,7 @@ export function parseEllipse (svgEllipse: SVGEllipseElement): IVec2[] {
  * @param svgCircle  SVGのcircleタグDOM
  * @return 座標リスト
  */
-export function parseCircle (svgCircle: SVGCircleElement): IVec2[] {
+export function parseCircle(svgCircle: SVGCircleElement): IVec2[] {
   let ret = []
   const cx = parseFloat(svgCircle.getAttribute('cx') || '0')
   const cy = parseFloat(svgCircle.getAttribute('cy') || '0')
@@ -533,10 +547,13 @@ export function parseCircle (svgCircle: SVGCircleElement): IVec2[] {
 
   // 近似方法は楕円と同様
   ret = geo.approximateArc(
-    r, r,
-    0, Math.PI * 2,
-    { x: cx,y: cy },
-    0, configs.ellipseSplitSize
+    r,
+    r,
+    0,
+    Math.PI * 2,
+    { x: cx, y: cy },
+    0,
+    configs.ellipseSplitSize
   )
 
   // トランスフォーム
@@ -550,61 +567,70 @@ export function parseCircle (svgCircle: SVGCircleElement): IVec2[] {
  * @param points 変換前座標リスト
  * @return 変形後座標リスト
  */
-export function adoptTransform (commandStr: string | null, points: IVec2[]): IVec2[] {
+export function adoptTransform(
+  commandStr: string | null,
+  points: IVec2[]
+): IVec2[] {
   if (!commandStr) return points
 
   let ret: IVec2[] = geo.cloneVectors(points)
   // 複数コマンドの場合もあるのでループ
   const commandList = commandStr.split(/\)/)
-  commandList.forEach((current) => {
+  commandList.forEach(current => {
     const tmp = current.split(/\(/)
     if (tmp.length === 2) {
       const command = tmp[0]
       const params: number[] = []
-      tmp[1].split(/,/).forEach((str) => params.push(parseFloat(str)))
+      tmp[1].split(/,/).forEach(str => params.push(parseFloat(str)))
 
       switch (command.trim().toLowerCase()) {
-        case 'matrix':
+        case 'matrix': {
           ret = geo.transform(ret, params)
           break
-        case 'translate':
-          ret = ret.map((p) => ({
+        }
+        case 'translate': {
+          ret = ret.map(p => ({
             x: p.x + params[0],
             y: p.y + params[1]
           }))
           break
-        case 'scale':
+        }
+        case 'scale': {
           const scaleX = params[0]
           // XY等倍の場合を考慮
           let scaleY = params[0]
           if (params.length > 1) {
             scaleY = params[1]
           }
-          ret = ret.map((p) => ({
+          ret = ret.map(p => ({
             x: p.x * scaleX,
             y: p.y * scaleY
           }))
           break
-        case 'rotate':
-        // 回転基準点
+        }
+        case 'rotate': {
+          // 回転基準点
           let base: IVec2 = { x: 0, y: 0 }
           if (params.length > 2) {
-            base = { x : params[1], y : params[2] }
+            base = { x: params[1], y: params[2] }
           }
-          ret = ret.map((p) => geo.rotate(p, params[0] * Math.PI / 180, base))
+          ret = ret.map(p => geo.rotate(p, (params[0] * Math.PI) / 180, base))
           break
-        case 'skewx':
-          ret = ret.map((p) => ({
-            x: p.x + Math.tan(params[0] * Math.PI / 180) * p.y,
+        }
+        case 'skewx': {
+          ret = ret.map(p => ({
+            x: p.x + Math.tan((params[0] * Math.PI) / 180) * p.y,
             y: p.y
           }))
           break
-        case 'skewy':
-          ret = ret.map((p) => ({
+        }
+        case 'skewy': {
+          ret = ret.map(p => ({
             x: p.x,
-            y: p.y + Math.tan(params[0] * Math.PI / 180) * p.x
+            y: p.y + Math.tan((params[0] * Math.PI) / 180) * p.x
           }))
           break
+        }
       }
     }
   })
@@ -617,16 +643,19 @@ export function adoptTransform (commandStr: string | null, points: IVec2[]): IVe
  * @param dString pathのd要素文字列
  * @return コマンド単位の情報配列の配列
  */
-export function splitD (dString: string): string[][] {
+export function splitD(dString: string): string[][] {
   // 全コマンドリスト(BbRr非対応)
   const allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g
   // 要素分割
-  const strList = dString.replace(allCommand, ' $& ').split(/,| /).filter((str) => str)
+  const strList = dString
+    .replace(allCommand, ' $& ')
+    .split(/,| /)
+    .filter(str => str)
   // 直前のコマンド
   let pastCommand = 'M'
 
   const ret = []
-  for (let i = 0; i < strList.length;) {
+  for (let i = 0; i < strList.length; ) {
     let info = []
     // コマンドがあるか？
     if (strList[i].match(allCommand)) {
@@ -679,7 +708,7 @@ export function splitD (dString: string): string[][] {
  * @param pathList path情報リスト
  * @return xml文字列
  */
-export function serializeSvgString (pathList: ISvgPath[]): string {
+export function serializeSvgString(pathList: ISvgPath[]): string {
   const svg = serializeSvg(pathList)
   const xmlSerializer = new XMLSerializer()
   const textXml = xmlSerializer.serializeToString(svg)
@@ -691,16 +720,16 @@ export function serializeSvgString (pathList: ISvgPath[]): string {
  * @param pathList path情報リスト
  * @return svgタグ
  */
-export function serializeSvg (pathList: ISvgPath[]): SVGElement {
+export function serializeSvg(pathList: ISvgPath[]): SVGElement {
   const dom = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
 
   // キャンバスサイズ
   let width = 1
   let height = 1
 
-  pathList.forEach((path) => {
+  pathList.forEach(path => {
     dom.appendChild(serializePath(path.d, path.style))
-    path.d.forEach((p) => {
+    path.d.forEach(p => {
       width = Math.max(width, p.x)
       height = Math.max(height, p.y)
     })
@@ -721,7 +750,10 @@ export function serializeSvg (pathList: ISvgPath[]): SVGElement {
  * @param style スタイル情報
  * @return pathタグ
  */
-export function serializePath (pointList: IVec2[], style: ISvgStyle): SVGPathElement {
+export function serializePath(
+  pointList: IVec2[],
+  style: ISvgStyle
+): SVGPathElement {
   const dom = document.createElementNS('http://www.w3.org/2000/svg', 'path')
   dom.setAttribute('d', serializePointList(pointList))
   dom.setAttribute('style', serializeStyle(style))
@@ -733,7 +765,7 @@ export function serializePath (pointList: IVec2[], style: ISvgStyle): SVGPathEle
  * @param pointList 座標リスト
  * @return d属性文字列
  */
-export function serializePointList (pointList: IVec2[]): string {
+export function serializePointList(pointList: IVec2[]): string {
   let ret = ''
 
   pointList.forEach((p, i) => {
@@ -754,7 +786,7 @@ export function serializePointList (pointList: IVec2[]): string {
  * デフォルトstyle作成
  * @return スタイルオブジェクト
  */
-export function createStyle () {
+export function createStyle() {
   return {
     fill: false,
     fillGlobalAlpha: 1,
@@ -774,7 +806,7 @@ export function createStyle () {
  * @param svgPath SVGのpathタグDOM
  * @return スタイルオブジェクト
  */
-export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
+export function parseTagStyle(svgPath: SVGElement): ISvgStyle {
   const ret: ISvgStyle = createStyle()
 
   // スタイル候補要素リスト
@@ -783,7 +815,7 @@ export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
   const styleAttr = svgPath.getAttributeNode('style')
   if (!styleAttr) {
     // 要素から直接取得
-    svgPath.getAttributeNames().forEach((name) => {
+    svgPath.getAttributeNames().forEach(name => {
       const attr = svgPath.getAttributeNode(name)
       if (!attr) return
       styleObject[attr.name] = attr.value
@@ -798,7 +830,7 @@ export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
     })
   }
 
-  Object.keys(styleObject).forEach((key) => {
+  Object.keys(styleObject).forEach(key => {
     key = key.toLowerCase()
     const val = styleObject[key]
 
@@ -852,7 +884,7 @@ export function parseTagStyle (svgPath: SVGElement): ISvgStyle {
  * @param style スタイル情報
  * @return style属性文字列
  */
-export function serializeStyle (style: ISvgStyle) {
+export function serializeStyle(style: ISvgStyle) {
   let ret = ''
 
   // fill情報

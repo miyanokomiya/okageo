@@ -127,7 +127,10 @@ describe('getRadian 中点取得', () => {
   })
   describe('第2引数指定の場合', () => {
     it('第2引数を起点としたラジアンが取得できること', () => {
-      const a: IVec2 = { x: Math.cos(Math.PI / 6) + 1, y: Math.sin(Math.PI / 6) + 2 }
+      const a: IVec2 = {
+        x: Math.cos(Math.PI / 6) + 1,
+        y: Math.sin(Math.PI / 6) + 2
+      }
       const b: IVec2 = { x: 1, y: 2 }
       expect(geo.getRadian(a, b)).toBeCloseTo(Math.PI / 6)
     })
@@ -223,7 +226,7 @@ describe('getCrossLineAndBezier 2次ベジェ曲線と直線の交点', () => {
       const p: IVec2 = { x: 1, y: 2 }
       const q: IVec2 = { x: 2, y: 0 }
       const res = geo.getCrossLineAndBezier(p0, p1, p2, p, q)
-      expect(res.length).toBe(1)
+      expect(res).toHaveLength(1)
       expect(res[0].x).toBeCloseTo(2)
       expect(res[0].y).toBeCloseTo(0)
     })
@@ -236,7 +239,7 @@ describe('getCrossLineAndBezier 2次ベジェ曲線と直線の交点', () => {
       const p: IVec2 = { x: 0, y: 0 }
       const q: IVec2 = { x: 2, y: 0 }
       const res = geo.getCrossLineAndBezier(p0, p1, p2, p, q)
-      expect(res.length).toBe(2)
+      expect(res).toHaveLength(2)
       expect(res[0].x).toBeCloseTo(2)
       expect(res[0].y).toBeCloseTo(0)
       expect(res[1].x).toBeCloseTo(0)
@@ -251,7 +254,7 @@ describe('getCrossLineAndBezier 2次ベジェ曲線と直線の交点', () => {
       const p: IVec2 = { x: 0, y: 3 }
       const q: IVec2 = { x: 2, y: 3 }
       const res = geo.getCrossLineAndBezier(p0, p1, p2, p, q)
-      expect(res.length).toBe(0)
+      expect(res).toHaveLength(0)
     })
   })
 })
@@ -523,18 +526,8 @@ describe('splitPolyByLine 直線によるポリゴン分割', () => {
     ]
     const line: IVec2[] = [{ x: 1, y: 0 }, { x: 1, y: 1 }]
     expect(geo.splitPolyByLine(pol, line)).toEqual([
-      [
-        { x: 0, y: 0 },
-        { x: 1, y: 0 },
-        { x: 1, y: 2 },
-        { x: 0, y: 2 }
-      ],
-      [
-        { x: 1, y: 0 },
-        { x: 2, y: 0 },
-        { x: 2, y: 2 },
-        { x: 1, y: 2 }
-      ]
+      [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 2 }, { x: 0, y: 2 }],
+      [{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 2 }, { x: 1, y: 2 }]
     ])
   })
   it('3つ以上に分割される場合、分割されたポリゴンが全て取得できること', () => {
@@ -550,28 +543,28 @@ describe('splitPolyByLine 直線によるポリゴン分割', () => {
     ]
     const line: IVec2[] = [{ x: 0, y: 2 }, { x: 1, y: 2 }]
     const res = geo.splitPolyByLine(pol, line)
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0]).toEqual([
-        { x: 0, y: 0 },
-        { x: 3, y: 0 },
-        { x: 3, y: 2 },
-        { x: 2, y: 2 },
-        { x: 2, y: 1 },
-        { x: 1, y: 1 },
-        { x: 1, y: 2 },
-        { x: 0, y: 2 }
+      { x: 0, y: 0 },
+      { x: 3, y: 0 },
+      { x: 3, y: 2 },
+      { x: 2, y: 2 },
+      { x: 2, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 0, y: 2 }
     ])
     expect(res[1]).toEqual([
-        { x: 1, y: 2 },
-        { x: 1, y: 3 },
-        { x: 0, y: 3 },
-        { x: 0, y: 2 }
+      { x: 1, y: 2 },
+      { x: 1, y: 3 },
+      { x: 0, y: 3 },
+      { x: 0, y: 2 }
     ])
     expect(res[2]).toEqual([
-        { x: 3, y: 2 },
-        { x: 3, y: 3 },
-        { x: 2, y: 3 },
-        { x: 2, y: 2 }
+      { x: 3, y: 2 },
+      { x: 3, y: 3 },
+      { x: 2, y: 3 },
+      { x: 2, y: 2 }
     ])
   })
 })
@@ -585,17 +578,9 @@ describe('triangleSplit 三角分割', () => {
       { x: 0, y: 2 }
     ]
     const res = geo.triangleSplit(pol)
-    expect(res.length).toBe(2)
-    expect(res[0]).toEqual([
-      { x: 2, y: 2 },
-      { x: 0, y: 2 },
-      { x: 2, y: 0 }
-    ])
-    expect(res[1]).toEqual([
-      { x: 2, y: 0 },
-      { x: 0, y: 2 },
-      { x: 0, y: 0 }
-    ])
+    expect(res).toHaveLength(2)
+    expect(res[0]).toEqual([{ x: 2, y: 2 }, { x: 0, y: 2 }, { x: 2, y: 0 }])
+    expect(res[1]).toEqual([{ x: 2, y: 0 }, { x: 0, y: 2 }, { x: 0, y: 0 }])
   })
   it('凹なポリゴンが分割できること', () => {
     const pol: IVec2[] = [
@@ -609,44 +594,28 @@ describe('triangleSplit 三角分割', () => {
       { x: 0, y: 3 }
     ]
     const res = geo.triangleSplit(pol)
-    expect(res.length).toBe(6)
+    expect(res).toHaveLength(6)
   })
 })
 
 describe('isPointOnTriangle 点が三角形内部にあるか判定', () => {
   it('内包される場合、trueが取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     const p: IVec2 = { x: 0.2, y: 0.5 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(true)
   })
   it('辺上の場合、trueが取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     const p: IVec2 = { x: 0, y: 0.5 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(true)
   })
   it('点上の場合、trueが取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     const p: IVec2 = { x: 0, y: 1 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(true)
   })
   it('含まれない場合、falseが取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     const p: IVec2 = { x: 0, y: 2 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(false)
   })
@@ -654,11 +623,7 @@ describe('isPointOnTriangle 点が三角形内部にあるか判定', () => {
 
 describe('convertLoopwise 面を時計回りに変換', () => {
   it('時計回りに変換されること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     expect(geo.convertLoopwise(pol)).toEqual([
       { x: 1, y: 1 },
       { x: 0, y: 1 },
@@ -669,66 +634,42 @@ describe('convertLoopwise 面を時計回りに変換', () => {
 
 describe('getLoopwise 面の時計回りに判定', () => {
   it('時計回りの場合、1が取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 1, y: 1 },
-      { x: 0, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 1 }]
     expect(geo.getLoopwise(pol)).toBe(1)
   })
   it('反時計回りの場合、-1が取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     expect(geo.getLoopwise(pol)).toBe(-1)
   })
   it('面が成立しない場合、0が取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 0, y: 2 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }]
     expect(geo.getLoopwise(pol)).toBe(0)
   })
 })
 
 describe('getArea 面積取得', () => {
   it('第2引数を省略した場合、非負の面積が取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     expect(geo.getArea(pol)).toBeCloseTo(1 / 2)
   })
   it('第2引数をtrueにした場合、負値を許した面積が取得できること', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     expect(geo.getArea(pol, true)).toBeCloseTo(-1 / 2)
   })
 })
 
 describe('approximateBezier ベジェ曲線近似', () => {
   describe('2次ベジェの場合', () => {
-    const pol: IVec2[] = [
-      { x: 0, y: 0 },
-      { x: 1, y: 2 },
-      { x: 2, y: 0 }
-    ]
+    const pol: IVec2[] = [{ x: 0, y: 0 }, { x: 1, y: 2 }, { x: 2, y: 0 }]
     it('サイズ1の近似が正しいこと', () => {
       const res = geo.approximateBezier(pol, 1)
-      expect(res.length).toBe(2)
+      expect(res).toHaveLength(2)
       expect(res[0]).toEqual({ x: 0, y: 0 })
       expect(res[1]).toEqual({ x: 2, y: 0 })
     })
     it('サイズ2の近似が正しいこと', () => {
       const res = geo.approximateBezier(pol, 2)
-      expect(res.length).toBe(3)
+      expect(res).toHaveLength(3)
       expect(res[0]).toEqual({ x: 0, y: 0 })
       expect(res[1]).toEqual({ x: 1, y: 1 })
       expect(res[2]).toEqual({ x: 2, y: 0 })
@@ -743,20 +684,20 @@ describe('approximateBezier ベジェ曲線近似', () => {
     ]
     it('サイズ1の近似が正しいこと', () => {
       const res = geo.approximateBezier(pol, 1)
-      expect(res.length).toBe(2)
+      expect(res).toHaveLength(2)
       expect(res[0]).toEqual({ x: 0, y: 0 })
       expect(res[1]).toEqual({ x: 4, y: 0 })
     })
     it('サイズ2の近似が正しいこと', () => {
       const res = geo.approximateBezier(pol, 2)
-      expect(res.length).toBe(3)
+      expect(res).toHaveLength(3)
       expect(res[0]).toEqual({ x: 0, y: 0 })
       expect(res[1]).toEqual({ x: 2, y: 0 })
       expect(res[2]).toEqual({ x: 4, y: 0 })
     })
     it('サイズ3の近似が正しいこと', () => {
       const res = geo.approximateBezier(pol, 3)
-      expect(res.length).toBe(4)
+      expect(res).toHaveLength(4)
       expect(res[0]).toEqual({ x: 0, y: 0 })
       expect(res[1].x).toBeGreaterThan(1.1)
       expect(res[1].x).toBeLessThan(1.9)
@@ -788,7 +729,7 @@ describe('approximateBezier ベジェ曲線近似', () => {
 describe('approximateArc 円弧近似', () => {
   it('サイズ2の近似が正しいこと', () => {
     const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 0, y: 0 }, 0, 2)
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(2)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(0)
@@ -798,7 +739,7 @@ describe('approximateArc 円弧近似', () => {
   })
   it('サイズ3の近似が正しいこと', () => {
     const res = geo.approximateArc(1, 1, 0, Math.PI, { x: 0, y: 0 }, 0, 3)
-    expect(res.length).toBe(4)
+    expect(res).toHaveLength(4)
     expect(res[0].x).toBeCloseTo(1)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(1 / 2)
@@ -809,8 +750,16 @@ describe('approximateArc 円弧近似', () => {
     expect(res[3].y).toBeCloseTo(0)
   })
   it('回転ありの近似が正しいこと', () => {
-    const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 0, y: 0 }, Math.PI / 2, 2)
-    expect(res.length).toBe(3)
+    const res = geo.approximateArc(
+      2,
+      1,
+      0,
+      Math.PI,
+      { x: 0, y: 0 },
+      Math.PI / 2,
+      2
+    )
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(1)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(0)
@@ -819,8 +768,16 @@ describe('approximateArc 円弧近似', () => {
     expect(res[2].y).toBeCloseTo(0)
   })
   it('移動ありの近似が正しいこと', () => {
-    const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 1, y: 2 }, Math.PI / 2, 2)
-    expect(res.length).toBe(3)
+    const res = geo.approximateArc(
+      2,
+      1,
+      0,
+      Math.PI,
+      { x: 1, y: 2 },
+      Math.PI / 2,
+      2
+    )
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(2)
     expect(res[0].y).toBeCloseTo(2)
     expect(res[1].x).toBeCloseTo(1)
@@ -842,7 +799,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       Math.PI / 4,
       1
     )
-    expect(res.length).toBe(2)
+    expect(res).toHaveLength(2)
     expect(res[0].x).toBeCloseTo(1)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(0)
@@ -859,7 +816,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       Math.PI / 2,
       2
     )
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
     expect(res[0].y).toBeCloseTo(1 / 2)
     expect(res[1].x).toBeCloseTo(Math.sqrt(3) - 1)
@@ -878,7 +835,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       Math.PI / 2,
       2
     )
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
     expect(res[0].y).toBeCloseTo(1 / 2)
     expect(res[1].x).toBeCloseTo(-1)
@@ -897,7 +854,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       Math.PI / 2,
       2
     )
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
     expect(res[0].y).toBeCloseTo(1 / 2)
     expect(res[1].x).toBeCloseTo(1)
@@ -916,7 +873,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       Math.PI / 2,
       2
     )
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(Math.sqrt(3) / 2)
     expect(res[0].y).toBeCloseTo(1 / 2)
     expect(res[1].x).toBeCloseTo(Math.sqrt(3) + 1)
@@ -935,7 +892,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       0,
       2
     )
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0].x).toBeCloseTo(-2)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(0)
@@ -954,7 +911,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       0,
       2
     )
-    expect(res.length).toBe(2)
+    expect(res).toHaveLength(2)
     expect(res[0].x).toBeCloseTo(-2)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(2)
@@ -971,7 +928,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       0,
       2
     )
-    expect(res.length).toBe(2)
+    expect(res).toHaveLength(2)
     expect(res[0].x).toBeCloseTo(-2)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(2)
@@ -988,7 +945,7 @@ describe('approximateArcWithPoint 楕円の近似', () => {
       0,
       2
     )
-    expect(res.length).toBe(3)
+    expect(res).toHaveLength(3)
     expect(res[0].y).toBeCloseTo(0)
     expect(res[1].x).toBeCloseTo(0)
     expect(res[1].y).toBeCloseTo(2)
@@ -999,16 +956,10 @@ describe('approximateArcWithPoint 楕円の近似', () => {
 
 describe('getEllipseCenter 2点を通る楕円の中心', () => {
   it('正しく取得できること', () => {
-    const res = geo.getEllipseCenter(
-      { x: 1, y: 0 },
-      { x: 0, y: 2 },
-      1,
-      2,
-      0
-    )
+    const res = geo.getEllipseCenter({ x: 1, y: 0 }, { x: 0, y: 2 }, 1, 2, 0)
     const centers = res.centers
     expect(res.radiusRate).toBe(1)
-    expect(centers.length).toBe(2)
+    expect(centers).toHaveLength(2)
     expect(centers[0].x).toBeCloseTo(0)
     expect(centers[0].y).toBeCloseTo(0)
     expect(centers[1].x).toBeCloseTo(1)
@@ -1024,23 +975,17 @@ describe('getEllipseCenter 2点を通る楕円の中心', () => {
     )
     const centers = res.centers
     expect(res.radiusRate).toBe(1)
-    expect(centers.length).toBe(2)
+    expect(centers).toHaveLength(2)
     expect(centers[0].x).toBeCloseTo(0)
     expect(centers[0].y).toBeCloseTo(0)
     expect(centers[1].x).toBeCloseTo(1)
     expect(centers[1].y).toBeCloseTo(2)
   })
   it('2点が直径よりも離れている場合、中点と補正係数が取得できること', () => {
-    const res = geo.getEllipseCenter(
-      { x: 0, y: 0 },
-      { x: 4, y: 0 },
-      1,
-      1,
-      0
-    )
+    const res = geo.getEllipseCenter({ x: 0, y: 0 }, { x: 4, y: 0 }, 1, 1, 0)
     const centers = res.centers
     expect(res.radiusRate).toBe(2)
-    expect(centers.length).toBe(2)
+    expect(centers).toHaveLength(2)
     expect(centers[0].x).toBeCloseTo(2)
     expect(centers[0].y).toBeCloseTo(0)
     expect(centers[1].x).toBeCloseTo(2)
@@ -1057,21 +1002,17 @@ describe('getCircleCenter 2点を通る円の中心', () => {
     )
     const centers = res.centers
     expect(res.radiusRate).toBe(1)
-    expect(centers.length).toBe(2)
+    expect(centers).toHaveLength(2)
     expect(centers[0].x).toBeCloseTo(1)
     expect(centers[0].y).toBeCloseTo(0)
     expect(centers[1].x).toBeCloseTo(0)
     expect(centers[1].y).toBeCloseTo(0)
   })
   it('2点が直径よりも離れている場合、中点と補正係数が取得できること', () => {
-    const res = geo.getCircleCenter(
-      { x: 0, y: 0 },
-      { x: 4, y: 0 },
-      1
-    )
+    const res = geo.getCircleCenter({ x: 0, y: 0 }, { x: 4, y: 0 }, 1)
     const centers = res.centers
     expect(res.radiusRate).toBe(2)
-    expect(centers.length).toBe(2)
+    expect(centers).toHaveLength(2)
     expect(centers[0].x).toBeCloseTo(2)
     expect(centers[0].y).toBeCloseTo(0)
     expect(centers[1].x).toBeCloseTo(2)
@@ -1081,13 +1022,8 @@ describe('getCircleCenter 2点を通る円の中心', () => {
 
 describe('transform 2次元アフィン変換', () => {
   it('正しく取得できること', () => {
-    const res = geo.transform(
-      [
-        { x: 1, y: 2 }
-      ],
-      [1, 2, 3, 4, 5, 6]
-    )
-    expect(res.length).toBe(1)
+    const res = geo.transform([{ x: 1, y: 2 }], [1, 2, 3, 4, 5, 6])
+    expect(res).toHaveLength(1)
     expect(res[0].x).toBeCloseTo(1 + 2 * 3 + 5)
     expect(res[0].y).toBeCloseTo(2 + 2 * 4 + 6)
   })
@@ -1105,7 +1041,7 @@ describe('omitSamePoint 隣接同一点オミット', () => {
       { x: 1, y: 2 },
       { x: 1, y: 2 }
     ])
-    expect(res.length).toBe(4)
+    expect(res).toHaveLength(4)
     expect(res[0]).toEqual({ x: 1, y: 2 })
     expect(res[1]).toEqual({ x: 1, y: 3 })
     expect(res[2]).toEqual({ x: 2, y: 2 })
@@ -1116,29 +1052,29 @@ describe('omitSamePoint 隣接同一点オミット', () => {
 describe('getRegularPolygonArea', () => {
   it('正三角形の面積が正しいこと', () => {
     const area = geo.getRegularPolygonArea(2, 3)
-    expect(area).toBeCloseTo(2 * Math.sqrt(3) / 2 * 3)
+    expect(area).toBeCloseTo(((2 * Math.sqrt(3)) / 2) * 3)
   })
   it('正四角形の面積が正しいこと', () => {
     const area = geo.getRegularPolygonArea(2, 4)
-    expect(area).toBeCloseTo(2 * 2 * 2 / 2 * 2)
+    expect(area).toBeCloseTo(((2 * 2 * 2) / 2) * 2)
   })
   it('正六角形の面積が正しいこと', () => {
     const area = geo.getRegularPolygonArea(2, 6)
-    expect(area).toBeCloseTo(2 * Math.sqrt(3) / 2 * 6)
+    expect(area).toBeCloseTo(((2 * Math.sqrt(3)) / 2) * 6)
   })
 })
 
 describe('getRegularPolygonRadius', () => {
   it('正三角形の半径が正しいこと', () => {
-    const area = geo.getRegularPolygonRadius(2 * Math.sqrt(3) / 2 * 3, 3)
+    const area = geo.getRegularPolygonRadius(((2 * Math.sqrt(3)) / 2) * 3, 3)
     expect(area).toBeCloseTo(2)
   })
   it('正四角形の半径が正しいこと', () => {
-    const area = geo.getRegularPolygonRadius(2 * 2 * 2 / 2 * 2, 4)
+    const area = geo.getRegularPolygonRadius(((2 * 2 * 2) / 2) * 2, 4)
     expect(area).toBeCloseTo(2)
   })
   it('正六角形の半径が正しいこと', () => {
-    const area = geo.getRegularPolygonRadius(2 * Math.sqrt(3) / 2 * 6, 6)
+    const area = geo.getRegularPolygonRadius(((2 * Math.sqrt(3)) / 2) * 6, 6)
     expect(area).toBeCloseTo(2)
   })
 })
@@ -1151,10 +1087,7 @@ describe('getIncludedPolygonGroups', () => {
     const p4 = [{ x: 0, y: 10 }, { x: 1, y: 10 }, { x: 0, y: 11 }]
     const polygons = [p1, p2, p3, p4]
     const res = geo.getIncludedPolygonGroups(polygons)
-    expect(res).toEqual([
-      [p3, p2, p1],
-      [p4]
-    ])
+    expect(res).toEqual([[p3, p2, p1], [p4]])
   })
 })
 
@@ -1192,10 +1125,14 @@ describe('getPolygonNotPolygon', () => {
   it('2箇所で差をとる必要があるケース', () => {
     const p1 = [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 5 }, { x: 0, y: 5 }]
     const p2 = [
-      { x: 3, y: 1 }, { x: 1, y: 1 },
-      { x: 1, y: 2 }, { x: 3, y: 2 },
-      { x: 3, y: 3 }, { x: 1, y: 3 },
-      { x: 1, y: 4 }, { x: 3, y: 4 }
+      { x: 3, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 3, y: 2 },
+      { x: 3, y: 3 },
+      { x: 1, y: 3 },
+      { x: 1, y: 4 },
+      { x: 3, y: 4 }
     ]
     const res = geo.getPolygonNotPolygon(p1, p2)
     expect(res).toEqual([
