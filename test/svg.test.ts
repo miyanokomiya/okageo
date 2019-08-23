@@ -720,11 +720,21 @@ describe('splitD pathのd要素分解', () => {
   })
   describe('指数表記', () => {
     it('結果が正しいこと', () => {
-      const dString = 'M0,1L1e-2 ,3  '
+      const dString = 'M0,1L1e-22 ,3  '
       const res = svg.splitD(dString)
       expect(res).toHaveLength(2)
       expect(res[0]).toEqual(['M', '0', '1'])
-      expect(res[1]).toEqual(['L', '1e-2', '3'])
+      expect(res[1]).toEqual(['L', '1e-22', '3'])
+    })
+  })
+  describe('区切り文字なしのマイナス記号', () => {
+    it('結果が正しいこと', () => {
+      const dString = 'M0-1 L2-3-11-2'
+      const res = svg.splitD(dString)
+      expect(res).toHaveLength(3)
+      expect(res[0]).toEqual(['M', '0', '-1'])
+      expect(res[1]).toEqual(['L', '2', '-3'])
+      expect(res[2]).toEqual(['L', '-11', '-2'])
     })
   })
 })
