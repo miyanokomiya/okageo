@@ -12,7 +12,8 @@ const config: Config = {
   output: {
     format: ['cjs-min', 'esm-min', 'umd-min'],
     moduleName: 'okageo'
-  }
+  },
+  banner: true
 }
 
 export default config
