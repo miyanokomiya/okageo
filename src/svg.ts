@@ -649,7 +649,7 @@ export function splitD(dString: string): string[][] {
   // 要素分割
   const strList = dString
     .replace(allCommand, ' $& ')
-    .replace(/([^e])(-\d(\.?)\d*)/g, '$1 $2 ')
+    .replace(/([^e])(-\d(\d*\.?)\d*)/g, '$1 $2 ')
     .split(/,| /)
     .filter(str => str)
   // 直前のコマンド
