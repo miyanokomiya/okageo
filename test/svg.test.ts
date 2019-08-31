@@ -650,14 +650,14 @@ describe('splitD pathのd要素分解', () => {
   })
   describe('M m L l T tの分解', () => {
     it('結果が正しいこと', () => {
-      const dString = 'M 0,1 L 2,-1.3 T -4.3,5 m 0,1 l 2,3 t 4,5'
+      const dString = 'M 0,1 L 2,-1.3 T -41.3,5 m 0,1 l 2,-13.45 t 4,5'
       const res = svg.splitD(dString)
       expect(res).toHaveLength(6)
       expect(res[0]).toEqual(['M', '0', '1'])
       expect(res[1]).toEqual(['L', '2', '-1.3'])
-      expect(res[2]).toEqual(['T', '-4.3', '5'])
+      expect(res[2]).toEqual(['T', '-41.3', '5'])
       expect(res[3]).toEqual(['m', '0', '1'])
-      expect(res[4]).toEqual(['l', '2', '3'])
+      expect(res[4]).toEqual(['l', '2', '-13.45'])
       expect(res[5]).toEqual(['t', '4', '5'])
     })
   })
