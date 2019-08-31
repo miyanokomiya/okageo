@@ -2,7 +2,7 @@
   "name": "okageo",
   "version": "1.0.18",
   "description": "parse SVG to polygons",
-  "main": "./dist/okageo.js",
+  "main": "./dist/okageo.min.js",
   "author": "miyanokomiya",
   "license": "MIT",
   "repository": {
@@ -17,10 +17,10 @@
     "lint": "yarn eslint ./src ./test ./types ./*.js --ext .js,.ts && yarn prettier -c ./*.json ./.*.json",
     "lint:fix": "yarn eslint --fix ./src ./test ./types ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
     "test": "jest --coverage",
-    "build": "parcel build src/okageo.ts",
-    "doc": "typedoc --out doc",
+    "doc": "typedoc --out doc ./src/okageo.ts",
     "demo": "parcel demo/index.html",
-    "prepare": "yarn build"
+    "build": "yarn bili",
+    "prepublishOnly": "yarn build"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
@@ -41,6 +41,7 @@
     "jest": "^24.9.0",
     "parcel-bundler": "^1.11.0",
     "prettier": "^1.18.2",
+    "rollup-plugin-typescript2": "^0.24.0",
     "ts-jest": "^24.0.2",
     "typedoc": "^0.15.0",
     "typescript": "^3.2.2"
@@ -49,5 +50,8 @@
     "hooks": {
       "pre-commit": "yarn lint"
     }
+  },
+  "dependencies": {
+    "bili": "^4.8.1"
   }
 }

@@ -1,4 +1,4 @@
-import * as okageo from '../src/okageo'
+import okageo from '../src/okageo'
 
 describe('okageo', () => {
   it('export内容が正しいこと', () => {

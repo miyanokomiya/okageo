@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs",
+    "module": "esnext",
     "strict": true,
-    "allowJs": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "typeRoots": ["node_modules/@types"],
     "declaration": true,
     "lib": ["dom", "es2015"],
