@@ -1,5 +1,5 @@
 import * as geo from '../src/geo'
-import { IVec2 } from '../types/index'
+import { IVec2 } from '../src/types'
 
 describe('add ベクトル足し算', () => {
   it('計算結果が正しいこと', () => {

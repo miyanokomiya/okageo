@@ -1,4 +1,4 @@
-import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from '../types/index';
+import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from './types';
 export declare const configs: ISvgConfigs;
 /**
  * 描画

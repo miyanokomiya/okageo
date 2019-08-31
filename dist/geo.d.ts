@@ -1,4 +1,4 @@
-import { IVec2 } from '../types/index';
+import { IVec2 } from './types';
 export declare const MINVALUE: number;
 export declare function add(a: IVec2, b: IVec2): IVec2;
 export declare function sub(a: IVec2, b: IVec2): IVec2;

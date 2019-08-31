@@ -1,4 +1,4 @@
-import { IVec2 } from '../types/index'
+import { IVec2 } from './types'
 
 export const MINVALUE: number = 0.000001
 

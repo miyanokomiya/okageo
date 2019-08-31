@@ -1,4 +1,4 @@
-import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from '../types/index'
+import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from './types'
 import * as geo from './geo'
 
 export const configs: ISvgConfigs = {

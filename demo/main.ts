@@ -1,6 +1,6 @@
 import * as geo from '../src/geo'
 import * as svg from '../src/svg'
-import { ISvgPath } from '../types'
+import { ISvgPath } from '../src/types'
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext('2d')
