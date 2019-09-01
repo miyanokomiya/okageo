@@ -277,6 +277,40 @@ export function isOnSeg(p: IVec2, seg: IVec2[]): boolean {
 }
 
 /**
+ * 点から正の方向へ伸ばした水平線が線分と交差するか判定
+ * 点が面上にあるか判定に利用する
+ * 点が線分上の場合はfalse
+ * @param p 点
+ * @param seg 線分
+ * @return 交差するフラグ
+ */
+function isCrossSegAndRightHorizon(p: IVec2, seg: IVec2[]): boolean {
+  // 平行な場合はfalse
+  if (Math.abs(seg[0].y - seg[1].y) < MINVALUE) {
+    return false
+  }
+
+  // 線分の上側端点との接触はfalse、下側端点との接触はtrueで統一
+  let top, bottom
+  if (seg[0].y < seg[1].y) {
+    ;[bottom, top] = seg
+  } else {
+    ;[top, bottom] = seg
+  }
+  if (p.y < bottom.y || top.y <= p.y) {
+    return false
+  }
+
+  // 交点は厳密にpの右側でなければいけない
+  const cross = getCrossSegAndLine(seg, [p, { x: p.x + 1, y: p.y }])
+  if (!cross || cross.x <= p.x) {
+    return false
+  }
+
+  return true
+}
+
+/**
  * 点が面上にあるか判定（境界線上を含む）
  * @param p 点
  * @param polygon 面
@@ -301,41 +335,7 @@ export function isOnPolygon(p: IVec2, polygon: IVec2[]): boolean {
     }
   }
 
-  // 周を計測
-  const dist = segs.reduce((d, seg) => {
-    return d + getDistance(seg[0], seg[1])
-  }, 0)
-
-  // 全ての辺と平行にならず、頂点と接触しないベクトルを見つける
-  // FIXME もう少し効率の良い方法にしたい
-  let v = { x: 1, y: 0 }
-  let stack = 0
-  for (let i = 0; i < segs.length; i++) {
-    const seg = segs[i]
-    if (!isParallel(sub(seg[0], seg[1]), v)) {
-      if (!polygon.find(point => isOnLine(p, [point, add(p, v)]))) {
-        break
-      }
-    }
-    v = { x: Math.random() * 10, y: Math.random() * 10 }
-    i = -1
-    stack++
-    // 無限ループは回避
-    if (stack > 100) throw new Error('cannot calc')
-  }
-
-  // 辺との交差判定を行う疑似直線を生成
-  const ray = [p, add(p, multi(v, dist * 2))]
-  // rayと面の各辺との交差回数から判定する
-  const hitSegs = segs.filter(seg => {
-    const maxX: number = Math.max(seg[0].x, seg[1].x)
-    const maxY: number = Math.max(seg[0].y, seg[1].y)
-    // rayは第一象限に向かうベクトルなので絞り込む
-    if (maxX < p.x) return false
-    if (maxY < p.y) return false
-
-    return isTouchSegAndSeg(seg, ray)
-  })
+  const hitSegs = segs.filter(seg => isCrossSegAndRightHorizon(p, seg))
   return hitSegs.length % 2 === 1
 }
 
