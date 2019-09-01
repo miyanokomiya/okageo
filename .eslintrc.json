@@ -3,7 +3,8 @@
   "plugins": ["@typescript-eslint", "jest"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "sourceType": "module"
+    "sourceType": "module",
+    "warnOnUnsupportedTypeScriptVersion": false
   },
   "rules": {
     "@typescript-eslint/adjacent-overload-signatures": "error",
