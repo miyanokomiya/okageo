@@ -15,7 +15,7 @@
   "types": "./dist/okageo.d.ts",
   "scripts": {
     "lint": "yarn eslint ./src ./test ./*.js --ext .js,.ts && yarn prettier -c ./*.json ./.*.json",
-    "lint:fix": "yarn eslint --fix ./src ./test ./types ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
+    "lint:fix": "yarn eslint --fix ./src ./test ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
     "test": "jest --coverage",
     "doc": "typedoc --out doc ./src/okageo.ts",
     "demo": "parcel demo/index.html",
