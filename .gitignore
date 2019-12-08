@@ -2,8 +2,7 @@
 .DS_Store
 doc
 
-dist/index.*
-dist/main.*
+dist
 
 # Logs
 logs
