@@ -37,50 +37,74 @@ describe('fitRect 矩形内調整', () => {
     it('結果が正しいこと', () => {
       const pathInfoList: ISvgPath[] = [
         {
-          d: [{ x: 0, y: 0 }, { x: 1, y: 2 }],
+          d: [
+            { x: 0, y: 0 },
+            { x: 1, y: 2 }
+          ],
           style
         }
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 2, 4)
       expect(res).toHaveLength(1)
-      expect(res[0].d).toEqual([{ x: 0, y: 0 }, { x: 2, y: 4 }])
+      expect(res[0].d).toEqual([
+        { x: 0, y: 0 },
+        { x: 2, y: 4 }
+      ])
     })
   })
   describe('縮小', () => {
     it('結果が正しいこと', () => {
       const pathInfoList: ISvgPath[] = [
         {
-          d: [{ x: 0, y: 0 }, { x: 2, y: 4 }],
+          d: [
+            { x: 0, y: 0 },
+            { x: 2, y: 4 }
+          ],
           style
         }
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 1, 2)
       expect(res).toHaveLength(1)
-      expect(res[0].d).toEqual([{ x: 0, y: 0 }, { x: 1, y: 2 }])
+      expect(res[0].d).toEqual([
+        { x: 0, y: 0 },
+        { x: 1, y: 2 }
+      ])
     })
   })
   describe('中央揃え', () => {
     it('縦方向、結果が正しいこと', () => {
       const pathInfoList: ISvgPath[] = [
         {
-          d: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+          d: [
+            { x: 0, y: 0 },
+            { x: 1, y: 1 }
+          ],
           style
         }
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 1, 2)
       expect(res).toHaveLength(1)
-      expect(res[0].d).toEqual([{ x: 0, y: 0.5 }, { x: 1, y: 1.5 }])
+      expect(res[0].d).toEqual([
+        { x: 0, y: 0.5 },
+        { x: 1, y: 1.5 }
+      ])
     })
     it('横方向、結果が正しいこと', () => {
       const pathInfoList: ISvgPath[] = [
         {
-          d: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+          d: [
+            { x: 0, y: 0 },
+            { x: 1, y: 1 }
+          ],
           style
         }
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 2, 1)
       expect(res).toHaveLength(1)
-      expect(res[0].d).toEqual([{ x: 0.5, y: 0 }, { x: 1.5, y: 1 }])
+      expect(res[0].d).toEqual([
+        { x: 0.5, y: 0 },
+        { x: 1.5, y: 1 }
+      ])
     })
   })
 })
@@ -91,7 +115,11 @@ describe('loadSvgGraphicsPath svg文字列解析', () => {
     const svgStr = wrapSvg(elmStr)
     const res = svg.parseSvgGraphicsStr(svgStr)
     expect(res).toHaveLength(1)
-    expect(res[0].d).toEqual([{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }])
+    expect(res[0].d).toEqual([
+      { x: 1, y: 2 },
+      { x: 3, y: 4 },
+      { x: 5, y: 6 }
+    ])
     expect(res[0].style.fillStyle).toBe('red')
   })
 })
@@ -104,7 +132,11 @@ describe('parseSvgGraphics svg解析', () => {
         .childNodes[0] as SVGElement
       const res = svg.parseSvgGraphics(svgDom)
       expect(res).toHaveLength(1)
-      expect(res[0].d).toEqual([{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }])
+      expect(res[0].d).toEqual([
+        { x: 1, y: 2 },
+        { x: 3, y: 4 },
+        { x: 5, y: 6 }
+      ])
       expect(res[0].style.fillStyle).toBe('red')
     })
   })
@@ -295,7 +327,11 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }],
+        [
+          { x: 1, y: 2 },
+          { x: 3, y: 4 },
+          { x: 5, y: 6 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -311,7 +347,11 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: 4, y: 6 }, { x: 6, y: 8 }],
+        [
+          { x: 1, y: 2 },
+          { x: 4, y: 6 },
+          { x: 6, y: 8 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -327,7 +367,11 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 3, y: 4 }],
+        [
+          { x: 1, y: 2 },
+          { x: -1, y: -2 },
+          { x: 3, y: 4 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -343,7 +387,11 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 4, y: 6 }],
+        [
+          { x: 1, y: 2 },
+          { x: -1, y: -2 },
+          { x: 4, y: 6 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -359,7 +407,12 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }, { x: 7, y: 8 }],
+        [
+          { x: 1, y: 2 },
+          { x: 3, y: 4 },
+          { x: 5, y: 6 },
+          { x: 7, y: 8 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -375,7 +428,12 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: 4, y: 6 }, { x: 6, y: 8 }, { x: 8, y: 10 }],
+        [
+          { x: 1, y: 2 },
+          { x: 4, y: 6 },
+          { x: 6, y: 8 },
+          { x: 8, y: 10 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -391,7 +449,12 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 3, y: 4 }, { x: 5, y: 6 }],
+        [
+          { x: 1, y: 2 },
+          { x: -1, y: -2 },
+          { x: 3, y: 4 },
+          { x: 5, y: 6 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -407,7 +470,12 @@ describe('parsePath path解析', () => {
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
       const pList = geo.approximateBezier(
-        [{ x: 1, y: 2 }, { x: -1, y: -2 }, { x: 4, y: 6 }, { x: 6, y: 8 }],
+        [
+          { x: 1, y: 2 },
+          { x: -1, y: -2 },
+          { x: 4, y: 6 },
+          { x: 6, y: 8 }
+        ],
         svg.configs.bezierSplitSize
       )
       expect(pList).toHaveLength(res.length)
@@ -741,7 +809,11 @@ describe('splitD pathのd要素分解', () => {
 
 describe.skip('serializeSvgString svg文字列生成(XMLSerializerがテスト環境で未定義なためskip)', () => {
   it('結果が正しいこと', () => {
-    const points: IVec2[] = [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 2 }]
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
     const style: ISvgStyle = {
       fill: true,
       fillGlobalAlpha: 1,
@@ -762,7 +834,11 @@ describe.skip('serializeSvgString svg文字列生成(XMLSerializerがテスト�
 
 describe('serializeSvg svgタグ生成', () => {
   it('結果が正しいこと', () => {
-    const points: IVec2[] = [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 2 }]
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
     const style: ISvgStyle = {
       fill: true,
       fillGlobalAlpha: 1,
@@ -792,7 +868,11 @@ describe('serializeSvg svgタグ生成', () => {
 
 describe('serializePath pathタグ生成', () => {
   it('結果が正しいこと', () => {
-    const points: IVec2[] = [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 2 }]
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
     const style: ISvgStyle = {
       fill: true,
       fillGlobalAlpha: 1,
@@ -815,7 +895,11 @@ describe('serializePath pathタグ生成', () => {
 
 describe('serializePointList d属性へのシリアライス', () => {
   it('結果が正しいこと', () => {
-    const points: IVec2[] = [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 2 }]
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 }
+    ]
     expect(svg.serializePointList(points)).toBe('M 1,1 L 2,1 L 1,2 Z')
   })
 })
