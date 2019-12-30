@@ -23,17 +23,17 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.18",
-    "@typescript-eslint/eslint-plugin": "^2.0.0",
-    "@typescript-eslint/parser": "^2.0.0",
+    "@types/jest": "^24.0.25",
+    "@typescript-eslint/eslint-plugin": "^2.13.0",
+    "@typescript-eslint/parser": "^2.13.0",
     "babel-jest": "^24.9.0",
     "coveralls": "^3.0.6",
-    "eslint": "^6.2.1",
-    "eslint-config-prettier": "^6.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
     "eslint-config-standard": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jest": "^23.0.2",
-    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-jest": "^23.2.0",
+    "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
@@ -43,8 +43,8 @@
     "prettier": "^1.18.2",
     "rollup-plugin-typescript2": "^0.25.2",
     "ts-jest": "^24.0.2",
-    "typedoc": "^0.15.0",
-    "typescript": "^3.2.2"
+    "typedoc": "^0.15.6",
+    "typescript": "^3.7.4"
   },
   "husky": {
     "hooks": {

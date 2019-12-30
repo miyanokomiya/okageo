@@ -13,6 +13,28 @@ export interface IVec2 {
 }
 
 /**
+ * 矩形
+ */
+export interface IRectangle {
+  /**
+   * x成分
+   */
+  readonly x: number
+  /**
+   * y成分
+   */
+  readonly y: number
+  /**
+   * 幅
+   */
+  readonly width: number
+  /**
+   * 高さ
+   */
+  readonly height: number
+}
+
+/**
  * SVG設定
  */
 export interface ISvgConfigs {

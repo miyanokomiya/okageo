@@ -1,4 +1,4 @@
-import { IVec2 } from './types'
+import { IVec2, IRectangle } from './types'
 
 export const MINVALUE: number = 0.000001
 
@@ -1181,4 +1181,126 @@ export function getPolygonNotPolygon(target: IVec2[], poly: IVec2[]): IVec2[] {
   }
 
   return ret
+}
+
+/**
+ * ポリゴン全てを包含する矩形を取得
+ * @param polygons ポリゴン一覧
+ * @return 外接矩形
+ */
+export function getOuterRectanble(polygons: IVec2[][]): IRectangle {
+  if (polygons.length === 0)
+    return {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0
+    }
+
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+
+  for (let i = 0; i < polygons.length; i++) {
+    const polygon = polygons[i]
+    for (let j = 0; j < polygon.length; j++) {
+      const v = polygon[j]
+      minX = Math.min(minX, v.x)
+      minY = Math.min(minY, v.y)
+      maxX = Math.max(maxX, v.x)
+      maxY = Math.max(maxY, v.y)
+    }
+  }
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY
+  }
+}
+
+/**
+ * 矩形範囲のグリッド取得
+ * @param range 矩形範囲
+ * @param gridSize グリッド幅
+ * @param dX x軸のずらし幅
+ * @param dY y軸のずらし幅
+ * @return グリッド線リスト
+ */
+export function getGrid(
+  range: IRectangle,
+  gridSize: number,
+  dX: number = 0,
+  dY: number = 0
+): IVec2[][] {
+  const gridList: IVec2[][] = []
+  const minX = range.x
+  const maxX = range.x + range.width
+  const minY = range.y
+  const maxY = range.y + range.height
+
+  let x = minX + dX
+  while (x < maxX) {
+    if (minX < x && x < maxX) {
+      gridList.push([
+        { x, y: minY },
+        { x, y: maxY }
+      ])
+    }
+    x += gridSize
+  }
+
+  let y = minY + dY
+  while (y < maxY) {
+    if (minY < y && y < maxY) {
+      gridList.push([
+        { x: minX, y },
+        { x: maxX, y }
+      ])
+    }
+    y += gridSize
+  }
+
+  return gridList
+}
+
+/**
+ * 矩形を中心基準でサイズ変更する
+ * @param org 元の矩形
+ * @param dW 幅変更差分
+ * @param dH 高さ変更差分
+ * @return サイズ変更後の矩形
+ */
+export function expandRecntagle(
+  org: IRectangle,
+  dW: number,
+  dH: number
+): IRectangle {
+  return {
+    x: org.x - dW / 2,
+    y: org.y - dH / 2,
+    width: org.width + dW,
+    height: org.height + dH
+  }
+}
+
+/**
+ * 矩形を中心基準の倍率でサイズ変更する
+ * @param org 元の矩形
+ * @param scaleW 幅変更倍率
+ * @param scaleH 高さ軸変更倍率
+ * @return サイズ変更後の矩形
+ */
+export function expandRecntagleScale(
+  org: IRectangle,
+  scaleW: number,
+  scaleH: number
+): IRectangle {
+  return expandRecntagle(
+    org,
+    org.width * (scaleW - 1),
+    org.height * (scaleH - 1)
+  )
 }

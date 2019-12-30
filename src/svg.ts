@@ -926,3 +926,73 @@ export function serializeStyle(style: ISvgStyle) {
 
   return ret
 }
+
+/**
+ * パス分割
+ * @param path 対象パス
+ * @param line 分割線
+ * @return 分割後のパスリスト
+ */
+export function splitPath(path: ISvgPath, line: IVec2[]): ISvgPath[] {
+  let splited = geo.splitPolyByLine(path.d, line)
+  if (splited.length < 2) return [path]
+
+  // 本体と回転方向が一致しているかで分類
+  const rootLoopwise = geo.getLoopwise(path.d)
+  const sameLoopwiseList: IVec2[][] = []
+  const oppositeLoopwiseList: IVec2[][] = []
+  if (path.included) {
+    path.included.forEach(s => {
+      if (geo.getLoopwise(s) === rootLoopwise) {
+        sameLoopwiseList.push(s)
+      } else {
+        oppositeLoopwiseList.push(s)
+      }
+    })
+  }
+
+  // 本体と同回転のものはそのまま分割
+  sameLoopwiseList.forEach(poly => {
+    const sp = geo.splitPolyByLine(poly, line)
+    splited = [...splited, ...(sp.length > 0 ? sp : [poly])]
+  })
+
+  // 本体と逆回転のものは特殊処理
+  const notPolyList: IVec2[][] = []
+  oppositeLoopwiseList.forEach(poly => {
+    const sp = geo.splitPolyByLine(poly, line)
+    if (sp.length > 0) {
+      // 分割されたらブーリアン差をとるために集める
+      notPolyList.push(poly)
+    } else {
+      // 分割なしならそのまま
+      splited.push(poly)
+    }
+  })
+
+  // 切断されたくり抜き領域を差し引いたポリゴンを生成
+  const splitedAfterNot = splited.map(s =>
+    notPolyList.reduce((p, c) => geo.getPolygonNotPolygon(p, c), s)
+  )
+
+  return geo.getIncludedPolygonGroups(splitedAfterNot).map(group => {
+    const [d, ...included] = group
+    return { d: d, included, style: path.style }
+  })
+}
+
+/**
+ * ポリゴンリストをグルーピングしたパスリストに変換する
+ * @param polygons ポリゴンリスト
+ * @param style パススタイル
+ * @return パスリスト
+ */
+export function getGroupedPathList(
+  polygons: IVec2[][],
+  style: ISvgStyle = createStyle()
+): ISvgPath[] {
+  return geo.getIncludedPolygonGroups(polygons).map(group => {
+    const [d, ...included] = group
+    return { d, included, style }
+  })
+}

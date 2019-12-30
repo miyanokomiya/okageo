@@ -1206,3 +1206,152 @@ describe('serializeStyle', () => {
     })
   })
 })
+
+describe('splitPath', () => {
+  const path = {
+    d: [
+      { x: 0, y: 0 },
+      { x: 0, y: 10 },
+      { x: 20, y: 10 },
+      { x: 20, y: 0 }
+    ],
+    included: [
+      [
+        { x: 1, y: 1 },
+        { x: 9, y: 1 },
+        { x: 9, y: 9 },
+        { x: 1, y: 9 }
+      ],
+      [
+        { x: 12, y: 1 },
+        { x: 19, y: 1 },
+        { x: 19, y: 9 },
+        { x: 12, y: 9 }
+      ],
+      [
+        { x: 2, y: 2 },
+        { x: 2, y: 8 },
+        { x: 8, y: 8 },
+        { x: 8, y: 2 }
+      ],
+      [
+        { x: 3, y: 3 },
+        { x: 3, y: 4 },
+        { x: 7, y: 4 },
+        { x: 7, y: 3 }
+      ]
+    ],
+    style: svg.createStyle()
+  }
+  it('分割なしなら元のパスのまま', () => {
+    expect(
+      svg.splitPath(path, [
+        { x: -1, y: -1 },
+        { x: -1, y: 1 }
+      ])
+    ).toEqual([path])
+  })
+  it('内部パスは回転方向に応じたくり抜き考慮の分割', () => {
+    const result = svg.splitPath(path, [
+      { x: -10, y: 5 },
+      { x: 30, y: 5 }
+    ])
+    expect(result).toHaveLength(4)
+    expect(result[0].d).toEqual([
+      { x: 20, y: 5 },
+      { x: 20, y: 0 },
+      { x: 0, y: 0 },
+      { x: 0, y: 5 },
+      { x: 1, y: 5 },
+      { x: 1, y: 1 },
+      { x: 9, y: 1 },
+      { x: 9, y: 5 },
+      { x: 12, y: 5 },
+      { x: 12, y: 1 },
+      { x: 19, y: 1 },
+      { x: 19, y: 5 }
+    ])
+    expect(result[0].included).toHaveLength(0)
+    expect(result[1].d).toEqual([
+      { x: 9, y: 5 },
+      { x: 9, y: 9 },
+      { x: 1, y: 9 },
+      { x: 1, y: 5 },
+      { x: 0, y: 5 },
+      { x: 0, y: 10 },
+      { x: 20, y: 10 },
+      { x: 20, y: 5 },
+      { x: 19, y: 5 },
+      { x: 19, y: 9 },
+      { x: 12, y: 9 },
+      { x: 12, y: 5 }
+    ])
+    expect(result[2].d).toEqual([
+      { x: 2, y: 2 },
+      { x: 2, y: 5 },
+      { x: 8, y: 5 },
+      { x: 8, y: 2 }
+    ])
+    expect(result[2].included).toEqual([
+      [
+        { x: 3, y: 3 },
+        { x: 3, y: 4 },
+        { x: 7, y: 4 },
+        { x: 7, y: 3 }
+      ]
+    ])
+    expect(result[3].d).toEqual([
+      { x: 2, y: 5 },
+      { x: 2, y: 8 },
+      { x: 8, y: 8 },
+      { x: 8, y: 5 }
+    ])
+  })
+})
+
+describe('getGroupedPathList', () => {
+  it('text', () => {
+    const polygons = [
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 5 },
+        { x: 5, y: 5 },
+        { x: 5, y: 0 }
+      ],
+      [
+        { x: 1, y: 1 },
+        { x: 2, y: 0 },
+        { x: 2, y: 2 },
+        { x: 1, y: 2 }
+      ],
+      [
+        { x: 6, y: 1 },
+        { x: 6, y: 2 },
+        { x: 8, y: 2 },
+        { x: 8, y: 0 }
+      ]
+    ]
+    const result = svg.getGroupedPathList(polygons)
+    expect(result).toHaveLength(2)
+    expect(result[0].d).toEqual([
+      { x: 0, y: 0 },
+      { x: 0, y: 5 },
+      { x: 5, y: 5 },
+      { x: 5, y: 0 }
+    ])
+    expect(result[0].included).toEqual([
+      [
+        { x: 1, y: 1 },
+        { x: 2, y: 0 },
+        { x: 2, y: 2 },
+        { x: 1, y: 2 }
+      ]
+    ])
+    expect(result[1].d).toEqual([
+      { x: 6, y: 1 },
+      { x: 6, y: 2 },
+      { x: 8, y: 2 },
+      { x: 8, y: 0 }
+    ])
+  })
+})
