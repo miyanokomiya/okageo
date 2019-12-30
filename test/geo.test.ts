@@ -1397,10 +1397,10 @@ describe('getPolygonNotPolygon', () => {
   })
 })
 
-describe('getOuterRectanble', () => {
+describe('getOuterRectangle', () => {
   it('外接矩形取得', () => {
     expect(
-      geo.getOuterRectanble([
+      geo.getOuterRectangle([
         [
           { x: -2, y: 0 },
           { x: 0, y: 1 }
@@ -1418,7 +1418,7 @@ describe('getOuterRectanble', () => {
     })
   })
   it('ポリゴンなしならサイズ0の矩形取得', () => {
-    expect(geo.getOuterRectanble([])).toEqual({
+    expect(geo.getOuterRectangle([])).toEqual({
       x: 0,
       y: 0,
       width: 0,

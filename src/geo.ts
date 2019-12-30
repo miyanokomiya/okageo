@@ -1188,7 +1188,7 @@ export function getPolygonNotPolygon(target: IVec2[], poly: IVec2[]): IVec2[] {
  * @param polygons ポリゴン一覧
  * @return 外接矩形
  */
-export function getOuterRectanble(polygons: IVec2[][]): IRectangle {
+export function getOuterRectangle(polygons: IVec2[][]): IRectangle {
   if (polygons.length === 0)
     return {
       x: 0,
