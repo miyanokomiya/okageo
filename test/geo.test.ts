@@ -1396,3 +1396,142 @@ describe('getPolygonNotPolygon', () => {
     ])
   })
 })
+
+describe('getOuterRectanble', () => {
+  it('外接矩形取得', () => {
+    expect(
+      geo.getOuterRectanble([
+        [
+          { x: -2, y: 0 },
+          { x: 0, y: 1 }
+        ],
+        [
+          { x: 0, y: -1 },
+          { x: 2, y: 0 }
+        ]
+      ])
+    ).toEqual({
+      x: -2,
+      y: -1,
+      width: 4,
+      height: 2
+    })
+  })
+  it('ポリゴンなしならサイズ0の矩形取得', () => {
+    expect(geo.getOuterRectanble([])).toEqual({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0
+    })
+  })
+})
+
+describe('getGrid', () => {
+  it('グリッド取得', () => {
+    expect(
+      geo.getGrid(
+        {
+          x: 0,
+          y: 1,
+          width: 2,
+          height: 3
+        },
+        1
+      )
+    ).toEqual([
+      [
+        { x: 1, y: 1 },
+        { x: 1, y: 4 }
+      ],
+      [
+        { x: 0, y: 2 },
+        { x: 2, y: 2 }
+      ],
+      [
+        { x: 0, y: 3 },
+        { x: 2, y: 3 }
+      ]
+    ])
+  })
+  it('グリッドずらし可能', () => {
+    expect(
+      geo.getGrid(
+        {
+          x: 0,
+          y: 1,
+          width: 2,
+          height: 3
+        },
+        1,
+        0.1,
+        -0.2
+      )
+    ).toEqual([
+      [
+        { x: 0.1, y: 1 },
+        { x: 0.1, y: 4 }
+      ],
+      [
+        { x: 1.1, y: 1 },
+        { x: 1.1, y: 4 }
+      ],
+      [
+        { x: 0, y: 1.8 },
+        { x: 2, y: 1.8 }
+      ],
+      [
+        { x: 0, y: 2.8 },
+        { x: 2, y: 2.8 }
+      ],
+      [
+        { x: 0, y: 3.8 },
+        { x: 2, y: 3.8 }
+      ]
+    ])
+  })
+})
+
+describe('expandRecntagle', () => {
+  it('矩形をサイズ変更する', () => {
+    expect(
+      geo.expandRecntagle(
+        {
+          x: 0,
+          y: 1,
+          width: 2,
+          height: 3
+        },
+        2,
+        4
+      )
+    ).toEqual({
+      x: -1,
+      y: -1,
+      width: 4,
+      height: 7
+    })
+  })
+})
+
+describe('expandRecntagleScale', () => {
+  it('矩形をサイズ変更する', () => {
+    expect(
+      geo.expandRecntagleScale(
+        {
+          x: 0,
+          y: 1,
+          width: 2,
+          height: 3
+        },
+        4,
+        3
+      )
+    ).toEqual({
+      x: -3,
+      y: -2,
+      width: 8,
+      height: 9
+    })
+  })
+})
