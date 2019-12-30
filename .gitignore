@@ -2,8 +2,6 @@
 .DS_Store
 doc
 
-dist
-
 # Logs
 logs
 *.log
