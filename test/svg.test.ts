@@ -31,7 +31,7 @@ describe('fitRect 矩形内調整', () => {
     lineWidth: 1,
     stroke: false,
     strokeGlobalAlpha: 1,
-    strokeStyle: ''
+    strokeStyle: '',
   }
   describe('拡大', () => {
     it('結果が正しいこと', () => {
@@ -39,16 +39,16 @@ describe('fitRect 矩形内調整', () => {
         {
           d: [
             { x: 0, y: 0 },
-            { x: 1, y: 2 }
+            { x: 1, y: 2 },
           ],
-          style
-        }
+          style,
+        },
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 2, 4)
       expect(res).toHaveLength(1)
       expect(res[0].d).toEqual([
         { x: 0, y: 0 },
-        { x: 2, y: 4 }
+        { x: 2, y: 4 },
       ])
     })
   })
@@ -58,16 +58,16 @@ describe('fitRect 矩形内調整', () => {
         {
           d: [
             { x: 0, y: 0 },
-            { x: 2, y: 4 }
+            { x: 2, y: 4 },
           ],
-          style
-        }
+          style,
+        },
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 1, 2)
       expect(res).toHaveLength(1)
       expect(res[0].d).toEqual([
         { x: 0, y: 0 },
-        { x: 1, y: 2 }
+        { x: 1, y: 2 },
       ])
     })
   })
@@ -77,16 +77,16 @@ describe('fitRect 矩形内調整', () => {
         {
           d: [
             { x: 0, y: 0 },
-            { x: 1, y: 1 }
+            { x: 1, y: 1 },
           ],
-          style
-        }
+          style,
+        },
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 1, 2)
       expect(res).toHaveLength(1)
       expect(res[0].d).toEqual([
         { x: 0, y: 0.5 },
-        { x: 1, y: 1.5 }
+        { x: 1, y: 1.5 },
       ])
     })
     it('横方向、結果が正しいこと', () => {
@@ -94,16 +94,16 @@ describe('fitRect 矩形内調整', () => {
         {
           d: [
             { x: 0, y: 0 },
-            { x: 1, y: 1 }
+            { x: 1, y: 1 },
           ],
-          style
-        }
+          style,
+        },
       ]
       const res = svg.fitRect(pathInfoList, 0, 0, 2, 1)
       expect(res).toHaveLength(1)
       expect(res[0].d).toEqual([
         { x: 0.5, y: 0 },
-        { x: 1.5, y: 1 }
+        { x: 1.5, y: 1 },
       ])
     })
   })
@@ -118,7 +118,7 @@ describe('loadSvgGraphicsPath svg文字列解析', () => {
     expect(res[0].d).toEqual([
       { x: 1, y: 2 },
       { x: 3, y: 4 },
-      { x: 5, y: 6 }
+      { x: 5, y: 6 },
     ])
     expect(res[0].style.fillStyle).toBe('red')
   })
@@ -135,7 +135,7 @@ describe('parseSvgGraphics svg解析', () => {
       expect(res[0].d).toEqual([
         { x: 1, y: 2 },
         { x: 3, y: 4 },
-        { x: 5, y: 6 }
+        { x: 5, y: 6 },
       ])
       expect(res[0].style.fillStyle).toBe('red')
     })
@@ -151,7 +151,7 @@ describe('parseSvgGraphics svg解析', () => {
         { x: 1, y: 2 },
         { x: 4, y: 2 },
         { x: 4, y: 6 },
-        { x: 1, y: 6 }
+        { x: 1, y: 6 },
       ])
       expect(res[0].style.fillStyle).toBe('red')
     })
@@ -205,7 +205,7 @@ describe('openCommandToD', () => {
         x: 0,
         x1: 1,
         y: 10,
-        y1: 11
+        y1: 11,
       })
       expect(res).toBe('S 1 11 0 10')
     })
@@ -219,7 +219,7 @@ describe('openCommandToD', () => {
         x2: 2,
         y: 10,
         y1: 11,
-        y2: 12
+        y2: 12,
       })
       expect(res).toBe('C 1 11 2 12 0 10')
     })
@@ -233,8 +233,8 @@ describe('parseOpenPath', () => {
         { type: 'M', x: 0, y: 0 },
         { type: 'L', x: 1, y: 0 },
         { type: 'L', x: 1, y: 1 },
-        { type: 'Z' }
-      ]
+        { type: 'Z' },
+      ],
     })
     expect(res[0].d[0].x).toBeCloseTo(0)
     expect(res[0].d[0].y).toBeCloseTo(0)
@@ -330,7 +330,7 @@ describe('parsePath path解析', () => {
         [
           { x: 1, y: 2 },
           { x: 3, y: 4 },
-          { x: 5, y: 6 }
+          { x: 5, y: 6 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -350,7 +350,7 @@ describe('parsePath path解析', () => {
         [
           { x: 1, y: 2 },
           { x: 4, y: 6 },
-          { x: 6, y: 8 }
+          { x: 6, y: 8 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -370,7 +370,7 @@ describe('parsePath path解析', () => {
         [
           { x: 1, y: 2 },
           { x: -1, y: -2 },
-          { x: 3, y: 4 }
+          { x: 3, y: 4 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -390,7 +390,7 @@ describe('parsePath path解析', () => {
         [
           { x: 1, y: 2 },
           { x: -1, y: -2 },
-          { x: 4, y: 6 }
+          { x: 4, y: 6 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -411,7 +411,7 @@ describe('parsePath path解析', () => {
           { x: 1, y: 2 },
           { x: 3, y: 4 },
           { x: 5, y: 6 },
-          { x: 7, y: 8 }
+          { x: 7, y: 8 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -432,7 +432,7 @@ describe('parsePath path解析', () => {
           { x: 1, y: 2 },
           { x: 4, y: 6 },
           { x: 6, y: 8 },
-          { x: 8, y: 10 }
+          { x: 8, y: 10 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -453,7 +453,7 @@ describe('parsePath path解析', () => {
           { x: 1, y: 2 },
           { x: -1, y: -2 },
           { x: 3, y: 4 },
-          { x: 5, y: 6 }
+          { x: 5, y: 6 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -474,7 +474,7 @@ describe('parsePath path解析', () => {
           { x: 1, y: 2 },
           { x: -1, y: -2 },
           { x: 4, y: 6 },
-          { x: 6, y: 8 }
+          { x: 6, y: 8 },
         ],
         svg.configs.bezierSplitSize
       )
@@ -812,7 +812,7 @@ describe.skip('serializeSvgString svg文字列生成(XMLSerializerがテスト�
     const points: IVec2[] = [
       { x: 1, y: 1 },
       { x: 2, y: 1 },
-      { x: 1, y: 2 }
+      { x: 1, y: 2 },
     ]
     const style: ISvgStyle = {
       fill: true,
@@ -824,7 +824,7 @@ describe.skip('serializeSvgString svg文字列生成(XMLSerializerがテスト�
       lineWidth: 1,
       stroke: false,
       strokeGlobalAlpha: 1,
-      strokeStyle: ''
+      strokeStyle: '',
     }
     const svgStr: string = svg.serializeSvgString([{ d: points, style }])
     expect(svgStr).toEqual(expect.stringContaining('<svg'))
@@ -837,7 +837,7 @@ describe('serializeSvg svgタグ生成', () => {
     const points: IVec2[] = [
       { x: 1, y: 1 },
       { x: 2, y: 1 },
-      { x: 1, y: 2 }
+      { x: 1, y: 2 },
     ]
     const style: ISvgStyle = {
       fill: true,
@@ -849,7 +849,7 @@ describe('serializeSvg svgタグ生成', () => {
       lineWidth: 1,
       stroke: false,
       strokeGlobalAlpha: 1,
-      strokeStyle: ''
+      strokeStyle: '',
     }
     const svgElm = svg.serializeSvg([{ d: points, style }])
     const widthStr = svgElm.getAttribute('width')
@@ -871,7 +871,7 @@ describe('serializePath pathタグ生成', () => {
     const points: IVec2[] = [
       { x: 1, y: 1 },
       { x: 2, y: 1 },
-      { x: 1, y: 2 }
+      { x: 1, y: 2 },
     ]
     const style: ISvgStyle = {
       fill: true,
@@ -883,7 +883,7 @@ describe('serializePath pathタグ生成', () => {
       lineWidth: 1,
       stroke: false,
       strokeGlobalAlpha: 1,
-      strokeStyle: ''
+      strokeStyle: '',
     }
     const elm = svg.serializePath(points, style)
     expect(elm.getAttribute('d')).toBe('M 1,1 L 2,1 L 1,2 Z')
@@ -898,7 +898,7 @@ describe('serializePointList d属性へのシリアライス', () => {
     const points: IVec2[] = [
       { x: 1, y: 1 },
       { x: 2, y: 1 },
-      { x: 1, y: 2 }
+      { x: 1, y: 2 },
     ]
     expect(svg.serializePointList(points)).toBe('M 1,1 L 2,1 L 1,2 Z')
   })
@@ -1139,7 +1139,7 @@ describe('serializeStyle', () => {
     lineWidth: 1,
     stroke: false,
     strokeGlobalAlpha: 1,
-    strokeStyle: ''
+    strokeStyle: '',
   }
   describe('fillなし', () => {
     it('正しく取得できること', () => {
@@ -1164,7 +1164,7 @@ describe('serializeStyle', () => {
       const str = svg.serializeStyle({
         ...style,
         stroke: true,
-        strokeStyle: 'red'
+        strokeStyle: 'red',
       })
       expect(str).toEqual(expect.stringContaining('stroke:red;'))
     })
@@ -1213,48 +1213,48 @@ describe('splitPath', () => {
       { x: 0, y: 0 },
       { x: 0, y: 10 },
       { x: 20, y: 10 },
-      { x: 20, y: 0 }
+      { x: 20, y: 0 },
     ],
     included: [
       [
         { x: 1, y: 1 },
         { x: 9, y: 1 },
         { x: 9, y: 9 },
-        { x: 1, y: 9 }
+        { x: 1, y: 9 },
       ],
       [
         { x: 12, y: 1 },
         { x: 19, y: 1 },
         { x: 19, y: 9 },
-        { x: 12, y: 9 }
+        { x: 12, y: 9 },
       ],
       [
         { x: 2, y: 2 },
         { x: 2, y: 8 },
         { x: 8, y: 8 },
-        { x: 8, y: 2 }
+        { x: 8, y: 2 },
       ],
       [
         { x: 3, y: 3 },
         { x: 3, y: 4 },
         { x: 7, y: 4 },
-        { x: 7, y: 3 }
-      ]
+        { x: 7, y: 3 },
+      ],
     ],
-    style: svg.createStyle()
+    style: svg.createStyle(),
   }
   it('分割なしなら元のパスのまま', () => {
     expect(
       svg.splitPath(path, [
         { x: -1, y: -1 },
-        { x: -1, y: 1 }
+        { x: -1, y: 1 },
       ])
     ).toEqual([path])
   })
   it('内部パスは回転方向に応じたくり抜き考慮の分割', () => {
     const result = svg.splitPath(path, [
       { x: -10, y: 5 },
-      { x: 30, y: 5 }
+      { x: 30, y: 5 },
     ])
     expect(result).toHaveLength(4)
     expect(result[0].d).toEqual([
@@ -1269,7 +1269,7 @@ describe('splitPath', () => {
       { x: 12, y: 5 },
       { x: 12, y: 1 },
       { x: 19, y: 1 },
-      { x: 19, y: 5 }
+      { x: 19, y: 5 },
     ])
     expect(result[0].included).toHaveLength(0)
     expect(result[1].d).toEqual([
@@ -1284,27 +1284,27 @@ describe('splitPath', () => {
       { x: 19, y: 5 },
       { x: 19, y: 9 },
       { x: 12, y: 9 },
-      { x: 12, y: 5 }
+      { x: 12, y: 5 },
     ])
     expect(result[2].d).toEqual([
       { x: 2, y: 2 },
       { x: 2, y: 5 },
       { x: 8, y: 5 },
-      { x: 8, y: 2 }
+      { x: 8, y: 2 },
     ])
     expect(result[2].included).toEqual([
       [
         { x: 3, y: 3 },
         { x: 3, y: 4 },
         { x: 7, y: 4 },
-        { x: 7, y: 3 }
-      ]
+        { x: 7, y: 3 },
+      ],
     ])
     expect(result[3].d).toEqual([
       { x: 2, y: 5 },
       { x: 2, y: 8 },
       { x: 8, y: 8 },
-      { x: 8, y: 5 }
+      { x: 8, y: 5 },
     ])
   })
 })
@@ -1316,20 +1316,20 @@ describe('getGroupedPathList', () => {
         { x: 0, y: 0 },
         { x: 0, y: 5 },
         { x: 5, y: 5 },
-        { x: 5, y: 0 }
+        { x: 5, y: 0 },
       ],
       [
         { x: 1, y: 1 },
         { x: 2, y: 0 },
         { x: 2, y: 2 },
-        { x: 1, y: 2 }
+        { x: 1, y: 2 },
       ],
       [
         { x: 6, y: 1 },
         { x: 6, y: 2 },
         { x: 8, y: 2 },
-        { x: 8, y: 0 }
-      ]
+        { x: 8, y: 0 },
+      ],
     ]
     const result = svg.getGroupedPathList(polygons)
     expect(result).toHaveLength(2)
@@ -1337,21 +1337,21 @@ describe('getGroupedPathList', () => {
       { x: 0, y: 0 },
       { x: 0, y: 5 },
       { x: 5, y: 5 },
-      { x: 5, y: 0 }
+      { x: 5, y: 0 },
     ])
     expect(result[0].included).toEqual([
       [
         { x: 1, y: 1 },
         { x: 2, y: 0 },
         { x: 2, y: 2 },
-        { x: 1, y: 2 }
-      ]
+        { x: 1, y: 2 },
+      ],
     ])
     expect(result[1].d).toEqual([
       { x: 6, y: 1 },
       { x: 6, y: 2 },
       { x: 8, y: 2 },
-      { x: 8, y: 0 }
+      { x: 8, y: 0 },
     ])
   })
 })

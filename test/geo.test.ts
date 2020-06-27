@@ -103,7 +103,7 @@ describe('cloneVectors ベクトル配列複製', () => {
   it('別オブジェクトとして複製されていること', () => {
     const vectors: IVec2[] = [
       { x: 1, y: 2 },
-      { x: 3, y: 4 }
+      { x: 3, y: 4 },
     ]
     const clone = geo.cloneVectors(vectors)
     expect(clone).toEqual(vectors)
@@ -132,7 +132,7 @@ describe('getRadian 中点取得', () => {
     it('第2引数を起点としたラジアンが取得できること', () => {
       const a: IVec2 = {
         x: Math.cos(Math.PI / 6) + 1,
-        y: Math.sin(Math.PI / 6) + 2
+        y: Math.sin(Math.PI / 6) + 2,
       }
       const b: IVec2 = { x: 1, y: 2 }
       expect(geo.getRadian(a, b)).toBeCloseTo(Math.PI / 6)
@@ -208,7 +208,7 @@ describe('getPedal 垂線の足', () => {
     const p: IVec2 = { x: 1, y: 0 }
     const line: IVec2[] = [
       { x: 2, y: 0 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ]
     const res = geo.getPedal(p, line)
     expect(res.x).toBeCloseTo(1.5)
@@ -269,44 +269,44 @@ describe('isCrossSegAndSeg 線分交差判定', () => {
   it('交差している場合trueが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: 1 },
-      { x: 4, y: -1 }
+      { x: 4, y: -1 },
     ]
     expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(true)
   })
   it('端点で接触している場合falseが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: -1 },
-      { x: 0, y: 1 }
+      { x: 0, y: 1 },
     ]
     expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(false)
   })
   it('端点同士で接触している場合falseが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 0, y: 1 }
+      { x: 0, y: 1 },
     ]
     expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(false)
   })
   it('交差していない場合falseが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: 1 },
-      { x: 4, y: 2 }
+      { x: 4, y: 2 },
     ]
     expect(geo.isCrossSegAndSeg(seg1, seg2)).toBe(false)
   })
@@ -316,44 +316,44 @@ describe('isTouchSegAndSeg 線分交差判定', () => {
   it('交差している場合trueが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: 1 },
-      { x: 4, y: -1 }
+      { x: 4, y: -1 },
     ]
     expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(true)
   })
   it('端点で接触している場合trueが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: -1 },
-      { x: 0, y: 1 }
+      { x: 0, y: 1 },
     ]
     expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(true)
   })
   it('端点同士で接触している場合trueが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 0, y: 1 }
+      { x: 0, y: 1 },
     ]
     expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(true)
   })
   it('交差していない場合falseが取得できること', () => {
     const seg1: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     const seg2: IVec2[] = [
       { x: 0, y: 1 },
-      { x: 4, y: 2 }
+      { x: 4, y: 2 },
     ]
     expect(geo.isTouchSegAndSeg(seg1, seg2)).toBe(false)
   })
@@ -377,7 +377,7 @@ describe('isOnLine 直線上判定', () => {
     const a: IVec2 = { x: 1, y: 0 }
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.isOnLine(a, line)).toBe(true)
   })
@@ -385,7 +385,7 @@ describe('isOnLine 直線上判定', () => {
     const a: IVec2 = { x: 1, y: 1 }
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.isOnLine(a, line)).toBe(false)
   })
@@ -396,7 +396,7 @@ describe('isOnSeg 線分上判定', () => {
     const a: IVec2 = { x: 1, y: 0 }
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.isOnSeg(a, line)).toBe(true)
   })
@@ -405,7 +405,7 @@ describe('isOnSeg 線分上判定', () => {
     const b: IVec2 = { x: 2, y: 0 }
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.isOnSeg(a, line)).toBe(true)
     expect(geo.isOnSeg(b, line)).toBe(true)
@@ -415,7 +415,7 @@ describe('isOnSeg 線分上判定', () => {
     const b: IVec2 = { x: 1, y: -1 }
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.isOnSeg(a, line)).toBe(false)
     expect(geo.isOnSeg(b, line)).toBe(false)
@@ -425,7 +425,7 @@ describe('isOnSeg 線分上判定', () => {
     const b: IVec2 = { x: 3, y: 0 }
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.isOnSeg(a, line)).toBe(false)
     expect(geo.isOnSeg(b, line)).toBe(false)
@@ -437,7 +437,7 @@ describe('isOnPolygon 面上判定', () => {
     const polygon: IVec2[] = [
       { x: 0, y: 0 },
       { x: 2, y: 0 },
-      { x: 2, y: 2 }
+      { x: 2, y: 2 },
     ]
     it('面上の場合trueが取得できること', () => {
       const a: IVec2 = { x: 1, y: 0.5 }
@@ -457,7 +457,7 @@ describe('isOnPolygon 面上判定', () => {
       { x: 4, y: 0 },
       { x: 6, y: 0 },
       { x: 6, y: 2 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ]
     it('面上の場合trueが取得できること', () => {
       const a: IVec2 = { x: 1, y: 0.5 }
@@ -472,7 +472,7 @@ describe('isOnPolygon 面上判定', () => {
     const polygon: IVec2[] = [
       { x: 0, y: 0 },
       { x: 2, y: 0 },
-      { x: 2, y: 2 }
+      { x: 2, y: 2 },
     ]
     it('trueが取得できること', () => {
       const a: IVec2 = { x: 0, y: 0 }
@@ -483,7 +483,7 @@ describe('isOnPolygon 面上判定', () => {
     const polygon: IVec2[] = [
       { x: 0, y: 0 },
       { x: 2, y: 0 },
-      { x: 2, y: 2 }
+      { x: 2, y: 2 },
     ]
     describe('水平な辺上の場合（判定方法依存の特殊ケース）', () => {
       it('trueが取得できること', () => {
@@ -505,7 +505,7 @@ describe('isOnPolygon 面上判定', () => {
       { x: 1, y: 1 },
       { x: 1, y: 2 },
       { x: 2, y: 2 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     it('領域内はtrueが取得できること', () => {
       const a: IVec2 = { x: 0.5, y: 1 }
@@ -525,7 +525,7 @@ describe('isOnPolygon 面上判定', () => {
       { x: 2, y: 0 },
       { x: 2, y: 1 },
       { x: 1, y: 1 },
-      { x: 1, y: 0 }
+      { x: 1, y: 0 },
     ]
     it('領域内はtrueが取得できること', () => {
       const a: IVec2 = { x: 0.5, y: 1 }
@@ -542,7 +542,7 @@ describe('isOnPolygon 面上判定', () => {
       { x: 0, y: 2 },
       { x: 3, y: 2 },
       { x: 3, y: 0 },
-      { x: 0, y: 0 }
+      { x: 0, y: 0 },
     ]
     it('領域内はtrueが取得できること', () => {
       const a: IVec2 = { x: 1, y: 1 }
@@ -558,7 +558,7 @@ describe('isOnPolygon 面上判定', () => {
       { x: 2, y: 0 },
       { x: 0, y: 2 },
       { x: 4, y: 2 },
-      { x: 2, y: 4 }
+      { x: 2, y: 4 },
     ]
     it('領域内はtrueが取得できること', () => {
       const a: IVec2 = { x: 2, y: 2 }
@@ -571,44 +571,44 @@ describe('getCrossSegAndLine 線分と直線の交点', () => {
   it('平行な場合、nullが取得できること', () => {
     const seg: IVec2[] = [
       { x: 0, y: 1 },
-      { x: 2, y: 1 }
+      { x: 2, y: 1 },
     ]
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.getCrossSegAndLine(seg, line)).toBe(null)
   })
   it('線分始点で交わる場合、その点が取得できること', () => {
     const seg: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 1 }
+      { x: 2, y: 1 },
     ]
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.getCrossSegAndLine(seg, line)).toEqual({ x: 0, y: 0 })
   })
   it('線分終点で交わる場合、その点が取得できること', () => {
     const seg: IVec2[] = [
       { x: 0, y: 1 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.getCrossSegAndLine(seg, line)).toEqual({ x: 2, y: 0 })
   })
   it('線分内で交わる場合、その点が取得できること', () => {
     const seg: IVec2[] = [
       { x: 0, y: 1 },
-      { x: 2, y: -1 }
+      { x: 2, y: -1 },
     ]
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: -2, y: 0 }
+      { x: -2, y: 0 },
     ]
     expect(geo.getCrossSegAndLine(seg, line)).toEqual({ x: 1, y: 0 })
   })
@@ -620,11 +620,11 @@ describe('splitPolyByLine 直線によるポリゴン分割', () => {
       { x: 0, y: 0 },
       { x: 2, y: 0 },
       { x: 2, y: 2 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ]
     const line: IVec2[] = [
       { x: 0, y: 0 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     expect(geo.splitPolyByLine(pol, line)).toEqual([])
   })
@@ -633,25 +633,25 @@ describe('splitPolyByLine 直線によるポリゴン分割', () => {
       { x: 0, y: 0 },
       { x: 2, y: 0 },
       { x: 2, y: 2 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ]
     const line: IVec2[] = [
       { x: 1, y: 0 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     expect(geo.splitPolyByLine(pol, line)).toEqual([
       [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
         { x: 1, y: 2 },
-        { x: 0, y: 2 }
+        { x: 0, y: 2 },
       ],
       [
         { x: 1, y: 0 },
         { x: 2, y: 0 },
         { x: 2, y: 2 },
-        { x: 1, y: 2 }
-      ]
+        { x: 1, y: 2 },
+      ],
     ])
   })
   it('3つ以上に分割される場合、分割されたポリゴンが全て取得できること', () => {
@@ -663,11 +663,11 @@ describe('splitPolyByLine 直線によるポリゴン分割', () => {
       { x: 2, y: 1 },
       { x: 1, y: 1 },
       { x: 1, y: 3 },
-      { x: 0, y: 3 }
+      { x: 0, y: 3 },
     ]
     const line: IVec2[] = [
       { x: 0, y: 2 },
-      { x: 1, y: 2 }
+      { x: 1, y: 2 },
     ]
     const res = geo.splitPolyByLine(pol, line)
     expect(res).toHaveLength(3)
@@ -679,19 +679,19 @@ describe('splitPolyByLine 直線によるポリゴン分割', () => {
       { x: 2, y: 1 },
       { x: 1, y: 1 },
       { x: 1, y: 2 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ])
     expect(res[1]).toEqual([
       { x: 1, y: 2 },
       { x: 1, y: 3 },
       { x: 0, y: 3 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ])
     expect(res[2]).toEqual([
       { x: 3, y: 2 },
       { x: 3, y: 3 },
       { x: 2, y: 3 },
-      { x: 2, y: 2 }
+      { x: 2, y: 2 },
     ])
   })
 })
@@ -702,19 +702,19 @@ describe('triangleSplit 三角分割', () => {
       { x: 0, y: 0 },
       { x: 2, y: 0 },
       { x: 2, y: 2 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ]
     const res = geo.triangleSplit(pol)
     expect(res).toHaveLength(2)
     expect(res[0]).toEqual([
       { x: 2, y: 2 },
       { x: 0, y: 2 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ])
     expect(res[1]).toEqual([
       { x: 2, y: 0 },
       { x: 0, y: 2 },
-      { x: 0, y: 0 }
+      { x: 0, y: 0 },
     ])
   })
   it('凹なポリゴンが分割できること', () => {
@@ -726,7 +726,7 @@ describe('triangleSplit 三角分割', () => {
       { x: 2, y: 1 },
       { x: 1, y: 1 },
       { x: 1, y: 3 },
-      { x: 0, y: 3 }
+      { x: 0, y: 3 },
     ]
     const res = geo.triangleSplit(pol)
     expect(res).toHaveLength(6)
@@ -738,7 +738,7 @@ describe('isPointOnTriangle 点が三角形内部にあるか判定', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     const p: IVec2 = { x: 0.2, y: 0.5 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(true)
@@ -747,7 +747,7 @@ describe('isPointOnTriangle 点が三角形内部にあるか判定', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     const p: IVec2 = { x: 0, y: 0.5 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(true)
@@ -756,7 +756,7 @@ describe('isPointOnTriangle 点が三角形内部にあるか判定', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     const p: IVec2 = { x: 0, y: 1 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(true)
@@ -765,7 +765,7 @@ describe('isPointOnTriangle 点が三角形内部にあるか判定', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     const p: IVec2 = { x: 0, y: 2 }
     expect(geo.isPointOnTriangle(pol, p)).toBe(false)
@@ -777,12 +777,12 @@ describe('convertLoopwise 面を時計回りに変換', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     expect(geo.convertLoopwise(pol)).toEqual([
       { x: 1, y: 1 },
       { x: 0, y: 1 },
-      { x: 0, y: 0 }
+      { x: 0, y: 0 },
     ])
   })
 })
@@ -792,7 +792,7 @@ describe('getLoopwise 面の時計回りに判定', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 1, y: 1 },
-      { x: 0, y: 1 }
+      { x: 0, y: 1 },
     ]
     expect(geo.getLoopwise(pol)).toBe(1)
   })
@@ -800,7 +800,7 @@ describe('getLoopwise 面の時計回りに判定', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     expect(geo.getLoopwise(pol)).toBe(-1)
   })
@@ -808,7 +808,7 @@ describe('getLoopwise 面の時計回りに判定', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 0, y: 2 }
+      { x: 0, y: 2 },
     ]
     expect(geo.getLoopwise(pol)).toBe(0)
   })
@@ -819,7 +819,7 @@ describe('getArea 面積取得', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     expect(geo.getArea(pol)).toBeCloseTo(1 / 2)
   })
@@ -827,7 +827,7 @@ describe('getArea 面積取得', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     expect(geo.getArea(pol, true)).toBeCloseTo(-1 / 2)
   })
@@ -838,7 +838,7 @@ describe('approximateBezier ベジェ曲線近似', () => {
     const pol: IVec2[] = [
       { x: 0, y: 0 },
       { x: 1, y: 2 },
-      { x: 2, y: 0 }
+      { x: 2, y: 0 },
     ]
     it('サイズ1の近似が正しいこと', () => {
       const res = geo.approximateBezier(pol, 1)
@@ -859,7 +859,7 @@ describe('approximateBezier ベジェ曲線近似', () => {
       { x: 0, y: 0 },
       { x: 1, y: 2 },
       { x: 3, y: -2 },
-      { x: 4, y: 0 }
+      { x: 4, y: 0 },
     ]
     it('サイズ1の近似が正しいこと', () => {
       const res = geo.approximateBezier(pol, 1)
@@ -895,7 +895,7 @@ describe('approximateBezier ベジェ曲線近似', () => {
       { x: 1, y: 2 },
       { x: 3, y: -2 },
       { x: 4, y: 0 },
-      { x: 5, y: 1 }
+      { x: 5, y: 1 },
     ]
     it('例外が投げられること', () => {
       expect(() => {
@@ -1218,7 +1218,7 @@ describe('omitSamePoint 隣接同一点オミット', () => {
       { x: 2, y: 2 },
       { x: 2, y: 1 },
       { x: 1, y: 2 },
-      { x: 1, y: 2 }
+      { x: 1, y: 2 },
     ])
     expect(res).toHaveLength(4)
     expect(res[0]).toEqual({ x: 1, y: 2 })
@@ -1263,22 +1263,22 @@ describe('getIncludedPolygonGroups', () => {
     const p1 = [
       { x: 0, y: 0 },
       { x: 1, y: 0 },
-      { x: 0, y: 1 }
+      { x: 0, y: 1 },
     ]
     const p2 = [
       { x: -1, y: -1 },
       { x: 2, y: -1 },
-      { x: -1, y: 4 }
+      { x: -1, y: 4 },
     ]
     const p3 = [
       { x: -2, y: -2 },
       { x: 3, y: -2 },
-      { x: -2, y: 6 }
+      { x: -2, y: 6 },
     ]
     const p4 = [
       { x: 0, y: 10 },
       { x: 1, y: 10 },
-      { x: 0, y: 11 }
+      { x: 0, y: 11 },
     ]
     const polygons = [p1, p2, p3, p4]
     const res = geo.getIncludedPolygonGroups(polygons)
@@ -1292,13 +1292,13 @@ describe('getPolygonNotPolygon', () => {
       { x: 0, y: 0 },
       { x: 2, y: 0 },
       { x: 2, y: 3 },
-      { x: 0, y: 3 }
+      { x: 0, y: 3 },
     ]
     const p2 = [
       { x: 3, y: 1 },
       { x: 1, y: 1 },
       { x: 1, y: 2 },
-      { x: 3, y: 2 }
+      { x: 3, y: 2 },
     ]
     const res = geo.getPolygonNotPolygon(p1, p2)
     expect(res).toEqual([
@@ -1309,7 +1309,7 @@ describe('getPolygonNotPolygon', () => {
       { x: 2, y: 1 },
       { x: 1, y: 1 },
       { x: 1, y: 2 },
-      { x: 2, y: 2 }
+      { x: 2, y: 2 },
     ])
   })
   it('ロジックの隙間を狙ったケース', () => {
@@ -1317,13 +1317,13 @@ describe('getPolygonNotPolygon', () => {
       { x: 0, y: 0 },
       { x: 2, y: 0 },
       { x: 2, y: 3 },
-      { x: 0, y: 3 }
+      { x: 0, y: 3 },
     ]
     const p2 = [
       { x: 1, y: 2 },
       { x: 3, y: 2 },
       { x: 3, y: 1 },
-      { x: 1, y: 1 }
+      { x: 1, y: 1 },
     ]
     const res = geo.getPolygonNotPolygon(p1, p2)
     expect(res).toEqual([
@@ -1334,7 +1334,7 @@ describe('getPolygonNotPolygon', () => {
       { x: 2, y: 1 },
       { x: 1, y: 1 },
       { x: 1, y: 2 },
-      { x: 2, y: 2 }
+      { x: 2, y: 2 },
     ])
   })
   it('2箇所で差をとる必要があるケース', () => {
@@ -1342,7 +1342,7 @@ describe('getPolygonNotPolygon', () => {
       { x: 0, y: 0 },
       { x: 2, y: 0 },
       { x: 2, y: 5 },
-      { x: 0, y: 5 }
+      { x: 0, y: 5 },
     ]
     const p2 = [
       { x: 3, y: 1 },
@@ -1352,7 +1352,7 @@ describe('getPolygonNotPolygon', () => {
       { x: 3, y: 3 },
       { x: 1, y: 3 },
       { x: 1, y: 4 },
-      { x: 3, y: 4 }
+      { x: 3, y: 4 },
     ]
     const res = geo.getPolygonNotPolygon(p1, p2)
     expect(res).toEqual([
@@ -1367,7 +1367,7 @@ describe('getPolygonNotPolygon', () => {
       { x: 2, y: 3 },
       { x: 1, y: 3 },
       { x: 1, y: 4 },
-      { x: 2, y: 4 }
+      { x: 2, y: 4 },
     ])
   })
   it('サンプルケース1', () => {
@@ -1375,13 +1375,13 @@ describe('getPolygonNotPolygon', () => {
       { x: 1, y: 0 },
       { x: 1, y: 10 },
       { x: 50, y: 10 },
-      { x: 50, y: 0 }
+      { x: 50, y: 0 },
     ]
     const p2 = [
       { x: 10, y: 30 },
       { x: 10, y: 5 },
       { x: 40, y: 5 },
-      { x: 40, y: 30 }
+      { x: 40, y: 30 },
     ]
     const res = geo.getPolygonNotPolygon(p1, p2)
     expect(res).toEqual([
@@ -1392,7 +1392,7 @@ describe('getPolygonNotPolygon', () => {
       { x: 10, y: 10 },
       { x: 10, y: 5 },
       { x: 40, y: 5 },
-      { x: 40, y: 10 }
+      { x: 40, y: 10 },
     ])
   })
 })
@@ -1403,18 +1403,18 @@ describe('getOuterRectangle', () => {
       geo.getOuterRectangle([
         [
           { x: -2, y: 0 },
-          { x: 0, y: 1 }
+          { x: 0, y: 1 },
         ],
         [
           { x: 0, y: -1 },
-          { x: 2, y: 0 }
-        ]
+          { x: 2, y: 0 },
+        ],
       ])
     ).toEqual({
       x: -2,
       y: -1,
       width: 4,
-      height: 2
+      height: 2,
     })
   })
   it('ポリゴンなしならサイズ0の矩形取得', () => {
@@ -1422,7 +1422,7 @@ describe('getOuterRectangle', () => {
       x: 0,
       y: 0,
       width: 0,
-      height: 0
+      height: 0,
     })
   })
 })
@@ -1435,23 +1435,23 @@ describe('getGrid', () => {
           x: 0,
           y: 1,
           width: 2,
-          height: 3
+          height: 3,
         },
         1
       )
     ).toEqual([
       [
         { x: 1, y: 1 },
-        { x: 1, y: 4 }
+        { x: 1, y: 4 },
       ],
       [
         { x: 0, y: 2 },
-        { x: 2, y: 2 }
+        { x: 2, y: 2 },
       ],
       [
         { x: 0, y: 3 },
-        { x: 2, y: 3 }
-      ]
+        { x: 2, y: 3 },
+      ],
     ])
   })
   it('グリッドずらし可能', () => {
@@ -1461,7 +1461,7 @@ describe('getGrid', () => {
           x: 0,
           y: 1,
           width: 2,
-          height: 3
+          height: 3,
         },
         1,
         0.1,
@@ -1470,24 +1470,24 @@ describe('getGrid', () => {
     ).toEqual([
       [
         { x: 0.1, y: 1 },
-        { x: 0.1, y: 4 }
+        { x: 0.1, y: 4 },
       ],
       [
         { x: 1.1, y: 1 },
-        { x: 1.1, y: 4 }
+        { x: 1.1, y: 4 },
       ],
       [
         { x: 0, y: 1.8 },
-        { x: 2, y: 1.8 }
+        { x: 2, y: 1.8 },
       ],
       [
         { x: 0, y: 2.8 },
-        { x: 2, y: 2.8 }
+        { x: 2, y: 2.8 },
       ],
       [
         { x: 0, y: 3.8 },
-        { x: 2, y: 3.8 }
-      ]
+        { x: 2, y: 3.8 },
+      ],
     ])
   })
 })
@@ -1500,7 +1500,7 @@ describe('expandRecntagle', () => {
           x: 0,
           y: 1,
           width: 2,
-          height: 3
+          height: 3,
         },
         2,
         4
@@ -1509,7 +1509,7 @@ describe('expandRecntagle', () => {
       x: -1,
       y: -1,
       width: 4,
-      height: 7
+      height: 7,
     })
   })
 })
@@ -1522,7 +1522,7 @@ describe('expandRecntagleScale', () => {
           x: 0,
           y: 1,
           width: 2,
-          height: 3
+          height: 3,
         },
         4,
         3
@@ -1531,7 +1531,7 @@ describe('expandRecntagleScale', () => {
       x: -3,
       y: -2,
       width: 8,
-      height: 9
+      height: 9,
     })
   })
 })

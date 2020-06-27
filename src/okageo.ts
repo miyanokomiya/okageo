@@ -4,5 +4,5 @@ import * as svg from './svg'
 export * from './types'
 export default {
   geo,
-  svg
+  svg,
 }
