@@ -13,7 +13,7 @@ yarn add okageo
 ```
 
 ```js
-import okageo from 'okageo'
+import * as okageo from 'okageo'
 
 // parse SVG to polygons
 const pathInfoList = okageo.svg.parseSvgGraphicsStr(svgString)

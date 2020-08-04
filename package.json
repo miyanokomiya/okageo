@@ -3,6 +3,7 @@
   "version": "1.1.10",
   "description": "parse SVG to polygons",
   "main": "./dist/okageo.min.js",
+  "module": "./dist/okageo.esm.min.js",
   "author": "miyanokomiya",
   "license": "MIT",
   "repository": {
@@ -19,7 +20,7 @@
     "test": "jest --coverage",
     "doc": "typedoc --out doc ./src/okageo.ts",
     "demo": "parcel demo/index.html",
-    "build": "rm -rf ./dist && yarn bili",
+    "build": "rm -rf ./dist && yarn bili --format cjs-min --format esm-min",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
