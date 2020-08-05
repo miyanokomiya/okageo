@@ -109,9 +109,10 @@ export declare function serializePath(pointList: IVec2[], style: ISvgStyle): SVG
 /**
  * 座標リストをd属性文字列に変換する
  * @param pointList 座標リスト
+ * @param open 閉じないフラグ
  * @return d属性文字列
  */
-export declare function serializePointList(pointList: IVec2[]): string;
+export declare function serializePointList(pointList: IVec2[], open?: boolean): string;
 /**
  * デフォルトstyle作成
  * @return スタイルオブジェクト
