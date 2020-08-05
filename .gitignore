@@ -24,4 +24,4 @@ jspm_packages/
 .cache
 .DS_Store
 doc
-dist
+# dist
