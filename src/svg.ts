@@ -1,6 +1,8 @@
 import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from './types'
 import * as geo from './geo'
 
+const HTTP_SVG = 'http://www.w3.org/2000/svg'
+
 export const configs: ISvgConfigs = {
   bezierSplitSize: 10,
   ellipseSplitSize: 20,
@@ -722,7 +724,7 @@ export function serializeSvgString(pathList: ISvgPath[]): string {
  * @return svgタグ
  */
 export function serializeSvg(pathList: ISvgPath[]): SVGElement {
-  const dom = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  const dom = document.createElementNS(HTTP_SVG, 'svg')
 
   // キャンバスサイズ
   let width = 1
@@ -755,7 +757,7 @@ export function serializePath(
   pointList: IVec2[],
   style: ISvgStyle
 ): SVGPathElement {
-  const dom = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+  const dom = document.createElementNS(HTTP_SVG, 'path')
   dom.setAttribute('d', serializePointList(pointList))
   dom.setAttribute('style', serializeStyle(style))
   return dom
@@ -764,15 +766,16 @@ export function serializePath(
 /**
  * 座標リストをd属性文字列に変換する
  * @param pointList 座標リスト
+ * @param open 閉じないフラグ
  * @return d属性文字列
  */
-export function serializePointList(pointList: IVec2[]): string {
+export function serializePointList(pointList: IVec2[], open?: boolean): string {
   if (pointList.length === 0) return ''
   const [head, ...body] = pointList
   return (
     `M ${head.x},${head.y}` +
     body.map((p) => ` L ${p.x},${p.y}`).join('') +
-    ' Z'
+    (open ? '' : ' Z')
   )
 }
 

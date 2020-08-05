@@ -902,6 +902,14 @@ describe('serializePointList d属性へのシリアライス', () => {
     ]
     expect(svg.serializePointList(points)).toBe('M 1,1 L 2,1 L 1,2 Z')
   })
+  it('omit Z', () => {
+    const points: IVec2[] = [
+      { x: 1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 1, y: 2 },
+    ]
+    expect(svg.serializePointList(points, true)).toBe('M 1,1 L 2,1 L 1,2')
+  })
   it("[] => ''", () => {
     expect(svg.serializePointList([])).toBe('')
   })
