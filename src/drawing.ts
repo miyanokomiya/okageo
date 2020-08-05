@@ -6,7 +6,7 @@ import { IVec2, IRectangle } from './types'
  * @param diffX 変更値
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByLeft(
+export function resizeRectByLeft(
   org: IRectangle,
   diffX: number
 ): Partial<IRectangle> {
@@ -24,7 +24,7 @@ export function resizeByLeft(
  * @param diffX 変更値
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByRight(
+export function resizeRectByRight(
   org: IRectangle,
   diffX: number
 ): Partial<IRectangle> {
@@ -45,7 +45,7 @@ export function resizeByRight(
  * @param diffY 変更値
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByTop(
+export function resizeRectByTop(
   org: IRectangle,
   diffY: number
 ): Partial<IRectangle> {
@@ -63,7 +63,7 @@ export function resizeByTop(
  * @param diffY 変更値
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByBottom(
+export function resizeRectByBottom(
   org: IRectangle,
   diffY: number
 ): Partial<IRectangle> {
@@ -84,13 +84,13 @@ export function resizeByBottom(
  * @param diff 変更ベクトル
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByLeftTop(
+export function resizeRectByLeftTop(
   org: IRectangle,
   diff: IVec2
 ): Partial<IRectangle> {
   return {
-    ...resizeByLeft(org, diff.x),
-    ...resizeByTop(org, diff.y),
+    ...resizeRectByLeft(org, diff.x),
+    ...resizeRectByTop(org, diff.y),
   }
 }
 
@@ -100,13 +100,13 @@ export function resizeByLeftTop(
  * @param diff 変更ベクトル
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByRightTop(
+export function resizeRectByRightTop(
   org: IRectangle,
   diff: IVec2
 ): Partial<IRectangle> {
   return {
-    ...resizeByRight(org, diff.x),
-    ...resizeByTop(org, diff.y),
+    ...resizeRectByRight(org, diff.x),
+    ...resizeRectByTop(org, diff.y),
   }
 }
 
@@ -116,13 +116,13 @@ export function resizeByRightTop(
  * @param diff 変更ベクトル
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByRightBottom(
+export function resizeRectByRightBottom(
   org: IRectangle,
   diff: IVec2
 ): Partial<IRectangle> {
   return {
-    ...resizeByRight(org, diff.x),
-    ...resizeByBottom(org, diff.y),
+    ...resizeRectByRight(org, diff.x),
+    ...resizeRectByBottom(org, diff.y),
   }
 }
 
@@ -132,12 +132,12 @@ export function resizeByRightBottom(
  * @param diff 変更ベクトル
  * @return サイズ変更後の矩形プロパティ
  */
-export function resizeByLeftBottom(
+export function resizeRectByLeftBottom(
   org: IRectangle,
   diff: IVec2
 ): Partial<IRectangle> {
   return {
-    ...resizeByLeft(org, diff.x),
-    ...resizeByBottom(org, diff.y),
+    ...resizeRectByLeft(org, diff.x),
+    ...resizeRectByBottom(org, diff.y),
   }
 }
