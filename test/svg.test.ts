@@ -902,6 +902,12 @@ describe('serializePointList d属性へのシリアライス', () => {
     ]
     expect(svg.serializePointList(points)).toBe('M 1,1 L 2,1 L 1,2 Z')
   })
+  it("[] => ''", () => {
+    expect(svg.serializePointList([])).toBe('')
+  })
+  it("[{ x: 0, y: 1 }] => 'M 0,1'", () => {
+    expect(svg.serializePointList([{ x: 0, y: 1 }])).toBe('M 0,1 Z')
+  })
 })
 
 describe('parseTagStyle スタイル取得', () => {

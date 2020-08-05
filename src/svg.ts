@@ -767,20 +767,13 @@ export function serializePath(
  * @return d属性文字列
  */
 export function serializePointList(pointList: IVec2[]): string {
-  let ret = ''
-
-  pointList.forEach((p, i) => {
-    if (i === 0) {
-      ret += 'M ' + p.x + ',' + p.y
-    } else {
-      ret += ' L ' + p.x + ',' + p.y
-      if (i === pointList.length - 1) {
-        ret += ' Z'
-      }
-    }
-  })
-
-  return ret
+  if (pointList.length === 0) return ''
+  const [head, ...body] = pointList
+  return (
+    `M ${head.x},${head.y}` +
+    body.map((p) => ` L ${p.x},${p.y}`).join('') +
+    ' Z'
+  )
 }
 
 /**
