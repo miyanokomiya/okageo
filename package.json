@@ -1,6 +1,6 @@
 {
   "name": "okageo",
-  "version": "1.1.10",
+  "version": "2.0.0",
   "description": "parse SVG to polygons",
   "main": "./dist/okageo.min.js",
   "module": "./dist/okageo.esm.min.js",
@@ -28,6 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^2.13.0",
     "@typescript-eslint/parser": "^2.13.0",
     "babel-jest": "^26.0.1",
+    "bili": "^5.0.5",
     "coveralls": "^3.0.6",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
@@ -38,7 +39,6 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "husky": "^4.2.3",
     "jest": "^25.1.0",
     "parcel-bundler": "^1.11.0",
     "prettier": "^2.0.5",
@@ -46,13 +46,5 @@
     "ts-jest": "^25.2.1",
     "typedoc": "^0.17.4",
     "typescript": "^3.7.4"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn lint"
-    }
-  },
-  "dependencies": {
-    "bili": "^5.0.5"
   }
 }
