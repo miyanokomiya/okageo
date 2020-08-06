@@ -7,22 +7,34 @@ const ctx = canvas.getContext('2d')
 if (ctx) {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  const p1 = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 0, y: 100 }]
-  const p2 = [{ x: -100, y: -100 }, { x: -100, y: 400 }, { x: 200, y: -100 }]
-  const p3 = [{ x: -200, y: -200 }, { x: 300, y: -200 }, { x: -200, y: 600 }]
+  const p1 = [
+    { x: 0, y: 0 },
+    { x: 100, y: 0 },
+    { x: 0, y: 100 },
+  ]
+  const p2 = [
+    { x: -100, y: -100 },
+    { x: -100, y: 400 },
+    { x: 200, y: -100 },
+  ]
+  const p3 = [
+    { x: -200, y: -200 },
+    { x: 300, y: -200 },
+    { x: -200, y: 600 },
+  ]
   const pathInfoList: ISvgPath[] = [
     {
       d: [
         { x: -300, y: 50 },
         { x: 200, y: 50 },
         { x: 200, y: 100 },
-        { x: -300, y: 100 }
+        { x: -300, y: 100 },
       ],
       style: {
         ...svg.createStyle(),
         fill: true,
-        fillStyle: 'red'
-      }
+        fillStyle: 'red',
+      },
     },
     {
       d: p3,
@@ -30,9 +42,9 @@ if (ctx) {
       style: {
         ...svg.createStyle(),
         fill: true,
-        fillStyle: 'blue'
-      }
-    }
+        fillStyle: 'blue',
+      },
+    },
   ]
   const inRectList = svg.fitRect(
     pathInfoList,
@@ -41,11 +53,11 @@ if (ctx) {
     canvas.width,
     canvas.height
   )
-  inRectList.forEach(info => svg.draw(ctx, info))
+  inRectList.forEach((info) => svg.draw(ctx, info))
 }
 
 const fileInput = document.getElementById('input') as HTMLInputElement
-fileInput.onchange = e => {
+fileInput.onchange = (e) => {
   const file = (e.target as HTMLInputElement).files
   if (!file || file.length === 0) return
 
@@ -62,8 +74,8 @@ fileInput.onchange = e => {
       canvas.width,
       canvas.height
     )
-    inRectList.forEach(info => {
-      geo.triangleSplit(info.d).forEach(points => {
+    inRectList.forEach((info) => {
+      geo.triangleSplit(info.d).forEach((points) => {
         svg.draw(ctx, { d: points, style: info.style })
       })
     })
