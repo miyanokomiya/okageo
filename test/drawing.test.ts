@@ -102,20 +102,34 @@ describe('resizeByBottom', () => {
 describe('resizeByLeftTop', () => {
   const rec = { x: 1, y: 2, width: 10, height: 20 }
 
-  it('左上頂点からリサイズ', () => {
-    expect(drawing.resizeRectByLeftTop(rec, { x: 3, y: 4 })).toEqual({
-      ...rec,
-      x: 4,
-      width: 7,
-      y: 6,
-      height: 16,
+  describe('アスペクト比維持なし', () => {
+    it('左上頂点からリサイズ', () => {
+      expect(drawing.resizeRectByLeftTop(rec, { x: 3, y: 4 })).toEqual({
+        ...rec,
+        x: 4,
+        width: 7,
+        y: 6,
+        height: 16,
+      })
+      expect(drawing.resizeRectByLeftTop(rec, { x: 11, y: 21 })).toEqual({
+        ...rec,
+        x: 11,
+        width: 1,
+        y: 22,
+        height: 1,
+      })
     })
-    expect(drawing.resizeRectByLeftTop(rec, { x: 11, y: 21 })).toEqual({
-      ...rec,
-      x: 11,
-      width: 1,
-      y: 22,
-      height: 1,
+  })
+  describe('アスペクト比維持あり', () => {
+    const rec = { x: 0, y: 0, width: 10, height: 20 }
+    it('左下頂点からリサイズ', () => {
+      expect(drawing.resizeRectByLeftTop(rec, { x: -10, y: 0 }, true)).toEqual({
+        ...rec,
+        x: -2,
+        y: -4,
+        width: 12,
+        height: 24,
+      })
     })
   })
 })
@@ -123,19 +137,34 @@ describe('resizeByLeftTop', () => {
 describe('resizeByRightTop', () => {
   const rec = { x: 1, y: 2, width: 10, height: 20 }
 
-  it('右上頂点からリサイズ', () => {
-    expect(drawing.resizeRectByRightTop(rec, { x: 3, y: -4 })).toEqual({
-      ...rec,
-      width: 13,
-      y: -2,
-      height: 24,
+  describe('アスペクト比維持なし', () => {
+    it('右上頂点からリサイズ', () => {
+      expect(drawing.resizeRectByRightTop(rec, { x: 3, y: -4 })).toEqual({
+        ...rec,
+        width: 13,
+        y: -2,
+        height: 24,
+      })
+      expect(drawing.resizeRectByRightTop(rec, { x: -11, y: 21 })).toEqual({
+        ...rec,
+        x: 0,
+        width: 1,
+        y: 22,
+        height: 1,
+      })
     })
-    expect(drawing.resizeRectByRightTop(rec, { x: -11, y: 21 })).toEqual({
-      ...rec,
-      x: 0,
-      width: 1,
-      y: 22,
-      height: 1,
+  })
+  describe('アスペクト比維持あり', () => {
+    const rec = { x: 0, y: 0, width: 10, height: 20 }
+    it('左下頂点からリサイズ', () => {
+      expect(drawing.resizeRectByRightTop(rec, { x: -10, y: 0 }, true)).toEqual(
+        {
+          ...rec,
+          y: 4,
+          width: 8,
+          height: 16,
+        }
+      )
     })
   })
 })
@@ -143,38 +172,67 @@ describe('resizeByRightTop', () => {
 describe('resizeByRightBottom', () => {
   const rec = { x: 1, y: 2, width: 10, height: 20 }
 
-  it('右下頂点からリサイズ', () => {
-    expect(drawing.resizeRectByRightBottom(rec, { x: 3, y: 4 })).toEqual({
-      ...rec,
-      width: 13,
-      height: 24,
+  describe('アスペクト比維持なし', () => {
+    it('右下頂点からリサイズ', () => {
+      expect(drawing.resizeRectByRightBottom(rec, { x: 3, y: 4 })).toEqual({
+        ...rec,
+        width: 13,
+        height: 24,
+      })
+      expect(drawing.resizeRectByRightBottom(rec, { x: -11, y: -21 })).toEqual({
+        ...rec,
+        x: 0,
+        width: 1,
+        y: 1,
+        height: 1,
+      })
     })
-    expect(drawing.resizeRectByRightBottom(rec, { x: -11, y: -21 })).toEqual({
-      ...rec,
-      x: 0,
-      width: 1,
-      y: 1,
-      height: 1,
+  })
+  describe('アスペクト比維持あり', () => {
+    const rec = { x: 0, y: 0, width: 10, height: 20 }
+    it('左下頂点からリサイズ', () => {
+      expect(
+        drawing.resizeRectByRightBottom(rec, { x: -10, y: 0 }, true)
+      ).toEqual({
+        ...rec,
+        x: 0,
+        width: 8,
+        height: 16,
+      })
     })
   })
 })
 
 describe('resizeByLeftBottom', () => {
-  const rec = { x: 1, y: 2, width: 10, height: 20 }
-
-  it('左下頂点からリサイズ', () => {
-    expect(drawing.resizeRectByLeftBottom(rec, { x: -3, y: 4 })).toEqual({
-      ...rec,
-      x: -2,
-      width: 13,
-      height: 24,
+  describe('アスペクト比維持なし', () => {
+    const rec = { x: 1, y: 2, width: 10, height: 20 }
+    it('左下頂点からリサイズ', () => {
+      expect(drawing.resizeRectByLeftBottom(rec, { x: -3, y: 4 })).toEqual({
+        ...rec,
+        x: -2,
+        width: 13,
+        height: 24,
+      })
+      expect(drawing.resizeRectByLeftBottom(rec, { x: 11, y: -21 })).toEqual({
+        ...rec,
+        x: 11,
+        width: 1,
+        y: 1,
+        height: 1,
+      })
     })
-    expect(drawing.resizeRectByLeftBottom(rec, { x: 11, y: -21 })).toEqual({
-      ...rec,
-      x: 11,
-      width: 1,
-      y: 1,
-      height: 1,
+  })
+  describe('アスペクト比維持あり', () => {
+    const rec = { x: 0, y: 0, width: 10, height: 20 }
+    it('左下頂点からリサイズ', () => {
+      expect(
+        drawing.resizeRectByLeftBottom(rec, { x: -10, y: 0 }, true)
+      ).toEqual({
+        ...rec,
+        x: -2,
+        width: 12,
+        height: 24,
+      })
     })
   })
 })
