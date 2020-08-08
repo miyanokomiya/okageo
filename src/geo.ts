@@ -54,6 +54,13 @@ export function getCenter(a: IVec2, b: IVec2): IVec2 {
   return multi(add(a, b), 1 / 2)
 }
 
+export function getRectCenter(rec: IRectangle): IVec2 {
+  return {
+    x: rec.x + rec.width / 2,
+    y: rec.y + rec.height / 2,
+  }
+}
+
 export function getRadian(a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
   const dif = sub(a, from)
   return Math.atan2(dif.y, dif.x)

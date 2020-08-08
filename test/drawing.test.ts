@@ -1,5 +1,18 @@
 import * as drawing from '../src/drawing'
 
+describe('moveRect', () => {
+  it('矩形を移動', () => {
+    expect(
+      drawing.moveRect({ x: 1, y: 2, width: 10, height: 20 }, { x: 2, y: 3 })
+    ).toEqual({
+      x: 3,
+      y: 5,
+      width: 10,
+      height: 20,
+    })
+  })
+})
+
 describe('resizeByLeft', () => {
   const rec = { x: 1, y: 2, width: 10, height: 20 }
 
@@ -234,5 +247,76 @@ describe('resizeByLeftBottom', () => {
         height: 24,
       })
     })
+  })
+})
+
+describe('resizeRectByLeftTopWithRotation', () => {
+  const rec = { x: 0, y: 0, width: 10, height: 20 }
+
+  it('回転考慮で左上頂点からリサイズ', () => {
+    const ret = drawing.resizeRectByLeftTopWithRotation(
+      rec,
+      { x: 10, y: 20 },
+      { x: 5, y: 10 },
+      Math.PI
+    )
+    expect(ret.x).toBeCloseTo(0)
+    expect(ret.y).toBeCloseTo(0)
+    expect(ret.width).toBeCloseTo(5)
+    expect(ret.height).toBeCloseTo(10)
+  })
+})
+
+describe('resizeRectByRightTopWithRotation', () => {
+  const rec = { x: 0, y: 0, width: 10, height: 20 }
+
+  it('回転考慮で右上頂点からリサイズ', () => {
+    const ret = drawing.resizeRectByRightTopWithRotation(
+      rec,
+      { x: 0, y: 20 },
+      { x: 5, y: 10 },
+      Math.PI
+    )
+    expect(ret.x).toBeCloseTo(5)
+    expect(ret.y).toBeCloseTo(0)
+    expect(ret.width).toBeCloseTo(5)
+    expect(ret.height).toBeCloseTo(10)
+  })
+})
+
+describe('resizeRectByRightBottomWithRotation', () => {
+  const rec = { x: 0, y: 0, width: 10, height: 20 }
+
+  it('回転考慮で右下頂点からリサイズ', () => {
+    expect(
+      drawing.resizeRectByRightBottomWithRotation(
+        rec,
+        { x: 0, y: 0 },
+        { x: 5, y: 10 },
+        Math.PI
+      )
+    ).toEqual({
+      x: 5,
+      y: 10,
+      width: 5,
+      height: 10,
+    })
+  })
+})
+
+describe('resizeRectByLeftBottomWithRotation', () => {
+  const rec = { x: 0, y: 0, width: 10, height: 20 }
+
+  it('回転考慮で左下頂点からリサイズ', () => {
+    const ret = drawing.resizeRectByLeftBottomWithRotation(
+      rec,
+      { x: 10, y: 0 },
+      { x: 5, y: 10 },
+      Math.PI
+    )
+    expect(ret.x).toBeCloseTo(0)
+    expect(ret.y).toBeCloseTo(10)
+    expect(ret.width).toBeCloseTo(5)
+    expect(ret.height).toBeCloseTo(10)
   })
 })
