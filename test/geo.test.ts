@@ -1,5 +1,5 @@
 import * as geo from '../src/geo'
-import { IVec2 } from '../src/types'
+import { IVec2, IRectangle } from '../src/types'
 
 describe('add ベクトル足し算', () => {
   it('計算結果が正しいこと', () => {
@@ -118,6 +118,13 @@ describe('getCenter 中点取得', () => {
     const a: IVec2 = { x: 1, y: 2 }
     const b: IVec2 = { x: 3, y: 4 }
     expect(geo.getCenter(a, b)).toEqual({ x: 2, y: 3 })
+  })
+})
+
+describe('getRectCenter 矩形中心取得', () => {
+  it('計算結果が正しいこと', () => {
+    const a: IRectangle = { x: 4, y: 10, width: 10, height: 20 }
+    expect(geo.getRectCenter(a)).toEqual({ x: 9, y: 20 })
   })
 })
 
