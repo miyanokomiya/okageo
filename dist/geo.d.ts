@@ -12,6 +12,7 @@ export declare function getCross(a: IVec2, b: IVec2): number;
 export declare function getInner(a: IVec2, b: IVec2): number;
 export declare function cloneVectors(vectors: IVec2[]): IVec2[];
 export declare function getCenter(a: IVec2, b: IVec2): IVec2;
+export declare function getRectCenter(rec: IRectangle): IVec2;
 export declare function getRadian(a: IVec2, from?: IVec2): number;
 /**
  * fromに対して、aと点対称なベクトル取得
