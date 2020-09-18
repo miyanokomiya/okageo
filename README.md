@@ -1,4 +1,4 @@
-![Build Status](https://github.com/miyanokomiya/okageo/workflows/test/badge.svg)
+![Main](https://github.com/miyanokomiya/okageo/workflows/Main/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/miyanokomiya/okageo/badge.svg?branch=master)](https://coveralls.io/github/miyanokomiya/okageo?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
