@@ -1,8 +1,4 @@
-import * as geo from './geo'
-import * as svg from './svg'
-
 export * from './types'
-export default {
-  geo,
-  svg,
-}
+export * as geo from './geo'
+export * as svg from './svg'
+export * as drawing from './drawing'
