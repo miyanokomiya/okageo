@@ -1,4 +1,4 @@
 export * from './types'
-export * as geo from './geo'
-export * as svg from './svg'
-export * as drawing from './drawing'
+export * from './geo'
+export * from './svg'
+export * from './drawing'

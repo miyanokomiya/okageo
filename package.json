@@ -14,6 +14,7 @@
     "svg"
   ],
   "types": "./dist/okageo.d.ts",
+  "sideEffects": false,
   "scripts": {
     "lint": "yarn eslint ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier -c ./*.json ./.*.json",
     "lint:fix": "yarn eslint --fix ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
