@@ -6,9 +6,12 @@
 
 parse SVG to polygons
 
+## demo(wip)
+https://miyanokomiya.github.io/okageo/
+
 ## usage
 
-``` bash
+```sh
 yarn add okageo
 ```
 
@@ -27,9 +30,18 @@ const ctx = canvas.getContext('2d')
 inRectList.forEach((info) => okageo.draw(ctx, info))
 ```
 
+### Breaking changes from v1 to v2
+The namespaces of `geo` and `svg` have not been exported for tree shaking.
+
+Then, this can not work at v2.
+```js
+import * as okageo from 'okageo'
+const pathInfoList = okageo.svg.parseSvgGraphicsStr(svgString)
+```
+
 ## commnad
 
-``` bash
+```sh
 # install dependencies
 $ yarn install
 
@@ -48,3 +60,6 @@ $ yarn doc
 # serve demo at localhost:1234
 $ yarn demo
 ```
+
+## publish
+Update `version` in `package.json`, commit with a comment `Release x.x.x` and merge into the `main` branch.
