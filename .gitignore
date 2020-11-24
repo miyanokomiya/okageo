@@ -25,3 +25,4 @@ jspm_packages/
 .DS_Store
 doc
 dist
+dist-demo

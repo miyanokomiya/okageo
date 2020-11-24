@@ -22,6 +22,7 @@
     "doc": "typedoc --out doc ./src/okageo.ts",
     "demo": "parcel demo/index.html",
     "build": "rm -rf ./dist && yarn bili --format cjs-min --format esm-min",
+    "build:demo": "rm -rf ./dist-demo && parcel build demo/index.html -d ./dist-demo --public-url .",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {

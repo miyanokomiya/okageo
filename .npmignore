@@ -10,17 +10,17 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
-
-# nyc test coverage
-.nyc_output
+*.lcov
 
 # Dependency directories
 node_modules/
-jspm_packages/
 
 # dotenv environment variables file
 .env
+.envrc
 
 .cache
 .DS_Store
-doc
+dist-demo
+demo
+test
