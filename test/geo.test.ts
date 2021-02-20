@@ -128,6 +128,17 @@ describe('getRectCenter 矩形中心取得', () => {
   })
 })
 
+describe('getPolygonCenter', () => {
+  it('returns center of the polygon', () => {
+    const polygon: IVec2[] = [
+      { x: 1, y: 2 },
+      { x: 10, y: 11 },
+      { x: 1, y: 2 },
+    ]
+    expect(geo.getPolygonCenter(polygon)).toEqual({ x: 4, y: 5 })
+  })
+})
+
 describe('getRadian 中点取得', () => {
   describe('第2引数省略の場合', () => {
     it('原点を起点としたラジアンが取得できること', () => {
@@ -1539,6 +1550,23 @@ describe('expandRecntagleScale', () => {
       y: -2,
       width: 8,
       height: 9,
+    })
+  })
+})
+
+describe('interpolateScaler', () => {
+  it('interpolate scaler', () => {
+    expect(geo.interpolateScaler(1, 11, 0.2)).toEqual(3)
+  })
+})
+
+describe('interpolateVector', () => {
+  it('interpolate vector', () => {
+    expect(
+      geo.interpolateVector({ x: 1, y: 2 }, { x: 11, y: 22 }, 0.2)
+    ).toEqual({
+      x: 3,
+      y: 6,
     })
   })
 })
