@@ -1553,3 +1553,20 @@ describe('expandRecntagleScale', () => {
     })
   })
 })
+
+describe('interpolateScaler', () => {
+  it('interpolate scaler', () => {
+    expect(geo.interpolateScaler(1, 11, 0.2)).toEqual(3)
+  })
+})
+
+describe('interpolateVector', () => {
+  it('interpolate vector', () => {
+    expect(
+      geo.interpolateVector({ x: 1, y: 2 }, { x: 11, y: 22 }, 0.2)
+    ).toEqual({
+      x: 3,
+      y: 6,
+    })
+  })
+})

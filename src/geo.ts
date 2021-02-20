@@ -1320,3 +1320,32 @@ export function expandRecntagleScale(
     org.height * (scaleH - 1)
   )
 }
+
+/**
+ * interpolate scaler
+ * @param from
+ * @param to
+ * @param rate 0 => from, 1 => to
+ * @return interpolated value
+ */
+export function interpolateScaler(
+  from: number,
+  to: number,
+  rate: number
+): number {
+  return from * (1 - rate) + to * rate
+}
+
+/**
+ * interpolate scaler
+ * @param from
+ * @param to
+ * @param rate 0 => from, 1 => to
+ * @return interpolated value
+ */
+export function interpolateVector(from: IVec2, to: IVec2, rate: number): IVec2 {
+  return {
+    x: interpolateScaler(from.x, to.x, rate),
+    y: interpolateScaler(from.y, to.y, rate),
+  }
+}
