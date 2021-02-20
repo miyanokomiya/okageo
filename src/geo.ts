@@ -61,6 +61,15 @@ export function getRectCenter(rec: IRectangle): IVec2 {
   }
 }
 
+export function getPolygonCenter(polygon: IVec2[]): IVec2 {
+  if (polygon.length === 0) return { x: 0, y: 0 }
+
+  return multi(
+    polygon.reduce((p, c) => add(p, c), { x: 0, y: 0 }),
+    1 / polygon.length
+  )
+}
+
 export function getRadian(a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
   const dif = sub(a, from)
   return Math.atan2(dif.y, dif.x)
