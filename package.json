@@ -33,7 +33,7 @@
     "bili": "^5.0.5",
     "coveralls": "^3.0.6",
     "eslint": "^7.14.0",
-    "eslint-config-prettier": "^7.0.0",
+    "eslint-config-prettier": "^8.0.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jest": "^24.0.1",
