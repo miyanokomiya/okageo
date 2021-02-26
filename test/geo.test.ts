@@ -1,5 +1,5 @@
 import * as geo from '../src/geo'
-import { IVec2, IRectangle } from '../src/types'
+import { IVec2, IRectangle, AffineMatrix } from '../src/types'
 
 describe('add ベクトル足し算', () => {
   it('計算結果が正しいこと', () => {
@@ -1223,6 +1223,16 @@ describe('transform 2次元アフィン変換', () => {
     expect(res).toHaveLength(1)
     expect(res[0].x).toBeCloseTo(1 + 2 * 3 + 5)
     expect(res[0].y).toBeCloseTo(2 + 2 * 4 + 6)
+  })
+})
+
+describe('invertTransform', () => {
+  it('invert Affine transform matrix', () => {
+    const src: AffineMatrix = [1, 2, 3, 4, 5, 6]
+    const transformed = geo.transform([{ x: 10, y: 20 }], src)
+    const inverted = geo.transform(transformed, geo.invertTransform(src))
+    expect(inverted[0].x).toBeCloseTo(10)
+    expect(inverted[0].y).toBeCloseTo(20)
   })
 })
 

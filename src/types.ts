@@ -35,6 +35,21 @@ export interface IRectangle {
 }
 
 /**
+ * params of Affine matrix
+ * a c e
+ * b d f
+ * 0 0 1
+ */
+export type AffineMatrix = [
+  a: number,
+  b: number,
+  c: number,
+  d: number,
+  e: number,
+  f: number
+]
+
+/**
  * SVG設定
  */
 export interface ISvgConfigs {
