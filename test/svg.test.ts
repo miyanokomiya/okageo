@@ -1,6 +1,6 @@
 import * as geo from '../src/geo'
 import * as svg from '../src/svg'
-import { ISvgPath, ISvgStyle, IVec2 } from '../src/types'
+import { AffineMatrix, ISvgPath, ISvgStyle, IVec2 } from '../src/types'
 
 function parseSvg(svgString: string): Document {
   const domParser = new DOMParser()
@@ -1366,6 +1366,87 @@ describe('getGroupedPathList', () => {
       { x: 6, y: 2 },
       { x: 8, y: 2 },
       { x: 8, y: 0 },
+    ])
+  })
+})
+
+describe('affineToTransform', () => {
+  it('get matrix transform text', () => {
+    expect(svg.affineToTransform([1, 2, 3, 4, 5, 6])).toBe(
+      'matrix(1,2,3,4,5,6)'
+    )
+  })
+})
+
+describe('parseTransform', () => {
+  it('parse translate', () => {
+    const res = svg.parseTransform('translate(1,2) scale(2,3) rotate(180)')
+    const expe = geo.multiAffines([
+      [1, 0, 0, 1, 1, 2],
+      [2, 0, 0, 3, 0, 0],
+      [-1, 0, 0, -1, 0, 0],
+    ])
+    res.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
+  })
+})
+
+describe('parseTranslate', () => {
+  it('parse translate', () => {
+    expect(svg.parseTransform('translate(1,2)')).toEqual([1, 0, 0, 1, 1, 2])
+    expect(svg.parseTransform('translate(  1.2  -2.01  )')).toEqual([
+      1,
+      0,
+      0,
+      1,
+      1.2,
+      -2.01,
+    ])
+  })
+})
+
+describe('parseScale', () => {
+  it('parse scale', () => {
+    expect(svg.parseScale('scale(2,3)')).toEqual([2, 0, 0, 3, 0, 0])
+    expect(svg.parseScale('scale(  1.2  -2.01  )')).toEqual([
+      1.2,
+      0,
+      0,
+      -2.01,
+      0,
+      0,
+    ])
+  })
+})
+
+describe('parseRotate', () => {
+  it('parse rotate', () => {
+    const res1 = svg.parseRotate('rotate(180)')
+    const expe = [-1, 0, 0, -1, 0, 0]
+    res1.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
+  })
+  it('parse rotate with origin', () => {
+    const res1 = svg.parseRotate('rotate(180, 10, 20)')
+    const t1: AffineMatrix = [1, 0, 0, 1, -10, -20]
+    const rot: AffineMatrix = [-1, 0, 0, -1, 0, 0]
+    const t2: AffineMatrix = [1, 0, 0, 1, 10, 20]
+    const expe = geo.multiAffine(geo.multiAffine(t2, rot), t1)
+    res1.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
+
+    const applied = geo.transform([{ x: 0, y: 0 }], res1)
+    expect(applied[0].x).toBeCloseTo(20)
+    expect(applied[0].y).toBeCloseTo(40)
+  })
+})
+
+describe('parseMatrix', () => {
+  it('parse matrix', () => {
+    expect(svg.parseMatrix('matrix(2, 0 0  3 , 0, 0)')).toEqual([
+      2,
+      0,
+      0,
+      3,
+      0,
+      0,
     ])
   })
 })

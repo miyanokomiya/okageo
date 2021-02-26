@@ -2,6 +2,8 @@ import { IVec2, IRectangle, AffineMatrix } from './types'
 
 export const MINVALUE: number = 0.000001
 
+export const IDENTITY_AFFINE: AffineMatrix = [1, 0, 0, 1, 0, 0]
+
 export function add(a: IVec2, b: IVec2): IVec2 {
   return { x: a.x + b.x, y: a.y + b.y }
 }
@@ -1077,6 +1079,17 @@ export function multiAffine(a: AffineMatrix, b: AffineMatrix): AffineMatrix {
     a[0] * b[4] + a[2] * b[5] + a[4],
     a[1] * b[4] + a[3] * b[5] + a[5],
   ]
+}
+
+/**
+ * multi affines
+ * @param affines affine matrix list
+ * @return affines[0] * affines[1] * ...
+ */
+export function multiAffines(affines: AffineMatrix[]): AffineMatrix {
+  return affines.reduce((p, c) => {
+    return multiAffine(p, c)
+  }, IDENTITY_AFFINE)
 }
 
 /**

@@ -1250,6 +1250,20 @@ describe('multiAffine', () => {
   })
 })
 
+describe('multiAffines', () => {
+  it('multi affine matrixes', () => {
+    const src: AffineMatrix = [1, 2, 3, 4, 5, 6]
+    const inverted = geo.invertTransform(src)
+    const res = geo.multiAffines([src, inverted])
+    expect(res[0]).toBeCloseTo(1)
+    expect(res[1]).toBeCloseTo(0)
+    expect(res[2]).toBeCloseTo(0)
+    expect(res[3]).toBeCloseTo(1)
+    expect(res[4]).toBeCloseTo(0)
+    expect(res[5]).toBeCloseTo(0)
+  })
+})
+
 describe('omitSamePoint 隣接同一点オミット', () => {
   it('正しく取得できること', () => {
     const res = geo.omitSamePoint([
