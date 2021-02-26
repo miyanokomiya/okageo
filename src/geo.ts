@@ -1,6 +1,8 @@
-import { IVec2, IRectangle } from './types'
+import { IVec2, IRectangle, AffineMatrix } from './types'
 
 export const MINVALUE: number = 0.000001
+
+export const IDENTITY_AFFINE: AffineMatrix = [1, 0, 0, 1, 0, 0]
 
 export function add(a: IVec2, b: IVec2): IVec2 {
   return { x: a.x + b.x, y: a.y + b.y }
@@ -1040,6 +1042,54 @@ export function transform(points: IVec2[], params: number[]): IVec2[] {
     x: a * p.x + c * p.y + e,
     y: b * p.x + d * p.y + f,
   }))
+}
+
+/**
+ * invert affine transfomation matrix
+ * a c e
+ * b d f
+ * @param params [a, b, c, d, e, f]
+ * @return inverted matrix params
+ */
+export function invertTransform(params: AffineMatrix): AffineMatrix {
+  const [a, b, c, d, e, f] = params
+  const t = a * d - b * c
+  return [
+    d / t,
+    -b / t,
+    -c / t,
+    a / t,
+    (c * f - d * e) / t,
+    -(a * f - b * e) / t,
+  ]
+}
+
+/**
+ * multi affine transfomation matrixes
+ * @param a affine matrix
+ * @param b affine matrix
+ * @return a * b
+ */
+export function multiAffine(a: AffineMatrix, b: AffineMatrix): AffineMatrix {
+  return [
+    a[0] * b[0] + a[2] * b[1],
+    a[1] * b[0] + a[3] * b[1],
+    a[0] * b[2] + a[2] * b[3],
+    a[1] * b[2] + a[3] * b[3],
+    a[0] * b[4] + a[2] * b[5] + a[4],
+    a[1] * b[4] + a[3] * b[5] + a[5],
+  ]
+}
+
+/**
+ * multi affines
+ * @param affines affine matrix list
+ * @return affines[0] * affines[1] * ...
+ */
+export function multiAffines(affines: AffineMatrix[]): AffineMatrix {
+  return affines.reduce((p, c) => {
+    return multiAffine(p, c)
+  }, IDENTITY_AFFINE)
 }
 
 /**

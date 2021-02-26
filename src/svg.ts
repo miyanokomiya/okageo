@@ -1,4 +1,4 @@
-import { ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from './types'
+import { AffineMatrix, ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from './types'
 import * as geo from './geo'
 
 const HTTP_SVG = 'http://www.w3.org/2000/svg'
@@ -991,4 +991,109 @@ export function getGroupedPathList(
     const [d, ...included] = group
     return { d, included, style }
   })
+}
+
+/**
+ * convert affine matrix to transform attribute value
+ * @param matrix affine matrix
+ * @return transform attribute value
+ */
+export function affineToTransform(matrix: AffineMatrix): string {
+  return `matrix(${matrix.join(',')})`
+}
+
+/**
+ * parse transform attribute value as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseTransform(transformStr: string): AffineMatrix {
+  const transformStrList = transformStr.split(')').map((s) => `${s})`)
+  const affines = transformStrList.map((str) => parseUnitTransform(str))
+  return geo.multiAffines(affines)
+}
+
+function parseUnitTransform(str: string): AffineMatrix {
+  if (/translate/.test(str)) return parseTranslate(str)
+  if (/scale/.test(str)) return parseScale(str)
+  if (/rotate/.test(str)) return parseRotate(str)
+  if (/matrix/.test(str)) return parseMatrix(str)
+  return [...geo.IDENTITY_AFFINE]
+}
+
+function parseNumbers(str: string): number[] {
+  const list = str.trim().replace(/,/g, ' ').split(/ +/)
+  return list.map((s) => parseFloat(s))
+}
+
+/**
+ * parse transform attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseTranslate(str: string): AffineMatrix {
+  const splited = str.match(/translate\((.+)\)/)
+  if (!splited || splited.length < 2) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 2) return [...geo.IDENTITY_AFFINE]
+
+  return [1, 0, 0, 1, numbers[0], numbers[1]]
+}
+
+/**
+ * parse transform attribute value of scale as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseScale(str: string): AffineMatrix {
+  const splited = str.match(/scale\((.+)\)/)
+  if (!splited || splited.length < 2) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 2) return [...geo.IDENTITY_AFFINE]
+
+  return [numbers[0], 0, 0, numbers[1], 0, 0]
+}
+
+/**
+ * parse transform attribute value of rotate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseRotate(str: string): AffineMatrix {
+  const splited = str.match(/rotate\((.+)\)/)
+  if (!splited || splited.length < 2) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (parseNumbers.length < 1) return [...geo.IDENTITY_AFFINE]
+
+  const rad = (numbers[0] / 180) * Math.PI
+  const cos = Math.cos(rad)
+  const sin = Math.sin(rad)
+  const rot: AffineMatrix = [cos, sin, -sin, cos, 0, 0]
+
+  if (numbers.length > 2) {
+    return geo.multiAffine(
+      geo.multiAffine([1, 0, 0, 1, numbers[1], numbers[2]], rot),
+      [1, 0, 0, 1, -numbers[1], -numbers[2]]
+    )
+  } else {
+    return rot
+  }
+}
+
+/**
+ * parse transform attribute value of matrix as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseMatrix(str: string): AffineMatrix {
+  const splited = str.match(/matrix\((.+)\)/)
+  if (!splited || splited.length < 2) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 5) return [...geo.IDENTITY_AFFINE]
+
+  return numbers.slice(0, 6) as AffineMatrix
 }
