@@ -1402,6 +1402,9 @@ describe('parseTranslate', () => {
       -2.01,
     ])
   })
+  it('single parameter', () => {
+    expect(svg.parseTransform('translate(1)')).toEqual([1, 0, 0, 1, 1, 1])
+  })
 })
 
 describe('parseScale', () => {
@@ -1415,6 +1418,9 @@ describe('parseScale', () => {
       0,
       0,
     ])
+  })
+  it('single parameter', () => {
+    expect(svg.parseTransform('scale(1.2)')).toEqual([1.2, 0, 0, 1.2, 0, 0])
   })
 })
 

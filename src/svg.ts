@@ -1033,12 +1033,16 @@ function parseNumbers(str: string): number[] {
  */
 export function parseTranslate(str: string): AffineMatrix {
   const splited = str.match(/translate\((.+)\)/)
-  if (!splited || splited.length < 2) return [...geo.IDENTITY_AFFINE]
+  if (!splited || splited.length < 1) return [...geo.IDENTITY_AFFINE]
 
   const numbers = parseNumbers(splited[1])
-  if (numbers.length < 2) return [...geo.IDENTITY_AFFINE]
-
-  return [1, 0, 0, 1, numbers[0], numbers[1]]
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else if (numbers.length === 1) {
+    return [1, 0, 0, 1, numbers[0], numbers[0]]
+  } else {
+    return [1, 0, 0, 1, numbers[0], numbers[1]]
+  }
 }
 
 /**
@@ -1051,9 +1055,13 @@ export function parseScale(str: string): AffineMatrix {
   if (!splited || splited.length < 2) return [...geo.IDENTITY_AFFINE]
 
   const numbers = parseNumbers(splited[1])
-  if (numbers.length < 2) return [...geo.IDENTITY_AFFINE]
-
-  return [numbers[0], 0, 0, numbers[1], 0, 0]
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else if (numbers.length === 1) {
+    return [numbers[0], 0, 0, numbers[0], 0, 0]
+  } else {
+    return [numbers[0], 0, 0, numbers[1], 0, 0]
+  }
 }
 
 /**
