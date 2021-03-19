@@ -1380,11 +1380,15 @@ describe('affineToTransform', () => {
 
 describe('parseTransform', () => {
   it('parse translate', () => {
-    const res = svg.parseTransform('translate(1,2) scale(2,3) rotate(180)')
+    const res = svg.parseTransform(
+      'translate(1,2) scale(2,3) rotate(180) skewX(1.2) skewY(2.1)'
+    )
     const expe = geo.multiAffines([
       [1, 0, 0, 1, 1, 2],
       [2, 0, 0, 3, 0, 0],
       [-1, 0, 0, -1, 0, 0],
+      [1, 0, Math.tan(1.2), 1, 0, 0],
+      [1, Math.tan(2.1), 0, 1, 0, 0],
     ])
     res.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
   })
@@ -1473,8 +1477,40 @@ describe('parseScaleX', () => {
     expect(svg.parseScaleX('scaleX(2.1)')).toEqual([2.1, 0, 0, 1, 0, 0])
     expect(svg.parseScaleX('scaleX(  1.2)')).toEqual([1.2, 0, 0, 1, 0, 0])
   })
-  it('single parameter', () => {
-    expect(svg.parseTransform('scale(1.2)')).toEqual([1.2, 0, 0, 1.2, 0, 0])
+})
+
+describe('parseSkewX', () => {
+  it('parse skewX', () => {
+    expect(svg.parseSkewX('skewX(2.1)')).toEqual([1, 0, Math.tan(2.1), 1, 0, 0])
+    expect(svg.parseSkewX('skewX(  1.2)')).toEqual([
+      1,
+      0,
+      Math.tan(1.2),
+      1,
+      0,
+      0,
+    ])
+  })
+})
+
+describe('parseSkewY', () => {
+  it('parse skewY', () => {
+    expect(svg.parseSkewY('skewY(2.1)')).toEqual([1, Math.tan(2.1), 0, 1, 0, 0])
+    expect(svg.parseSkewY('skewY(  1.2)')).toEqual([
+      1,
+      Math.tan(1.2),
+      0,
+      1,
+      0,
+      0,
+    ])
+  })
+})
+
+describe('parseScaleY', () => {
+  it('parse scaleY', () => {
+    expect(svg.parseScaleY('scaleY(2.1)')).toEqual([1, 0, 0, 2.1, 0, 0])
+    expect(svg.parseScaleY('scaleY(  1.2)')).toEqual([1, 0, 0, 1.2, 0, 0])
   })
 })
 

@@ -1017,6 +1017,8 @@ function parseUnitTransform(str: string): AffineMatrix {
   if (/translateX/.test(str)) return parseTranslateX(str)
   if (/translateY/.test(str)) return parseTranslateY(str)
   if (/translate/.test(str)) return parseTranslate(str)
+  if (/skewX/.test(str)) return parseSkewX(str)
+  if (/skewY/.test(str)) return parseSkewY(str)
   if (/scaleX/.test(str)) return parseScaleX(str)
   if (/scaleY/.test(str)) return parseScaleY(str)
   if (/scale/.test(str)) return parseScale(str)
@@ -1050,7 +1052,7 @@ export function parseTranslate(str: string): AffineMatrix {
 }
 
 /**
- * parse transformX attribute value of translate as affine matrix
+ * parse translateX attribute value of translate as affine matrix
  * @param transform attribute value
  * @return transform value
  */
@@ -1067,7 +1069,7 @@ export function parseTranslateX(str: string): AffineMatrix {
 }
 
 /**
- * parse transformY attribute value of translate as affine matrix
+ * parse translateY attribute value of translate as affine matrix
  * @param transform attribute value
  * @return transform value
  */
@@ -1080,6 +1082,40 @@ export function parseTranslateY(str: string): AffineMatrix {
     return [...geo.IDENTITY_AFFINE]
   } else {
     return [1, 0, 0, 1, 0, numbers[0]]
+  }
+}
+
+/**
+ * parse skewX attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseSkewX(str: string): AffineMatrix {
+  const splited = str.match(/skewX\((.+)\)/)
+  if (!splited || splited.length < 1) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else {
+    return [1, 0, Math.tan(numbers[0]), 1, 0, 0]
+  }
+}
+
+/**
+ * parse skewY attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseSkewY(str: string): AffineMatrix {
+  const splited = str.match(/skewY\((.+)\)/)
+  if (!splited || splited.length < 1) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else {
+    return [1, Math.tan(numbers[0]), 0, 1, 0, 0]
   }
 }
 
