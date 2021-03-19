@@ -1014,7 +1014,11 @@ export function parseTransform(transformStr: string): AffineMatrix {
 }
 
 function parseUnitTransform(str: string): AffineMatrix {
+  if (/translateX/.test(str)) return parseTranslateX(str)
+  if (/translateY/.test(str)) return parseTranslateY(str)
   if (/translate/.test(str)) return parseTranslate(str)
+  if (/scaleX/.test(str)) return parseScaleX(str)
+  if (/scaleY/.test(str)) return parseScaleY(str)
   if (/scale/.test(str)) return parseScale(str)
   if (/rotate/.test(str)) return parseRotate(str)
   if (/matrix/.test(str)) return parseMatrix(str)
@@ -1039,9 +1043,43 @@ export function parseTranslate(str: string): AffineMatrix {
   if (numbers.length < 1) {
     return [...geo.IDENTITY_AFFINE]
   } else if (numbers.length === 1) {
-    return [1, 0, 0, 1, numbers[0], numbers[0]]
+    return [1, 0, 0, 1, numbers[0], 0]
   } else {
     return [1, 0, 0, 1, numbers[0], numbers[1]]
+  }
+}
+
+/**
+ * parse transformX attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseTranslateX(str: string): AffineMatrix {
+  const splited = str.match(/translateX\((.+)\)/)
+  if (!splited || splited.length < 1) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else {
+    return [1, 0, 0, 1, numbers[0], 0]
+  }
+}
+
+/**
+ * parse transformY attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseTranslateY(str: string): AffineMatrix {
+  const splited = str.match(/translateY\((.+)\)/)
+  if (!splited || splited.length < 1) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else {
+    return [1, 0, 0, 1, 0, numbers[0]]
   }
 }
 
@@ -1061,6 +1099,40 @@ export function parseScale(str: string): AffineMatrix {
     return [numbers[0], 0, 0, numbers[0], 0, 0]
   } else {
     return [numbers[0], 0, 0, numbers[1], 0, 0]
+  }
+}
+
+/**
+ * parse ScaleX attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseScaleX(str: string): AffineMatrix {
+  const splited = str.match(/scaleX\((.+)\)/)
+  if (!splited || splited.length < 1) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else {
+    return [numbers[0], 0, 0, 1, 0, 0]
+  }
+}
+
+/**
+ * parse ScaleY attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */
+export function parseScaleY(str: string): AffineMatrix {
+  const splited = str.match(/scaleY\((.+)\)/)
+  if (!splited || splited.length < 1) return [...geo.IDENTITY_AFFINE]
+
+  const numbers = parseNumbers(splited[1])
+  if (numbers.length < 1) {
+    return [...geo.IDENTITY_AFFINE]
+  } else {
+    return [1, 0, 0, numbers[0], 0, 0]
   }
 }
 

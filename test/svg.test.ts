@@ -1388,6 +1388,22 @@ describe('parseTransform', () => {
     ])
     res.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
   })
+  it('X', () => {
+    const res = svg.parseTransform('translateX(1) scaleX(2)')
+    const expe = geo.multiAffines([
+      [1, 0, 0, 1, 1, 0],
+      [2, 0, 0, 1, 0, 0],
+    ])
+    res.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
+  })
+  it('Y', () => {
+    const res = svg.parseTransform('translateY(1) scaleY(2)')
+    const expe = geo.multiAffines([
+      [1, 0, 0, 1, 0, 1],
+      [1, 0, 0, 2, 0, 0],
+    ])
+    res.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
+  })
 })
 
 describe('parseTranslate', () => {
@@ -1403,7 +1419,35 @@ describe('parseTranslate', () => {
     ])
   })
   it('single parameter', () => {
-    expect(svg.parseTransform('translate(1)')).toEqual([1, 0, 0, 1, 1, 1])
+    expect(svg.parseTransform('translate(1)')).toEqual([1, 0, 0, 1, 1, 0])
+  })
+})
+
+describe('parseTranslateX', () => {
+  it('parse translateX', () => {
+    expect(svg.parseTranslateX('translateX(1.2)')).toEqual([1, 0, 0, 1, 1.2, 0])
+    expect(svg.parseTranslateX('translateX(  1.2  )')).toEqual([
+      1,
+      0,
+      0,
+      1,
+      1.2,
+      0,
+    ])
+  })
+})
+
+describe('parseTranslateY', () => {
+  it('parse translateY', () => {
+    expect(svg.parseTranslateY('translateY(1.2)')).toEqual([1, 0, 0, 1, 0, 1.2])
+    expect(svg.parseTranslateY('translateY(  1.2  )')).toEqual([
+      1,
+      0,
+      0,
+      1,
+      0,
+      1.2,
+    ])
   })
 })
 
@@ -1418,6 +1462,16 @@ describe('parseScale', () => {
       0,
       0,
     ])
+  })
+  it('single parameter', () => {
+    expect(svg.parseTransform('scale(1.2)')).toEqual([1.2, 0, 0, 1.2, 0, 0])
+  })
+})
+
+describe('parseScaleX', () => {
+  it('parse scaleX', () => {
+    expect(svg.parseScaleX('scaleX(2.1)')).toEqual([2.1, 0, 0, 1, 0, 0])
+    expect(svg.parseScaleX('scaleX(  1.2)')).toEqual([1.2, 0, 0, 1, 0, 0])
   })
   it('single parameter', () => {
     expect(svg.parseTransform('scale(1.2)')).toEqual([1.2, 0, 0, 1.2, 0, 0])
