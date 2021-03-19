@@ -1387,8 +1387,8 @@ describe('parseTransform', () => {
       [1, 0, 0, 1, 1, 2],
       [2, 0, 0, 3, 0, 0],
       [-1, 0, 0, -1, 0, 0],
-      [1, 0, Math.tan(1.2), 1, 0, 0],
-      [1, Math.tan(2.1), 0, 1, 0, 0],
+      [1, 0, Math.tan((1.2 * Math.PI) / 180), 1, 0, 0],
+      [1, Math.tan((2.1 * Math.PI) / 180), 0, 1, 0, 0],
     ])
     res.forEach((r, i) => expect(r).toBeCloseTo(expe[i]))
   })
@@ -1481,11 +1481,18 @@ describe('parseScaleX', () => {
 
 describe('parseSkewX', () => {
   it('parse skewX', () => {
-    expect(svg.parseSkewX('skewX(2.1)')).toEqual([1, 0, Math.tan(2.1), 1, 0, 0])
+    expect(svg.parseSkewX('skewX(2.1)')).toEqual([
+      1,
+      0,
+      Math.tan((2.1 * Math.PI) / 180),
+      1,
+      0,
+      0,
+    ])
     expect(svg.parseSkewX('skewX(  1.2)')).toEqual([
       1,
       0,
-      Math.tan(1.2),
+      Math.tan((1.2 * Math.PI) / 180),
       1,
       0,
       0,
@@ -1495,10 +1502,17 @@ describe('parseSkewX', () => {
 
 describe('parseSkewY', () => {
   it('parse skewY', () => {
-    expect(svg.parseSkewY('skewY(2.1)')).toEqual([1, Math.tan(2.1), 0, 1, 0, 0])
+    expect(svg.parseSkewY('skewY(2.1)')).toEqual([
+      1,
+      Math.tan((2.1 * Math.PI) / 180),
+      0,
+      1,
+      0,
+      0,
+    ])
     expect(svg.parseSkewY('skewY(  1.2)')).toEqual([
       1,
-      Math.tan(1.2),
+      Math.tan((1.2 * Math.PI) / 180),
       0,
       1,
       0,

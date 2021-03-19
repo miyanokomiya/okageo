@@ -1098,7 +1098,7 @@ export function parseSkewX(str: string): AffineMatrix {
   if (numbers.length < 1) {
     return [...geo.IDENTITY_AFFINE]
   } else {
-    return [1, 0, Math.tan(numbers[0]), 1, 0, 0]
+    return [1, 0, Math.tan((numbers[0] * Math.PI) / 180), 1, 0, 0]
   }
 }
 
@@ -1115,7 +1115,7 @@ export function parseSkewY(str: string): AffineMatrix {
   if (numbers.length < 1) {
     return [...geo.IDENTITY_AFFINE]
   } else {
-    return [1, Math.tan(numbers[0]), 0, 1, 0, 0]
+    return [1, Math.tan((numbers[0] * Math.PI) / 180), 0, 1, 0, 0]
   }
 }
 
