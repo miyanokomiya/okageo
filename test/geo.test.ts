@@ -923,6 +923,37 @@ describe('approximateBezier ベジェ曲線近似', () => {
   })
 })
 
+describe('getPointOnBezier2', () => {
+  const pointList = [
+    { x: 0, y: 0 },
+    { x: 1, y: 2 },
+    { x: 2, y: 0 },
+  ] as const
+  it.each([
+    [0, { x: 0, y: 0 }],
+    [0.5, { x: 1, y: 1 }],
+    [1, { x: 2, y: 0 }],
+  ])('getPointOnBezier2(pointList, %s) => %s', (rate, expected) => {
+    expect(geo.getPointOnBezier2(pointList, rate)).toEqual(expected)
+  })
+})
+
+describe('getPointOnBezier3', () => {
+  const pointList = [
+    { x: 0, y: 0 },
+    { x: 1, y: 2 },
+    { x: 3, y: -2 },
+    { x: 4, y: 0 },
+  ] as const
+  it.each([
+    [0, { x: 0, y: 0 }],
+    [0.5, { x: 2, y: 0 }],
+    [1, { x: 4, y: 0 }],
+  ])('getPointOnBezier3(pointList, %s) => %s', (rate, expected) => {
+    expect(geo.getPointOnBezier3(pointList, rate)).toEqual(expected)
+  })
+})
+
 describe('approximateArc 円弧近似', () => {
   it('サイズ2の近似が正しいこと', () => {
     const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 0, y: 0 }, 0, 2)

@@ -734,33 +734,61 @@ export function approximateBezier(pointList: IVec2[], size: number): IVec2[] {
   if (pointList.length === 3) {
     // ２次ベジェの場合
     for (let i = 0; i <= size; i++) {
-      const t = unitT * i
-      const c0 = multi(pointList[0], (1 - t) * (1 - t))
-      const c1 = multi(pointList[1], 2 * t * (1 - t))
-      const c2 = multi(pointList[2], t * t)
-      ret.push({
-        x: c0.x + c1.x + c2.x,
-        y: c0.y + c1.y + c2.y,
-      })
+      ret.push(getPointOnBezier2(pointList as [IVec2, IVec2, IVec2], unitT * i))
     }
   } else if (pointList.length === 4) {
     // 3次ベジェの場合
     for (let i = 0; i <= size; i++) {
-      const t = unitT * i
-      const c0 = multi(pointList[0], (1 - t) * (1 - t) * (1 - t))
-      const c1 = multi(pointList[1], 3 * t * (1 - t) * (1 - t))
-      const c2 = multi(pointList[2], 3 * t * t * (1 - t))
-      const c3 = multi(pointList[3], t * t * t)
-      ret.push({
-        x: c0.x + c1.x + c2.x + c3.x,
-        y: c0.y + c1.y + c2.y + c3.y,
-      })
+      ret.push(
+        getPointOnBezier3(pointList as [IVec2, IVec2, IVec2, IVec2], unitT * i)
+      )
     }
   } else {
     throw new Error('connot approximate')
   }
 
   return ret
+}
+
+/**
+ * get point with the rate on bezier2
+ * @param pointList controller points
+ * @param rate rate between start point and end point
+ * @return calced point
+ */
+export function getPointOnBezier2(
+  pointList: Readonly<[IVec2, IVec2, IVec2]>,
+  rate: number
+): IVec2 {
+  const t = rate
+  const c0 = multi(pointList[0], (1 - t) * (1 - t))
+  const c1 = multi(pointList[1], 2 * t * (1 - t))
+  const c2 = multi(pointList[2], t * t)
+  return {
+    x: c0.x + c1.x + c2.x,
+    y: c0.y + c1.y + c2.y,
+  }
+}
+
+/**
+ * get point with the rate on bezier3
+ * @param pointList controller points
+ * @param rate rate between start point and end point
+ * @return calced point
+ */
+export function getPointOnBezier3(
+  pointList: Readonly<[IVec2, IVec2, IVec2, IVec2]>,
+  rate: number
+): IVec2 {
+  const t = rate
+  const c0 = multi(pointList[0], (1 - t) * (1 - t) * (1 - t))
+  const c1 = multi(pointList[1], 3 * t * (1 - t) * (1 - t))
+  const c2 = multi(pointList[2], 3 * t * t * (1 - t))
+  const c3 = multi(pointList[3], t * t * t)
+  return {
+    x: c0.x + c1.x + c2.x + c3.x,
+    y: c0.y + c1.y + c2.y + c3.y,
+  }
 }
 
 /**
