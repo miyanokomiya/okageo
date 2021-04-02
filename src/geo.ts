@@ -792,6 +792,36 @@ export function getPointOnBezier3(
 }
 
 /**
+ * get point with the rate on bezier3
+ * need these conditions to get unique value
+ * p0.x <= p1.x <= p3.x
+ * p0.x <= p2.x <= p3.x
+ * or may cause unexpected NaN
+ * @param pointList controller points [p0, p1, p2, p3]
+ * @param rate rate between start point and end point
+ * @return calced point
+ */
+export function getYOnBezier3AtX(
+  pointList: Readonly<[IVec2, IVec2, IVec2, IVec2]>,
+  x: number
+): number {
+  const [p0, p1, p2, p3] = pointList
+  const a = -p0.x + 3 * p1.x - 3 * p2.x + p3.x
+  const b = 3 * p0.x - 6 * p1.x + 3 * p2.x
+  const c = -3 * p0.x + 3 * p1.x
+  const d = p0.x - x
+
+  const t = _solveBezier3Fomula(a, b, c, d)
+  const tt = t * t
+  const ttt = t * t * t
+  const tm = 1 - t
+  const tmtm = tm * tm
+  const tmtmtm = tmtm * tm
+
+  return tmtmtm * p0.y + 3 * t * tmtm * p1.y + 3 * tt * tm * p2.y + ttt * p3.y
+}
+
+/**
  * 円弧を直線で近似する
  * @param rx x軸半径
  * @param ry y軸半径
@@ -1426,4 +1456,39 @@ export function interpolateVector(from: IVec2, to: IVec2, rate: number): IVec2 {
     x: interpolateScaler(from.x, to.x, rate),
     y: interpolateScaler(from.y, to.y, rate),
   }
+}
+
+/**
+ * solve cubic equation for bezier3
+ * throw if the equation does not have unique real solution
+ * @param a t^3 param
+ * @param b t^2 param
+ * @param c t param
+ * @param d constant param
+ * @return unique solution
+ */
+export function _solveBezier3Fomula(
+  a: number,
+  b: number,
+  c: number,
+  d: number
+): number {
+  if (a === 0 && b === 0 && c === 0) return 0
+  if (a === 0 && b === 0) return -d / c
+  if (a === 0) return -c / (2 * b)
+  const p = (3 * a * c - b * b) / (3 * a * a)
+  const q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a)
+
+  if (p === 0 && q === 0) return -b / (3 * a)
+
+  const D = (27 * q * q + 4 * p * p * p) / 108
+  if (D <= 0) throw new Error('Error: Cannot resolve uniquely.')
+
+  const sqrtD = Math.sqrt(D)
+  const tmpA = -q / 2 + sqrtD
+  const tmpB = -q / 2 - sqrtD
+  const A = Math.sign(tmpA) * Math.pow(Math.abs(tmpA), 1 / 3)
+  const B = Math.sign(tmpB) * Math.pow(Math.abs(tmpB), 1 / 3)
+
+  return A + B - b / (3 * a)
 }

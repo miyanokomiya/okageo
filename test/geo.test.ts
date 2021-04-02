@@ -954,6 +954,57 @@ describe('getPointOnBezier3', () => {
   })
 })
 
+describe('getYOnBezier3AtX', () => {
+  const pointList = [
+    { x: 0, y: 0 },
+    { x: 2, y: 0 },
+    { x: 2, y: 10 },
+    { x: 4, y: 10 },
+  ] as const
+  it.each([
+    [0, 0],
+    [2, 5],
+    [4, 10],
+  ])('getYOnBezier3AtX(pointList, %s) => %s', (x, expected) => {
+    expect(geo.getYOnBezier3AtX(pointList, x)).toBeCloseTo(expected)
+  })
+  it('expo in', () => {
+    const pointList = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+    ] as const
+    expect(geo.getYOnBezier3AtX(pointList, 0)).toBeCloseTo(0)
+    expect(geo.getYOnBezier3AtX(pointList, 8)).toBeLessThan(1)
+    expect(geo.getYOnBezier3AtX(pointList, 10)).toBeCloseTo(10)
+  })
+  it('expo out', () => {
+    const pointList = [
+      { x: 0, y: 0 },
+      { x: 0, y: 10 },
+      { x: 0, y: 10 },
+      { x: 10, y: 10 },
+    ] as const
+    expect(geo.getYOnBezier3AtX(pointList, 0)).toBeCloseTo(0)
+    expect(geo.getYOnBezier3AtX(pointList, 2)).toBeGreaterThan(9)
+    expect(geo.getYOnBezier3AtX(pointList, 10)).toBeCloseTo(10)
+  })
+  it('wave', () => {
+    const pointList = [
+      { x: 0, y: 0 },
+      { x: 5, y: 20 },
+      { x: 5, y: -10 },
+      { x: 10, y: 10 },
+    ] as const
+    expect(geo.getYOnBezier3AtX(pointList, 0)).toBeCloseTo(0)
+    expect(geo.getYOnBezier3AtX(pointList, 2.5)).toBeGreaterThan(5)
+    expect(geo.getYOnBezier3AtX(pointList, 5)).toBeCloseTo(5)
+    expect(geo.getYOnBezier3AtX(pointList, 7.5)).toBeLessThan(5)
+    expect(geo.getYOnBezier3AtX(pointList, 10)).toBeCloseTo(10)
+  })
+})
+
 describe('approximateArc 円弧近似', () => {
   it('サイズ2の近似が正しいこと', () => {
     const res = geo.approximateArc(2, 1, 0, Math.PI, { x: 0, y: 0 }, 0, 2)
@@ -1637,5 +1688,17 @@ describe('interpolateVector', () => {
       x: 3,
       y: 6,
     })
+  })
+})
+
+describe('_solveBezier3Fomula', () => {
+  it.each([
+    [0, 0, 1, 1, -1],
+    [0, 1, -4, 4, 2],
+    [1, -14, 69, -108, 3],
+    [10, -30, 30, 0, 0],
+    [10, -30, 30, -10, 1],
+  ])('a: %s, b: %s, c: %s, d: %s => %s', (a, b, c, d, expected) => {
+    expect(geo._solveBezier3Fomula(a, b, c, d)).toBeCloseTo(expected)
   })
 })
