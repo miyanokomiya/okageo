@@ -1003,6 +1003,17 @@ describe('getYOnBezier3AtX', () => {
     expect(geo.getYOnBezier3AtX(pointList, 7.5)).toBeLessThan(5)
     expect(geo.getYOnBezier3AtX(pointList, 10)).toBeCloseTo(10)
   })
+  it('complex case 1', () => {
+    const pointList = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 50, y: 250 },
+      { x: 60, y: 250 },
+    ] as const
+    expect(geo.getYOnBezier3AtX(pointList, 0)).toBeCloseTo(0)
+    expect(geo.getYOnBezier3AtX(pointList, 30)).toBeCloseTo(125)
+    expect(geo.getYOnBezier3AtX(pointList, 60)).toBeCloseTo(250)
+  })
 })
 
 describe('approximateArc 円弧近似', () => {

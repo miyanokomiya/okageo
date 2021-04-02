@@ -1460,7 +1460,7 @@ export function interpolateVector(from: IVec2, to: IVec2, rate: number): IVec2 {
 
 /**
  * solve cubic equation for bezier3
- * throw if the equation does not have unique real solution
+ * throw if the equation does not have real solution in 0 <= t <= 1
  * @param a t^3 param
  * @param b t^2 param
  * @param c t param
@@ -1482,13 +1482,49 @@ export function _solveBezier3Fomula(
   if (p === 0 && q === 0) return -b / (3 * a)
 
   const D = (27 * q * q + 4 * p * p * p) / 108
-  if (D <= 0) throw new Error('Error: Cannot resolve uniquely.')
+  if (D === 0) throw new Error('Error: Cannot resolve uniquely.')
 
-  const sqrtD = Math.sqrt(D)
-  const tmpA = -q / 2 + sqrtD
-  const tmpB = -q / 2 - sqrtD
-  const A = Math.sign(tmpA) * Math.pow(Math.abs(tmpA), 1 / 3)
-  const B = Math.sign(tmpB) * Math.pow(Math.abs(tmpB), 1 / 3)
+  if (D > 0) {
+    const sqrtD = Math.sqrt(D)
+    const tmpA = -q / 2 + sqrtD
+    const tmpB = -q / 2 - sqrtD
+    const A = Math.sign(tmpA) * Math.pow(Math.abs(tmpA), 1 / 3)
+    const B = Math.sign(tmpB) * Math.pow(Math.abs(tmpB), 1 / 3)
 
-  return A + B - b / (3 * a)
+    return A + B - b / (3 * a)
+  } else {
+    const A = -q / 2
+    const B = Math.sqrt(-D)
+    const r = Math.atan2(B, A)
+    const C = 2 * Math.pow(A * A + B * B, 1 / 6)
+    const D0 = Math.cos((r + 2 * Math.PI * 0) / 3)
+    const D1 = Math.cos((r + 2 * Math.PI * 1) / 3)
+    const D2 = Math.cos((r + 2 * Math.PI * 2) / 3)
+
+    const T0 = C * D0 - b / (3 * a)
+    const T1 = C * D1 - b / (3 * a)
+    const T2 = C * D2 - b / (3 * a)
+
+    const ret = getCloseInRangeValue([T0, T1, T2], 0, 1)
+    if (ret === undefined)
+      throw new Error('Error: Cannot resolve uniquely in 0 <= t <= 1.')
+
+    return Math.max(Math.min(ret, 1), 0)
+  }
+}
+
+function getCloseInRangeValue(
+  values: number[],
+  min: number,
+  max: number
+): number | undefined {
+  return values.find((val) => {
+    if (min <= val && val <= max) return true
+    if (isCloseTo(val, min) || isCloseTo(val, max)) return true
+    return false
+  })
+}
+
+function isCloseTo(val: number, target: number): boolean {
+  return Math.abs(val - target) < MINVALUE
 }
