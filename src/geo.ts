@@ -119,8 +119,8 @@ export function rotate(
  * @return 解の配列
  */
 export function solveEquationOrder2(a: number, b: number, c: number): number[] {
-  if (a === 0) {
-    return b === 0 ? [] : [-c / b]
+  if (isCloseToZero(a)) {
+    return isCloseToZero(b) ? [] : [-c / b]
   }
 
   const d = b * b - 4 * a * c
@@ -130,7 +130,7 @@ export function solveEquationOrder2(a: number, b: number, c: number): number[] {
 
   const ia = 0.5 / a
 
-  if (d === 0) {
+  if (isCloseToZero(d)) {
     return [-b * ia]
   }
 
@@ -1473,7 +1473,10 @@ function solveBezier3Fomula(
   c: number,
   d: number
 ): number {
-  const ret = getCloseInRangeValue(solveQubicFomula(a, b, c, d), 0, 1)
+  const list = solveQubicFomula(a, b, c, d)
+  if (list.length === 0) return 0
+
+  const ret = getCloseInRangeValue(list, 0, 1)
   if (ret === undefined)
     throw new Error('Error: Cannot resolve uniquely in 0 <= t <= 1.')
 
@@ -1498,9 +1501,11 @@ export function solveQubicFomula(
   const isBzero = isCloseToZero(b)
   const isCzero = isCloseToZero(c)
 
-  if (isAzero && isBzero && isCzero) return [0]
+  if (isAzero && isBzero && isCzero) return []
   if (isAzero && isBzero) return [-d / c]
-  if (isAzero) return [-c / (2 * b)]
+  if (isAzero) {
+    return solveEquationOrder2(b, c, d)
+  }
 
   const p = (3 * a * c - b * b) / (3 * a * a)
   const q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a)

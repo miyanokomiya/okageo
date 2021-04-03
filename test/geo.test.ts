@@ -1721,9 +1721,27 @@ describe('solveQubicFomula', () => {
     expect(ret[1]).toBeCloseTo(3)
     expect(ret[2]).toBeCloseTo(4)
   })
+  it('quadratic: 2 real solutions', () => {
+    const ret = geo.solveQubicFomula(0, 1, -5, 6)
+    expect(ret).toHaveLength(2)
+    expect(ret[0]).toBeCloseTo(3)
+    expect(ret[1]).toBeCloseTo(2)
+  })
+  it('quadratic: 1 real solution', () => {
+    const ret = geo.solveQubicFomula(0, 1, -4, 4)
+    expect(ret).toHaveLength(1)
+    expect(ret[0]).toBeCloseTo(2)
+  })
+  it('linear: 1 real solution', () => {
+    const ret = geo.solveQubicFomula(0, 0, 1, 1)
+    expect(ret).toHaveLength(1)
+    expect(ret[0]).toBeCloseTo(-1)
+  })
+  it('Inappropriate: empty', () => {
+    const ret = geo.solveQubicFomula(0, 0, 0, 1)
+    expect(ret).toHaveLength(0)
+  })
   it.each([
-    [0, 0, 1, 1, [-1]],
-    [0, 1, -4, 4, [2]],
     [10, -30, 30, 0, [0]],
     [10, -30, 30, -10, [1]],
   ])('a: %s, b: %s, c: %s, d: %s => %s', (a, b, c, d, expected) => {
