@@ -1497,13 +1497,7 @@ export function solveQubicFomula(
   c: number,
   d: number
 ): number[] {
-  const isAzero = isCloseToZero(a)
-  const isBzero = isCloseToZero(b)
-  const isCzero = isCloseToZero(c)
-
-  if (isAzero && isBzero && isCzero) return []
-  if (isAzero && isBzero) return [-d / c]
-  if (isAzero) {
+  if (isCloseToZero(a)) {
     return solveEquationOrder2(b, c, d)
   }
 
