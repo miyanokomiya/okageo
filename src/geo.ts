@@ -811,9 +811,9 @@ export function getYOnBezier3AtX(
   const c = -3 * p0.x + 3 * p1.x
   const d = p0.x - x
 
-  const t = _solveBezier3Fomula(a, b, c, d)
+  const t = solveBezier3Fomula(a, b, c, d)
   const tt = t * t
-  const ttt = t * t * t
+  const ttt = tt * t
   const tm = 1 - t
   const tmtm = tm * tm
   const tmtmtm = tmtm * tm
@@ -1467,49 +1467,74 @@ export function interpolateVector(from: IVec2, to: IVec2, rate: number): IVec2 {
  * @param d constant param
  * @return unique solution
  */
-export function _solveBezier3Fomula(
+function solveBezier3Fomula(
   a: number,
   b: number,
   c: number,
   d: number
 ): number {
-  if (a === 0 && b === 0 && c === 0) return 0
-  if (a === 0 && b === 0) return -d / c
-  if (a === 0) return -c / (2 * b)
+  const ret = getCloseInRangeValue(solveQubicFomula(a, b, c, d), 0, 1)
+  if (ret === undefined)
+    throw new Error('Error: Cannot resolve uniquely in 0 <= t <= 1.')
+
+  return Math.max(Math.min(ret, 1), 0)
+}
+
+/**
+ * solve cubic equation in real space
+ * @param a t^3 param
+ * @param b t^2 param
+ * @param c t param
+ * @param d constant param
+ * @return solutions in no particular order
+ */
+export function solveQubicFomula(
+  a: number,
+  b: number,
+  c: number,
+  d: number
+): number[] {
+  if (a === 0 && b === 0 && c === 0) return [0]
+  if (a === 0 && b === 0) return [-d / c]
+  if (a === 0) return [-c / (2 * b)]
   const p = (3 * a * c - b * b) / (3 * a * a)
   const q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a)
 
-  if (p === 0 && q === 0) return -b / (3 * a)
+  const Z = -b / (3 * a)
+
+  if (p === 0 && q === 0) {
+    // triple real root
+    return [Z]
+  }
 
   const D = (27 * q * q + 4 * p * p * p) / 108
-  if (D === 0) throw new Error('Error: Cannot resolve uniquely.')
-
-  if (D > 0) {
+  if (D === 0) {
+    // one distinct root and double real root
+    const Q = Math.sign(q) * Math.pow(Math.abs(q) / 2, 1 / 3)
+    return [-2 * Q + Z, Q + Z]
+  } else if (D > 0) {
     const sqrtD = Math.sqrt(D)
     const tmpA = -q / 2 + sqrtD
     const tmpB = -q / 2 - sqrtD
     const A = Math.sign(tmpA) * Math.pow(Math.abs(tmpA), 1 / 3)
     const B = Math.sign(tmpB) * Math.pow(Math.abs(tmpB), 1 / 3)
 
-    return A + B - b / (3 * a)
+    return [A + B + Z]
   } else {
+    // three distinct real roots
     const A = -q / 2
     const B = Math.sqrt(-D)
     const r = Math.atan2(B, A)
     const C = 2 * Math.pow(A * A + B * B, 1 / 6)
-    const D0 = Math.cos((r + 2 * Math.PI * 0) / 3)
-    const D1 = Math.cos((r + 2 * Math.PI * 1) / 3)
-    const D2 = Math.cos((r + 2 * Math.PI * 2) / 3)
+    const D0 = Math.cos(r / 3)
+    const D1 = Math.cos((r + 2 * Math.PI) / 3)
+    const D2 = Math.cos((r + 4 * Math.PI) / 3)
 
-    const T0 = C * D0 - b / (3 * a)
-    const T1 = C * D1 - b / (3 * a)
-    const T2 = C * D2 - b / (3 * a)
+    const T0 = C * D0 + Z
+    const T1 = C * D1 + Z
+    const T2 = C * D2 + Z
 
-    const ret = getCloseInRangeValue([T0, T1, T2], 0, 1)
-    if (ret === undefined)
-      throw new Error('Error: Cannot resolve uniquely in 0 <= t <= 1.')
-
-    return Math.max(Math.min(ret, 1), 0)
+    return [T0, T1, T2]
   }
 }
 

@@ -1702,14 +1702,34 @@ describe('interpolateVector', () => {
   })
 })
 
-describe('_solveBezier3Fomula', () => {
+describe('solveQubicFomula', () => {
+  it('1 real solution', () => {
+    const ret = geo.solveQubicFomula(1, -14, 69, -108)
+    expect(ret).toHaveLength(1)
+    expect(ret[0]).toBeCloseTo(3)
+  })
+  it('2 real solutions', () => {
+    const ret = geo.solveQubicFomula(1, 4, 5, 2)
+    expect(ret).toHaveLength(2)
+    expect(ret[0]).toBeCloseTo(-2)
+    expect(ret[1]).toBeCloseTo(-1)
+  })
+  it('3 real solutions', () => {
+    const ret = geo.solveQubicFomula(1, -12, 47, -60)
+    expect(ret).toHaveLength(3)
+    expect(ret[0]).toBeCloseTo(5)
+    expect(ret[1]).toBeCloseTo(3)
+    expect(ret[2]).toBeCloseTo(4)
+  })
   it.each([
-    [0, 0, 1, 1, -1],
-    [0, 1, -4, 4, 2],
-    [1, -14, 69, -108, 3],
-    [10, -30, 30, 0, 0],
-    [10, -30, 30, -10, 1],
+    [0, 0, 1, 1, [-1]],
+    [0, 1, -4, 4, [2]],
+    [10, -30, 30, 0, [0]],
+    [10, -30, 30, -10, [1]],
   ])('a: %s, b: %s, c: %s, d: %s => %s', (a, b, c, d, expected) => {
-    expect(geo._solveBezier3Fomula(a, b, c, d)).toBeCloseTo(expected)
+    const ret = geo.solveQubicFomula(a, b, c, d)
+    ret.forEach((t, i) => {
+      expect(t).toBeCloseTo(expected[i])
+    })
   })
 })
