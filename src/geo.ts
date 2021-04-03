@@ -1494,21 +1494,26 @@ export function solveQubicFomula(
   c: number,
   d: number
 ): number[] {
-  if (a === 0 && b === 0 && c === 0) return [0]
-  if (a === 0 && b === 0) return [-d / c]
-  if (a === 0) return [-c / (2 * b)]
+  const isAzero = isCloseToZero(a)
+  const isBzero = isCloseToZero(b)
+  const isCzero = isCloseToZero(c)
+
+  if (isAzero && isBzero && isCzero) return [0]
+  if (isAzero && isBzero) return [-d / c]
+  if (isAzero) return [-c / (2 * b)]
+
   const p = (3 * a * c - b * b) / (3 * a * a)
   const q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a)
 
   const Z = -b / (3 * a)
 
-  if (p === 0 && q === 0) {
+  if (isCloseToZero(p) && isCloseToZero(q)) {
     // triple real root
     return [Z]
   }
 
   const D = (27 * q * q + 4 * p * p * p) / 108
-  if (D === 0) {
+  if (isCloseToZero(D)) {
     // one distinct root and double real root
     const Q = Math.sign(q) * Math.pow(Math.abs(q) / 2, 1 / 3)
     return [-2 * Q + Z, Q + Z]
@@ -1552,4 +1557,8 @@ function getCloseInRangeValue(
 
 function isCloseTo(val: number, target: number): boolean {
   return Math.abs(val - target) < MINVALUE
+}
+
+function isCloseToZero(val: number): boolean {
+  return Math.abs(val) < MINVALUE
 }
