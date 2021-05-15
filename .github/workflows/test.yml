@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [14.x]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Run tests with ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
       - name: npm install, build, and test
@@ -21,6 +21,7 @@ jobs:
           yarn doc
           yarn build
           yarn test
+          yarn build:demo
         env:
           CI: true
       - name: Coveralls
