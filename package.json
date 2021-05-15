@@ -16,8 +16,10 @@
   "types": "./dist/okageo.d.ts",
   "sideEffects": false,
   "scripts": {
-    "lint": "yarn eslint ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier -c ./*.json ./.*.json",
-    "lint:fix": "yarn eslint --fix ./src ./test ./demo ./*.js --ext .js,.ts && yarn prettier --write ./*.json ./.*.json",
+    "lint:es": "yarn eslint ./src ./test ./demo ./*.js --ext .js,.ts",
+    "lint:json": "yarn prettier -c ./*.json ./.*.json",
+    "lint": "yarn lint:es && yarn lint:json",
+    "lint:fix": "yarn lint:es --fix && yarn lint:json --write",
     "test": "jest --coverage",
     "doc": "typedoc --out doc ./src/okageo.ts",
     "demo": "parcel demo/index.html",
