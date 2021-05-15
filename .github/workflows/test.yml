@@ -21,6 +21,7 @@ jobs:
           yarn doc
           yarn build
           yarn test
+          yarn build:demo
         env:
           CI: true
       - name: Coveralls
