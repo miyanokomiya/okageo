@@ -1414,12 +1414,7 @@ describe('parseTranslate', () => {
   it('parse translate', () => {
     expect(svg.parseTransform('translate(1,2)')).toEqual([1, 0, 0, 1, 1, 2])
     expect(svg.parseTransform('translate(  1.2  -2.01  )')).toEqual([
-      1,
-      0,
-      0,
-      1,
-      1.2,
-      -2.01,
+      1, 0, 0, 1, 1.2, -2.01,
     ])
   })
   it('single parameter', () => {
@@ -1431,12 +1426,7 @@ describe('parseTranslateX', () => {
   it('parse translateX', () => {
     expect(svg.parseTranslateX('translateX(1.2)')).toEqual([1, 0, 0, 1, 1.2, 0])
     expect(svg.parseTranslateX('translateX(  1.2  )')).toEqual([
-      1,
-      0,
-      0,
-      1,
-      1.2,
-      0,
+      1, 0, 0, 1, 1.2, 0,
     ])
   })
 })
@@ -1445,12 +1435,7 @@ describe('parseTranslateY', () => {
   it('parse translateY', () => {
     expect(svg.parseTranslateY('translateY(1.2)')).toEqual([1, 0, 0, 1, 0, 1.2])
     expect(svg.parseTranslateY('translateY(  1.2  )')).toEqual([
-      1,
-      0,
-      0,
-      1,
-      0,
-      1.2,
+      1, 0, 0, 1, 0, 1.2,
     ])
   })
 })
@@ -1459,12 +1444,7 @@ describe('parseScale', () => {
   it('parse scale', () => {
     expect(svg.parseScale('scale(2,3)')).toEqual([2, 0, 0, 3, 0, 0])
     expect(svg.parseScale('scale(  1.2  -2.01  )')).toEqual([
-      1.2,
-      0,
-      0,
-      -2.01,
-      0,
-      0,
+      1.2, 0, 0, -2.01, 0, 0,
     ])
   })
   it('single parameter', () => {
@@ -1551,12 +1531,7 @@ describe('parseRotate', () => {
 describe('parseMatrix', () => {
   it('parse matrix', () => {
     expect(svg.parseMatrix('matrix(2, 0 0  3 , 0, 0)')).toEqual([
-      2,
-      0,
-      0,
-      3,
-      0,
-      0,
+      2, 0, 0, 3, 0, 0,
     ])
   })
 })
