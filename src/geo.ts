@@ -1561,3 +1561,50 @@ function isCloseTo(val: number, target: number): boolean {
 function isCloseToZero(val: number): boolean {
   return Math.abs(val) < MINVALUE
 }
+
+/**
+ * clamp number
+ * @param min min value
+ * @param max max value
+ * @return clamped value
+ */
+export function clamp(min = -Infinity, max = Infinity, val: number) {
+  return Math.max(Math.min(val, max), min)
+}
+
+/**
+ * clamp number circularly
+ * @param min min value
+ * @param max max value
+ * @return clamped value
+ */
+export function circleClamp(min: number, max: number, val: number) {
+  if (min === max) return min
+
+  if (max < val) {
+    return ((val - max) % (max - min)) + min
+  } else if (val < min) {
+    return max - ((min - val) % (max - min))
+  } else {
+    return val
+  }
+}
+
+/**
+ * round trip value
+ * @param min min value
+ * @param max max value
+ * @return round tripped value
+ */
+export function roundTrip(min: number, max: number, val: number) {
+  const harf = max - min
+  const length = 2 * harf
+  if (length === 0) return min
+
+  const d = Math.abs(val - min) % length
+  if (d < harf) {
+    return d + min
+  } else {
+    return length - d + min
+  }
+}
