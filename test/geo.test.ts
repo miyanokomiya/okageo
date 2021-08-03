@@ -1751,3 +1751,46 @@ describe('solveQubicFomula', () => {
     })
   })
 })
+
+describe('clamp', () => {
+  it.each([
+    [0, 1, 2, 1],
+    [0, 1, -1, 0],
+    [0, 1, 0.2, 0.2],
+  ])('clamp(%s, %s, %s) => %s', (min, max, val, expected) => {
+    expect(geo.clamp(min, max, val)).toBe(expected)
+  })
+  it('only min', () => {
+    expect(geo.clamp(1, undefined, -1)).toBe(1)
+    expect(geo.clamp(1, undefined, 2)).toBe(2)
+  })
+  it('only max', () => {
+    expect(geo.clamp(undefined, 1, -1)).toBe(-1)
+    expect(geo.clamp(undefined, 1, 2)).toBe(1)
+  })
+})
+
+describe('circleClamp', () => {
+  it.each([
+    [0, 0, 1.2, 0],
+    [0, 1, 1.2, 0.2],
+    [0, 1, -0.2, 0.8],
+    [-1, 3, -2, 2],
+    [-1, 3, 3.5, -0.5],
+  ])('circleClamp(%s, %s, %s) => %s', (min, max, val, expected) => {
+    expect(geo.circleClamp(min, max, val)).toBeCloseTo(expected)
+  })
+})
+
+describe('roundTrip', () => {
+  it.each([
+    [0, 0, 1.2, 0],
+    [1, 11, 0, 2],
+    [1, 11, 1, 1],
+    [1, 11, 2, 2],
+    [1, 11, 11, 11],
+    [1, 11, 12, 10],
+  ])('roundTrip(%s, %s, %s) => %s', (min, max, val, expected) => {
+    expect(geo.roundTrip(min, max, val)).toBeCloseTo(expected)
+  })
+})
