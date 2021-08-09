@@ -637,7 +637,7 @@ describe('adoptTransform 変形実行', () => {
   const points: IVec2[] = [{ x: 1, y: 2 }]
   describe('matrix', () => {
     it('結果が正しいこと', () => {
-      const str = 'matrix(1,2,3,4,5,6)'
+      const str = 'matrix(1,2,3,4,5 6)'
       const res = svg.adoptTransform(str, points)
       expect(res).toHaveLength(1)
       expect(res[0].x).toBeCloseTo(1 + 2 * 3 + 5)
@@ -646,7 +646,7 @@ describe('adoptTransform 変形実行', () => {
   })
   describe('translate', () => {
     it('結果が正しいこと', () => {
-      const str = 'translate(1,2)'
+      const str = 'translate(1, 2)'
       const res = svg.adoptTransform(str, points)
       expect(res).toHaveLength(1)
       expect(res[0].x).toBeCloseTo(2)

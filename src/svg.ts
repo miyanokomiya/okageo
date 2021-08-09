@@ -601,11 +601,10 @@ export function adoptTransform(
   commandList.forEach((current) => {
     const tmp = current.split(/\(/)
     if (tmp.length === 2) {
-      const command = tmp[0]
-      const params: number[] = []
-      tmp[1].split(/,/).forEach((str) => params.push(parseFloat(str)))
+      const command = tmp[0].trim().toLowerCase()
+      const params = parseNumbers(tmp[1])
 
-      switch (command.trim().toLowerCase()) {
+      switch (command) {
         case 'matrix': {
           ret = geo.transform(ret, params)
           break
