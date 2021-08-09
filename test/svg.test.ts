@@ -188,6 +188,33 @@ describe('parseSvgGraphics svg解析', () => {
       expect(res[0].d).toHaveLength(svg.configs.ellipseSplitSize + 1)
       expect(res[0].style.fillStyle).toBe('red')
     })
+    describe('when <g> has transforms', () => {
+      it('should apply transforms to the children', () => {
+        const elmStr = `
+          <g transform="translate(1, 2)">
+            <g transform="translate(10, 20)">
+              <rect x="0" y="0" width="10" height="10" />
+            </g>
+            <rect x="0" y="0" width="10" height="10" />
+          </g>`
+        const svgDom: SVGElement = parseSvg(wrapSvg(elmStr))
+          .childNodes[0] as SVGElement
+        const res = svg.parseSvgGraphics(svgDom)
+        expect(res).toHaveLength(2)
+        expect(res[0].d).toEqual([
+          { x: 11, y: 22 },
+          { x: 21, y: 22 },
+          { x: 21, y: 32 },
+          { x: 11, y: 32 },
+        ])
+        expect(res[1].d).toEqual([
+          { x: 1, y: 2 },
+          { x: 11, y: 2 },
+          { x: 11, y: 12 },
+          { x: 1, y: 12 },
+        ])
+      })
+    })
   })
 })
 

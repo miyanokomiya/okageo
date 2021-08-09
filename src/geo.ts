@@ -1151,6 +1151,19 @@ export function multiAffines(affines: AffineMatrix[]): AffineMatrix {
 }
 
 /**
+ * apply affine
+ * @param affine affine matrix
+ * @param vec vector2
+ * @return affine x vec
+ */
+export function applyAffine(affine: AffineMatrix, vec: IVec2): IVec2 {
+  return {
+    x: affine[0] * vec.x + affine[2] * vec.y + affine[4],
+    y: affine[1] * vec.x + affine[3] * vec.y + affine[5],
+  }
+}
+
+/**
  * 隣り合う同一点をオミットする
  * @method omitSamePoint
  * @param polygon ポリゴン

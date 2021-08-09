@@ -133,57 +133,77 @@ export function parseSvgGraphicsStr(svgString: string): ISvgPath[] {
 }
 
 /**
+ * parse SVG tree
+ * @param elm SVGElement
+ * @return path informations
+ */
+function parseSvgTree(
+  elm: SVGElement,
+  parentInfo?: { style?: ISvgStyle; transform?: AffineMatrix }
+): ISvgPath[] {
+  const style = { ...(parentInfo?.style ?? {}), ...parseTagStyle(elm) }
+
+  const transformStr = elm.getAttribute('transform')
+  const parentTransform = parentInfo?.transform ?? geo.IDENTITY_AFFINE
+
+  const ret: ISvgPath[] = []
+
+  const svgPath = parseSVGShape(elm)
+  if (svgPath) {
+    ret.push({
+      ...svgPath,
+      d: svgPath.d.map((v) => geo.applyAffine(parentTransform, v)),
+    })
+  }
+
+  if (elm.children.length > 0) {
+    const transform = transformStr
+      ? geo.multiAffine(parentTransform, parseTransform(transformStr))
+      : parentTransform
+
+    Array.from(elm.children).forEach((child) => {
+      ret.push(...parseSvgTree(child as SVGElement, { style, transform }))
+    })
+  }
+
+  return ret
+}
+
+function parseSVGShape(elm: SVGElement): ISvgPath | undefined {
+  switch (elm.tagName.toLowerCase()) {
+    case 'path':
+      return {
+        d: parsePath(elm as SVGPathElement),
+        style: parseTagStyle(elm),
+      }
+    case 'rect':
+      return {
+        d: parseRect(elm as SVGRectElement),
+        style: parseTagStyle(elm),
+      }
+    case 'ellipse':
+      return {
+        d: parseEllipse(elm as SVGEllipseElement),
+        style: parseTagStyle(elm),
+      }
+    case 'circle':
+      return {
+        d: parseCircle(elm as SVGCircleElement),
+        style: parseTagStyle(elm),
+      }
+    default:
+      return undefined
+  }
+}
+
+/**
  * SVGタグから図形のパス情報を取得する
  * 対応タグ: path,rect,ellipse,circle
  * @param svgTag SVGタグ
  * @return パス情報リスト
  */
 export function parseSvgGraphics(svgTag: SVGElement): ISvgPath[] {
-  const ret: ISvgPath[] = []
-
-  // パス
-  const tagPathList = svgTag.getElementsByTagName('path')
-  for (let i = 0; i < tagPathList.length; i++) {
-    const elm = tagPathList[i] as SVGPathElement
-    ret.push({
-      d: parsePath(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // 矩形
-  const tagRectList = svgTag.getElementsByTagName('rect')
-  for (let i = 0; i < tagRectList.length; i++) {
-    const elm = tagRectList[i] as SVGRectElement
-    ret.push({
-      d: parseRect(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // 楕円
-  const tagEllipseList = svgTag.getElementsByTagName('ellipse')
-  for (let i = 0; i < tagEllipseList.length; i++) {
-    const elm = tagEllipseList[i] as SVGEllipseElement
-    ret.push({
-      d: parseEllipse(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // 円
-  const tagCircleList = svgTag.getElementsByTagName('circle')
-  for (let i = 0; i < tagCircleList.length; i++) {
-    const elm = tagCircleList[i] as SVGCircleElement
-    ret.push({
-      d: parseCircle(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // gタグ→「getElementsByTagName」は子孫全検索なので再帰必要なし
-
-  return ret
+  return parseSvgTree(svgTag)
 }
 
 /**

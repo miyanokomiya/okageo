@@ -1357,6 +1357,15 @@ describe('multiAffines', () => {
   })
 })
 
+describe('applyAffine', () => {
+  it('apply affine to a vec', () => {
+    const src: AffineMatrix = [1, 2, 3, 4, 5, 6]
+    const res = geo.applyAffine(src, { x: 1, y: 2 })
+    expect(res.x).toBeCloseTo(12)
+    expect(res.y).toBeCloseTo(16)
+  })
+})
+
 describe('omitSamePoint 隣接同一点オミット', () => {
   it('正しく取得できること', () => {
     const res = geo.omitSamePoint([
