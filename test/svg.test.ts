@@ -188,6 +188,33 @@ describe('parseSvgGraphics svg解析', () => {
       expect(res[0].d).toHaveLength(svg.configs.ellipseSplitSize + 1)
       expect(res[0].style.fillStyle).toBe('red')
     })
+    describe('when <g> has transforms', () => {
+      it('should apply transforms to the children', () => {
+        const elmStr = `
+          <g transform="translate(1, 2)">
+            <g transform="translate(10, 20)">
+              <rect x="0" y="0" width="10" height="10" />
+            </g>
+            <rect x="0" y="0" width="10" height="10" />
+          </g>`
+        const svgDom: SVGElement = parseSvg(wrapSvg(elmStr))
+          .childNodes[0] as SVGElement
+        const res = svg.parseSvgGraphics(svgDom)
+        expect(res).toHaveLength(2)
+        expect(res[0].d).toEqual([
+          { x: 11, y: 22 },
+          { x: 21, y: 22 },
+          { x: 21, y: 32 },
+          { x: 11, y: 32 },
+        ])
+        expect(res[1].d).toEqual([
+          { x: 1, y: 2 },
+          { x: 11, y: 2 },
+          { x: 11, y: 12 },
+          { x: 1, y: 12 },
+        ])
+      })
+    })
   })
 })
 
@@ -610,7 +637,7 @@ describe('adoptTransform 変形実行', () => {
   const points: IVec2[] = [{ x: 1, y: 2 }]
   describe('matrix', () => {
     it('結果が正しいこと', () => {
-      const str = 'matrix(1,2,3,4,5,6)'
+      const str = 'matrix(1,2,3,4,5 6)'
       const res = svg.adoptTransform(str, points)
       expect(res).toHaveLength(1)
       expect(res[0].x).toBeCloseTo(1 + 2 * 3 + 5)
@@ -619,7 +646,7 @@ describe('adoptTransform 変形実行', () => {
   })
   describe('translate', () => {
     it('結果が正しいこと', () => {
-      const str = 'translate(1,2)'
+      const str = 'translate(1, 2)'
       const res = svg.adoptTransform(str, points)
       expect(res).toHaveLength(1)
       expect(res[0].x).toBeCloseTo(2)
@@ -996,7 +1023,7 @@ describe('parseTagStyle スタイル取得', () => {
     describe('stroke-dasharray', () => {
       it('結果が正しいこと', () => {
         const pathDom: SVGElement = parseSvgElement(
-          '<path stroke-dasharray="1,2,3" />'
+          '<path stroke-dasharray="1,2 3" />'
         )
         const style: ISvgStyle = svg.parseTagStyle(pathDom)
         expect(style.lineDash).toEqual([1, 2, 3])
@@ -1130,6 +1157,16 @@ describe('parseTagStyle スタイル取得', () => {
         const style: ISvgStyle = svg.parseTagStyle(pathDom)
         expect(style.fill).toBe(false)
       })
+    })
+  })
+  describe('attribute vs style', () => {
+    it('should prioritize style', () => {
+      const pathDom: SVGElement = parseSvgElement(
+        '<path fill="none" style="fill: red;" />'
+      )
+      const style: ISvgStyle = svg.parseTagStyle(pathDom)
+      expect(style.fill).toBe(true)
+      expect(style.fillStyle).toBe('red')
     })
   })
 })

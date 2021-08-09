@@ -133,57 +133,77 @@ export function parseSvgGraphicsStr(svgString: string): ISvgPath[] {
 }
 
 /**
+ * parse SVG tree
+ * @param elm SVGElement
+ * @return path informations
+ */
+function parseSvgTree(
+  elm: SVGElement,
+  parentInfo?: { style?: ISvgStyle; transform?: AffineMatrix }
+): ISvgPath[] {
+  const style = { ...(parentInfo?.style ?? {}), ...parseTagStyle(elm) }
+
+  const transformStr = elm.getAttribute('transform')
+  const parentTransform = parentInfo?.transform ?? geo.IDENTITY_AFFINE
+
+  const ret: ISvgPath[] = []
+
+  const svgPath = parseSVGShape(elm)
+  if (svgPath) {
+    ret.push({
+      ...svgPath,
+      d: svgPath.d.map((v) => geo.applyAffine(parentTransform, v)),
+    })
+  }
+
+  if (elm.children.length > 0) {
+    const transform = transformStr
+      ? geo.multiAffine(parentTransform, parseTransform(transformStr))
+      : parentTransform
+
+    Array.from(elm.children).forEach((child) => {
+      ret.push(...parseSvgTree(child as SVGElement, { style, transform }))
+    })
+  }
+
+  return ret
+}
+
+function parseSVGShape(elm: SVGElement): ISvgPath | undefined {
+  switch (elm.tagName.toLowerCase()) {
+    case 'path':
+      return {
+        d: parsePath(elm as SVGPathElement),
+        style: parseTagStyle(elm),
+      }
+    case 'rect':
+      return {
+        d: parseRect(elm as SVGRectElement),
+        style: parseTagStyle(elm),
+      }
+    case 'ellipse':
+      return {
+        d: parseEllipse(elm as SVGEllipseElement),
+        style: parseTagStyle(elm),
+      }
+    case 'circle':
+      return {
+        d: parseCircle(elm as SVGCircleElement),
+        style: parseTagStyle(elm),
+      }
+    default:
+      return undefined
+  }
+}
+
+/**
  * SVGタグから図形のパス情報を取得する
  * 対応タグ: path,rect,ellipse,circle
  * @param svgTag SVGタグ
  * @return パス情報リスト
  */
 export function parseSvgGraphics(svgTag: SVGElement): ISvgPath[] {
-  const ret: ISvgPath[] = []
-
-  // パス
-  const tagPathList = svgTag.getElementsByTagName('path')
-  for (let i = 0; i < tagPathList.length; i++) {
-    const elm = tagPathList[i] as SVGPathElement
-    ret.push({
-      d: parsePath(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // 矩形
-  const tagRectList = svgTag.getElementsByTagName('rect')
-  for (let i = 0; i < tagRectList.length; i++) {
-    const elm = tagRectList[i] as SVGRectElement
-    ret.push({
-      d: parseRect(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // 楕円
-  const tagEllipseList = svgTag.getElementsByTagName('ellipse')
-  for (let i = 0; i < tagEllipseList.length; i++) {
-    const elm = tagEllipseList[i] as SVGEllipseElement
-    ret.push({
-      d: parseEllipse(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // 円
-  const tagCircleList = svgTag.getElementsByTagName('circle')
-  for (let i = 0; i < tagCircleList.length; i++) {
-    const elm = tagCircleList[i] as SVGCircleElement
-    ret.push({
-      d: parseCircle(elm),
-      style: parseTagStyle(elm),
-    })
-  }
-
-  // gタグ→「getElementsByTagName」は子孫全検索なので再帰必要なし
-
-  return ret
+  return parseSvgTree(svgTag)
 }
 
 /**
@@ -581,11 +601,10 @@ export function adoptTransform(
   commandList.forEach((current) => {
     const tmp = current.split(/\(/)
     if (tmp.length === 2) {
-      const command = tmp[0]
-      const params: number[] = []
-      tmp[1].split(/,/).forEach((str) => params.push(parseFloat(str)))
+      const command = tmp[0].trim().toLowerCase()
+      const params = parseNumbers(tmp[1])
 
-      switch (command.trim().toLowerCase()) {
+      switch (command) {
         case 'matrix': {
           ret = geo.transform(ret, params)
           break
@@ -804,20 +823,17 @@ export function createStyle() {
  * @return スタイルオブジェクト
  */
 export function parseTagStyle(svgPath: SVGElement): ISvgStyle {
-  const ret: ISvgStyle = createStyle()
-
   // スタイル候補要素リスト
-  const styleObject: any = {}
+  const styleObject: { [key: string]: string } = {}
+
+  svgPath.getAttributeNames().forEach((name) => {
+    const attr = svgPath.getAttributeNode(name)
+    if (!attr) return
+    styleObject[attr.name] = attr.value
+  })
 
   const styleAttr = svgPath.getAttributeNode('style')
-  if (!styleAttr) {
-    // 要素から直接取得
-    svgPath.getAttributeNames().forEach((name) => {
-      const attr = svgPath.getAttributeNode(name)
-      if (!attr) return
-      styleObject[attr.name] = attr.value
-    })
-  } else {
+  if (styleAttr) {
     // style要素から取得
     const styleStr = styleAttr.value
     styleStr.split(';').forEach((elem: string) => {
@@ -827,52 +843,55 @@ export function parseTagStyle(svgPath: SVGElement): ISvgStyle {
     })
   }
 
-  Object.keys(styleObject).forEach((key) => {
-    key = key.toLowerCase()
-    const val = styleObject[key]
-
-    if (key === 'fill') {
-      if (val === 'none') {
-        ret.fillStyle = ''
-        ret.fill = false
-      } else {
-        ret.fillStyle = val
-        ret.fill = true
-      }
-    } else if (key === 'stroke') {
-      if (val === 'none') {
-        ret.strokeStyle = ''
-        ret.stroke = false
-      } else {
-        ret.strokeStyle = val
-        ret.stroke = true
-      }
-    } else if (key === 'stroke-width') {
-      ret.lineWidth = parseFloat(val)
-    } else if (key === 'stroke-opacity') {
-      ret.strokeGlobalAlpha = parseFloat(val)
-    } else if (key === 'fill-opacity') {
-      ret.fillGlobalAlpha = parseFloat(val)
-    } else if (key === 'stroke-linecap') {
-      ret.lineCap = val
-    } else if (key === 'stroke-linejoin') {
-      ret.lineJoin = val
-    } else if (key === 'stroke-dasharray') {
-      if (val.toLowerCase() === 'none') {
-        ret.lineDash = []
-      } else {
-        const strArray = val.split(',')
-        ret.lineDash = []
-        strArray.forEach((str: string) => {
-          ret.lineDash.push(parseFloat(str))
-        })
-      }
-    } else {
-      // 無視
+  return Object.entries(styleObject).reduce<ISvgStyle>((ret, [key, val]) => {
+    switch (key.toLowerCase()) {
+      case 'fill':
+        if (val === 'none') {
+          ret.fillStyle = ''
+          ret.fill = false
+        } else {
+          ret.fillStyle = val
+          ret.fill = true
+        }
+        break
+      case 'stroke':
+        if (val === 'none') {
+          ret.strokeStyle = ''
+          ret.stroke = false
+        } else {
+          ret.strokeStyle = val
+          ret.stroke = true
+        }
+        break
+      case 'stroke-width':
+        ret.lineWidth = parseFloat(val)
+        break
+      case 'stroke-opacity':
+        ret.strokeGlobalAlpha = parseFloat(val)
+        break
+      case 'fill-opacity':
+        ret.fillGlobalAlpha = parseFloat(val)
+        break
+      case 'stroke-linecap':
+        ret.lineCap = val
+        break
+      case 'stroke-linejoin':
+        ret.lineJoin = val
+        break
+      case 'stroke-dasharray':
+        if (val.toLowerCase() === 'none') {
+          ret.lineDash = []
+        } else {
+          ret.lineDash = parseNumbers(val)
+        }
+        break
+      default:
+        // 無視
+        break
     }
-  })
 
-  return ret
+    return ret
+  }, createStyle())
 }
 
 /**
