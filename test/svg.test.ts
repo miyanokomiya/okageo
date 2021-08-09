@@ -1023,7 +1023,7 @@ describe('parseTagStyle スタイル取得', () => {
     describe('stroke-dasharray', () => {
       it('結果が正しいこと', () => {
         const pathDom: SVGElement = parseSvgElement(
-          '<path stroke-dasharray="1,2,3" />'
+          '<path stroke-dasharray="1,2 3" />'
         )
         const style: ISvgStyle = svg.parseTagStyle(pathDom)
         expect(style.lineDash).toEqual([1, 2, 3])
@@ -1157,6 +1157,16 @@ describe('parseTagStyle スタイル取得', () => {
         const style: ISvgStyle = svg.parseTagStyle(pathDom)
         expect(style.fill).toBe(false)
       })
+    })
+  })
+  describe('attribute vs style', () => {
+    it('should prioritize style', () => {
+      const pathDom: SVGElement = parseSvgElement(
+        '<path fill="none" style="fill: red;" />'
+      )
+      const style: ISvgStyle = svg.parseTagStyle(pathDom)
+      expect(style.fill).toBe(true)
+      expect(style.fillStyle).toBe('red')
     })
   })
 })

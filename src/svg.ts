@@ -824,20 +824,17 @@ export function createStyle() {
  * @return スタイルオブジェクト
  */
 export function parseTagStyle(svgPath: SVGElement): ISvgStyle {
-  const ret: ISvgStyle = createStyle()
-
   // スタイル候補要素リスト
-  const styleObject: any = {}
+  const styleObject: { [key: string]: string } = {}
+
+  svgPath.getAttributeNames().forEach((name) => {
+    const attr = svgPath.getAttributeNode(name)
+    if (!attr) return
+    styleObject[attr.name] = attr.value
+  })
 
   const styleAttr = svgPath.getAttributeNode('style')
-  if (!styleAttr) {
-    // 要素から直接取得
-    svgPath.getAttributeNames().forEach((name) => {
-      const attr = svgPath.getAttributeNode(name)
-      if (!attr) return
-      styleObject[attr.name] = attr.value
-    })
-  } else {
+  if (styleAttr) {
     // style要素から取得
     const styleStr = styleAttr.value
     styleStr.split(';').forEach((elem: string) => {
@@ -847,52 +844,55 @@ export function parseTagStyle(svgPath: SVGElement): ISvgStyle {
     })
   }
 
-  Object.keys(styleObject).forEach((key) => {
-    key = key.toLowerCase()
-    const val = styleObject[key]
-
-    if (key === 'fill') {
-      if (val === 'none') {
-        ret.fillStyle = ''
-        ret.fill = false
-      } else {
-        ret.fillStyle = val
-        ret.fill = true
-      }
-    } else if (key === 'stroke') {
-      if (val === 'none') {
-        ret.strokeStyle = ''
-        ret.stroke = false
-      } else {
-        ret.strokeStyle = val
-        ret.stroke = true
-      }
-    } else if (key === 'stroke-width') {
-      ret.lineWidth = parseFloat(val)
-    } else if (key === 'stroke-opacity') {
-      ret.strokeGlobalAlpha = parseFloat(val)
-    } else if (key === 'fill-opacity') {
-      ret.fillGlobalAlpha = parseFloat(val)
-    } else if (key === 'stroke-linecap') {
-      ret.lineCap = val
-    } else if (key === 'stroke-linejoin') {
-      ret.lineJoin = val
-    } else if (key === 'stroke-dasharray') {
-      if (val.toLowerCase() === 'none') {
-        ret.lineDash = []
-      } else {
-        const strArray = val.split(',')
-        ret.lineDash = []
-        strArray.forEach((str: string) => {
-          ret.lineDash.push(parseFloat(str))
-        })
-      }
-    } else {
-      // 無視
+  return Object.entries(styleObject).reduce<ISvgStyle>((ret, [key, val]) => {
+    switch (key.toLowerCase()) {
+      case 'fill':
+        if (val === 'none') {
+          ret.fillStyle = ''
+          ret.fill = false
+        } else {
+          ret.fillStyle = val
+          ret.fill = true
+        }
+        break
+      case 'stroke':
+        if (val === 'none') {
+          ret.strokeStyle = ''
+          ret.stroke = false
+        } else {
+          ret.strokeStyle = val
+          ret.stroke = true
+        }
+        break
+      case 'stroke-width':
+        ret.lineWidth = parseFloat(val)
+        break
+      case 'stroke-opacity':
+        ret.strokeGlobalAlpha = parseFloat(val)
+        break
+      case 'fill-opacity':
+        ret.fillGlobalAlpha = parseFloat(val)
+        break
+      case 'stroke-linecap':
+        ret.lineCap = val
+        break
+      case 'stroke-linejoin':
+        ret.lineJoin = val
+        break
+      case 'stroke-dasharray':
+        if (val.toLowerCase() === 'none') {
+          ret.lineDash = []
+        } else {
+          ret.lineDash = parseNumbers(val)
+        }
+        break
+      default:
+        // 無視
+        break
     }
-  })
 
-  return ret
+    return ret
+  }, createStyle())
 }
 
 /**
