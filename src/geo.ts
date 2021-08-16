@@ -22,12 +22,11 @@ export function isSame(a: IVec2, b: IVec2): boolean {
 }
 
 export function getDistance(a: IVec2, b: IVec2): number {
-  const dif: IVec2 = sub(a, b)
-  return Math.sqrt(dif.x * dif.x + dif.y * dif.y)
+  return getNorm(sub(a, b))
 }
 
 export function getNorm(a: IVec2): number {
-  return getDistance(a, { x: 0, y: 0 })
+  return Math.sqrt(a.x * a.x + a.y * a.y)
 }
 
 export function isZero(a: IVec2): boolean {

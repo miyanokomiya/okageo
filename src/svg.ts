@@ -161,9 +161,11 @@ function parseSvgTree(
       ? geo.multiAffine(parentTransform, parseTransform(transformStr))
       : parentTransform
 
-    Array.from(elm.children).forEach((child) => {
-      ret.push(...parseSvgTree(child as SVGElement, { style, transform }))
-    })
+    ret.push(
+      ...Array.from(elm.children).flatMap((child) => {
+        return parseSvgTree(child as SVGElement, { style, transform })
+      })
+    )
   }
 
   return ret
