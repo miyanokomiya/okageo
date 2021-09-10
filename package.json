@@ -1,6 +1,6 @@
 {
   "name": "okageo",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "parse SVG to polygons",
   "main": "./dist/okageo.min.js",
   "module": "./dist/okageo.esm.min.js",
