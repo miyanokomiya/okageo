@@ -30,15 +30,6 @@ const ctx = canvas.getContext('2d')
 inRectList.forEach((info) => okageo.draw(ctx, info))
 ```
 
-### Breaking changes from v1 to v2
-The namespaces of `geo` and `svg` have not been exported for tree shaking.
-
-Then, this can not work at v2.
-```js
-import * as okageo from 'okageo'
-const pathInfoList = okageo.svg.parseSvgGraphicsStr(svgString)
-```
-
 ## commnad
 
 ```sh
