@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.1] - 2022-06-27
+### Changed
+- Bump dependencies
+
 ## [3.0.0] - 2022-03-19
 ### Breaking
 - Change compiler target to `es2015`
