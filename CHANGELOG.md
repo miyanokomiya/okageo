@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.2] - 2022-06-27
+### Changed
+- Replace build system
+- Remove `typedoc`
+
 ## [3.0.1] - 2022-06-27
 ### Changed
 - Bump dependencies

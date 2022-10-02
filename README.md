@@ -4,7 +4,7 @@
 
 # okageo
 
-parse SVG to polygons
+Tools of Geometry and SVG.
 
 ## demo(wip)
 https://miyanokomiya.github.io/okageo/
@@ -44,9 +44,6 @@ $ yarn test [--watch]
 
 # build
 $ yarn build
-
-# generate doc
-$ yarn doc
 
 # serve demo at localhost:1234
 $ yarn demo
