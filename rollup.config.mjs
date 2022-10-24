@@ -1,7 +1,8 @@
 import dts from 'rollup-plugin-dts'
 import esbuild from 'rollup-plugin-esbuild'
-
-const pkg = require('./package.json')
+import { createRequire } from 'module'
+const _require = createRequire(import.meta.url)
+const pkg = _require('./package.json')
 const name = pkg.name
 const banner = `/*! ${name} v${pkg.version}, License ${pkg.license}, ${pkg.repository.url} */`
 
