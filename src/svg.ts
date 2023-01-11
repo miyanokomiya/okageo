@@ -91,7 +91,7 @@ export function fitRect(
   // 原点基準に移動
   const fromBaseList = pathInfoList.map((info) => ({
     ...info,
-    d: info.d.map((p) => ({ x: p.x - minX, y: p.y - minY })),
+    d: info.d.map((p) => geo.vec(p.x - minX, p.y - minY)),
   }))
   // 伸縮
   const orgWidth = maxX - minX
@@ -101,14 +101,14 @@ export function fitRect(
   const rate = Math.min(rateX, rateY)
   const scaledList = fromBaseList.map((info) => ({
     ...info,
-    d: info.d.map((p) => ({ x: p.x * rate, y: p.y * rate })),
+    d: info.d.map((p) => geo.vec(p.x * rate, p.y * rate)),
   }))
   // 矩形位置に移動
   const difX = x + (width - orgWidth * rate) / 2
   const difY = y + (height - orgHeight * rate) / 2
   const convertedList: ISvgPath[] = scaledList.map((info) => ({
     ...info,
-    d: info.d.map((p) => ({ x: p.x + difX, y: p.y + difY })),
+    d: info.d.map((p) => geo.vec(p.x + difX, p.y + difY)),
     included: (info.included || []).map((poly: IVec2[]) => {
       return poly.map((p) => ({
         x: (p.x - minX) * rate + difX,
@@ -268,9 +268,9 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
   const elementList: string[][] = splitD(dStr)
 
   // 前回座標
-  let pastVec: IVec2 = { x: 0, y: 0 }
+  let pastVec: IVec2 = geo.vec(0, 0)
   // 前回制御点
-  let pastControlVec: IVec2 = { x: 0, y: 0 }
+  let pastControlVec: IVec2 = geo.vec(0, 0)
   elementList.forEach((current) => {
     let pList: IVec2[] = []
 
@@ -283,7 +283,7 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
       case 'M':
       case 'L':
         // 直線(絶対)
-        pList.push({ x: _parseFloat(current[1]), y: _parseFloat(current[2]) })
+        pList.push(geo.vec(_parseFloat(current[1]), _parseFloat(current[2])))
         break
       case 'm':
       case 'l':
@@ -295,19 +295,19 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
         break
       case 'H':
         // 水平(絶対)
-        pList.push({ x: _parseFloat(current[1]), y: pastVec.y })
+        pList.push(geo.vec(_parseFloat(current[1]), pastVec.y))
         break
       case 'V':
         // 垂直(絶対)
-        pList.push({ x: pastVec.x, y: _parseFloat(current[1]) })
+        pList.push(geo.vec(pastVec.x, _parseFloat(current[1])))
         break
       case 'h':
         // 垂直(相対)
-        pList.push({ x: pastVec.x + _parseFloat(current[1]), y: pastVec.y })
+        pList.push(geo.vec(pastVec.x + _parseFloat(current[1]), pastVec.y))
         break
       case 'v':
         // 垂直(相対)
-        pList.push({ x: pastVec.x, y: pastVec.y + _parseFloat(current[1]) })
+        pList.push(geo.vec(pastVec.x, pastVec.y + _parseFloat(current[1])))
         break
       case 'Q':
         // 制御点準備
@@ -522,10 +522,10 @@ export function parseRect(svgRect: SVGRectElement): IVec2[] {
 
   // トランスフォーム
   return adoptTransform(svgRect.getAttribute('transform'), [
-    { x, y },
-    { x: x + width, y },
-    { x: x + width, y: y + height },
-    { x, y: y + height },
+    geo.vec(x, y),
+    geo.vec(x + width, y),
+    geo.vec(x + width, y + height),
+    geo.vec(x, y + height),
   ])
 }
 
@@ -548,7 +548,7 @@ export function parseEllipse(svgEllipse: SVGEllipseElement): IVec2[] {
       ry,
       0,
       Math.PI * 2,
-      { x: cx, y: cy },
+      geo.vec(cx, cy),
       0,
       configs.ellipseSplitSize
     )
@@ -573,7 +573,7 @@ export function parseCircle(svgCircle: SVGCircleElement): IVec2[] {
       r,
       0,
       Math.PI * 2,
-      { x: cx, y: cy },
+      geo.vec(cx, cy),
       0,
       configs.ellipseSplitSize
     )
@@ -628,9 +628,9 @@ export function adoptTransform(
         }
         case 'rotate': {
           // 回転基準点
-          let base: IVec2 = { x: 0, y: 0 }
+          let base: IVec2 = geo.vec(0, 0)
           if (params.length > 2) {
-            base = { x: params[1], y: params[2] }
+            base = geo.vec(params[1], params[2])
           }
           ret = ret.map((p) => geo.rotate(p, (params[0] * Math.PI) / 180, base))
           break

@@ -4,16 +4,20 @@ export const MINVALUE: number = 0.000001
 
 export const IDENTITY_AFFINE: AffineMatrix = [1, 0, 0, 1, 0, 0]
 
+export function vec(x: number, y: number): IVec2 {
+  return { x, y }
+}
+
 export function add(a: IVec2, b: IVec2): IVec2 {
-  return { x: a.x + b.x, y: a.y + b.y }
+  return vec(a.x + b.x, a.y + b.y)
 }
 
 export function sub(a: IVec2, b: IVec2): IVec2 {
-  return { x: a.x - b.x, y: a.y - b.y }
+  return vec(a.x - b.x, a.y - b.y)
 }
 
 export function multi(a: IVec2, b: number): IVec2 {
-  return { x: a.x * b, y: a.y * b }
+  return vec(a.x * b, a.y * b)
 }
 
 export function isSame(a: IVec2, b: IVec2): boolean {
@@ -63,15 +67,15 @@ export function getRectCenter(rec: IRectangle): IVec2 {
 }
 
 export function getPolygonCenter(polygon: IVec2[]): IVec2 {
-  if (polygon.length === 0) return { x: 0, y: 0 }
+  if (polygon.length === 0) return vec(0, 0)
 
   return multi(
-    polygon.reduce((p, c) => add(p, c), { x: 0, y: 0 }),
+    polygon.reduce((p, c) => add(p, c), vec(0, 0)),
     1 / polygon.length
   )
 }
 
-export function getRadian(a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
+export function getRadian(a: IVec2, from: IVec2 = vec(0, 0)): number {
   const dif = sub(a, from)
   return Math.atan2(dif.y, dif.x)
 }
@@ -82,7 +86,7 @@ export function getRadian(a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
  * @param from 基点
  * @param 点対称ベクトル
  */
-export function getSymmetry(a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
+export function getSymmetry(a: IVec2, from: IVec2 = vec(0, 0)): IVec2 {
   return add(multi(sub(from, a), 2), a)
 }
 
@@ -96,7 +100,7 @@ export function getSymmetry(a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
 export function rotate(
   a: IVec2,
   radian: number,
-  from: IVec2 = { x: 0, y: 0 }
+  from: IVec2 = vec(0, 0)
 ): IVec2 {
   const fromBase: IVec2 = sub(a, from)
   return add(
@@ -319,7 +323,7 @@ function isCrossSegAndRightHorizon(p: IVec2, seg: IVec2[]): boolean {
   }
 
   // 交点は厳密にpの右側でなければいけない
-  const cross = getCrossSegAndLine(seg, [p, { x: p.x + 1, y: p.y }])
+  const cross = getCrossSegAndLine(seg, [p, vec(p.x + 1, p.y)])
   if (!cross || cross.x <= p.x) {
     return false
   }
@@ -1380,10 +1384,7 @@ export function getGrid(
   let x = minX + dX
   while (x < maxX) {
     if (minX < x && x < maxX) {
-      gridList.push([
-        { x, y: minY },
-        { x, y: maxY },
-      ])
+      gridList.push([vec(x, minY), vec(x, maxY)])
     }
     x += gridSize
   }
@@ -1391,10 +1392,7 @@ export function getGrid(
   let y = minY + dY
   while (y < maxY) {
     if (minY < y && y < maxY) {
-      gridList.push([
-        { x: minX, y },
-        { x: maxX, y },
-      ])
+      gridList.push([vec(minX, y), vec(maxX, y)])
     }
     y += gridSize
   }
