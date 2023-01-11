@@ -1572,3 +1572,18 @@ describe('parseMatrix', () => {
     ])
   })
 })
+
+describe('parsePathD', () => {
+  it('should approximate curves via "split" option', () => {
+    const d = 'M0 0 Q 10 0 10 10'
+    expect(svg.parsePathD(d, 1)).toEqual([
+      { x: 0, y: 0 },
+      { x: 10, y: 10 },
+    ])
+    expect(svg.parsePathD(d, 2)).toEqual([
+      { x: 0, y: 0 },
+      { x: 7.5, y: 2.5 },
+      { x: 10, y: 10 },
+    ])
+  })
+})

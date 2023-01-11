@@ -258,7 +258,8 @@ export function parseOpenPath(fontPath: { commands: any[] }): ISvgPath[] {
  * @param dStr SVGのpathタグd文字列
  * @return 座標リスト
  */
-export function parsePathD(dStr: string): IVec2[] {
+export function parsePathD(dStr: string, split?: number): IVec2[] {
+  const splitSize = split ?? configs.bezierSplitSize
   let ret: IVec2[] = []
 
   // d属性分解
@@ -318,7 +319,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: parseFloat(current[4]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -334,7 +335,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: b0.y + parseFloat(current[4]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -347,7 +348,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: parseFloat(current[2]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -360,7 +361,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: b0.y + parseFloat(current[2]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -380,7 +381,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: parseFloat(current[6]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -400,7 +401,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: b0.y + parseFloat(current[6]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -417,7 +418,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: parseFloat(current[4]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -434,7 +435,7 @@ export function parsePathD(dStr: string): IVec2[] {
           y: b0.y + parseFloat(current[4]),
         }
         // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], configs.bezierSplitSize)
+        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
         pList.shift()
         break
@@ -453,7 +454,7 @@ export function parsePathD(dStr: string): IVec2[] {
           !!parseInt(current[4], 10),
           !!parseInt(current[5], 10),
           (parseFloat(current[3]) / 180) * Math.PI,
-          configs.bezierSplitSize
+          splitSize
         )
         // 始点は前回点なので除去
         pList.shift()
@@ -473,7 +474,7 @@ export function parsePathD(dStr: string): IVec2[] {
           !!parseInt(current[4], 10),
           !!parseInt(current[5], 10),
           (parseFloat(current[3]) / 180) * Math.PI,
-          configs.bezierSplitSize
+          splitSize
         )
         // 始点は前回点なので除去
         pList.shift()
