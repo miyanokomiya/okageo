@@ -60,10 +60,7 @@ export function getCenter(a: IVec2, b: IVec2): IVec2 {
 }
 
 export function getRectCenter(rec: IRectangle): IVec2 {
-  return {
-    x: rec.x + rec.width / 2,
-    y: rec.y + rec.height / 2,
-  }
+  return vec(rec.x + rec.width / 2, rec.y + rec.height / 2)
 }
 
 export function getPolygonCenter(polygon: IVec2[]): IVec2 {
@@ -104,10 +101,10 @@ export function rotate(
 ): IVec2 {
   const fromBase: IVec2 = sub(a, from)
   return add(
-    {
-      x: Math.cos(radian) * fromBase.x - Math.sin(radian) * fromBase.y,
-      y: Math.sin(radian) * fromBase.x + Math.cos(radian) * fromBase.y,
-    },
+    vec(
+      Math.cos(radian) * fromBase.x - Math.sin(radian) * fromBase.y,
+      Math.sin(radian) * fromBase.x + Math.cos(radian) * fromBase.y
+    ),
     from
   )
 }
@@ -209,10 +206,12 @@ export function getCrossLineAndBezier(
 ) {
   return rayToBezier(p0, p1, p2, p, q)
     .filter((t) => 0 <= t && t <= 1)
-    .map((t) => ({
-      x: (p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x,
-      y: (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y,
-    }))
+    .map((t) =>
+      vec(
+        (p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x,
+        (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y
+      )
+    )
 }
 
 /**
@@ -383,10 +382,10 @@ export function getCrossSegAndLine(seg: IVec2[], line: IVec2[]): IVec2 | null {
   const isExistCorss = 0 < rate && rate < 1
 
   return isExistCorss
-    ? {
-        x: seg[0].x + (seg[1].x - seg[0].x) * rate,
-        y: seg[0].y + (seg[1].y - seg[0].y) * rate,
-      }
+    ? vec(
+        seg[0].x + (seg[1].x - seg[0].x) * rate,
+        seg[0].y + (seg[1].y - seg[0].y) * rate
+      )
     : null
 }
 
@@ -485,17 +484,11 @@ export function splitPolyByLine(pol: IVec2[], line: IVec2[]): IVec2[][] {
   let splitPol = []
   // 交点まで追加
   for (let i = 0; i <= crossIndex[0]; i++) {
-    splitPol.push({
-      x: points[i].x,
-      y: points[i].y,
-    })
+    splitPol.push(vec(points[i].x, points[i].y))
   }
   // 交点から追加
   for (let i = crossIndex[1]; i < points.length; i++) {
-    splitPol.push({
-      x: points[i].x,
-      y: points[i].y,
-    })
+    splitPol.push(vec(points[i].x, points[i].y))
   }
   // 確定
   splitedPolygons.push(splitPol)
@@ -504,10 +497,7 @@ export function splitPolyByLine(pol: IVec2[], line: IVec2[]): IVec2[][] {
   splitPol = []
   // 交点から交点まで追加
   for (let i = crossIndex[0]; i <= crossIndex[1]; i++) {
-    splitPol.push({
-      x: points[i].x,
-      y: points[i].y,
-    })
+    splitPol.push(vec(points[i].x, points[i].y))
   }
   // 確定
   splitedPolygons.push(splitPol)
@@ -767,10 +757,7 @@ export function getPointOnBezier2(
   const c0 = multi(pointList[0], (1 - t) * (1 - t))
   const c1 = multi(pointList[1], 2 * t * (1 - t))
   const c2 = multi(pointList[2], t * t)
-  return {
-    x: c0.x + c1.x + c2.x,
-    y: c0.y + c1.y + c2.y,
-  }
+  return vec(c0.x + c1.x + c2.x, c0.y + c1.y + c2.y)
 }
 
 /**
@@ -788,10 +775,7 @@ export function getPointOnBezier3(
   const c1 = multi(pointList[1], 3 * t * (1 - t) * (1 - t))
   const c2 = multi(pointList[2], 3 * t * t * (1 - t))
   const c3 = multi(pointList[3], t * t * t)
-  return {
-    x: c0.x + c1.x + c2.x + c3.x,
-    y: c0.y + c1.y + c2.y + c3.y,
-  }
+  return vec(c0.x + c1.x + c2.x + c3.x, c0.y + c1.y + c2.y + c3.y)
 }
 
 /**
@@ -851,16 +835,7 @@ export function approximateArc(
   for (let i = 0; i <= size; i++) {
     const t = unitT * i + startRadian - radian
     ret.push(
-      add(
-        rotate(
-          {
-            x: rx * Math.cos(t),
-            y: ry * Math.sin(t),
-          },
-          radian
-        ),
-        center
-      )
+      add(rotate(vec(rx * Math.cos(t), ry * Math.sin(t)), radian), center)
     )
   }
 
@@ -1005,28 +980,16 @@ export function getEllipseCenter(
   b = rotate(b, -radian)
 
   // 媒介変数を利用して円の中心問題にする
-  const A = {
-    x: a.x / rx,
-    y: a.y / ry,
-  }
-  const B = {
-    x: b.x / rx,
-    y: b.y / ry,
-  }
+  const A = vec(a.x / rx, a.y / ry)
+  const B = vec(b.x / rx, b.y / ry)
 
   // 円の中心取得
   const centerInfo = getCircleCenter(A, B, 1)
   const C = centerInfo.centers
 
   // 楕円に戻す
-  let ans1 = {
-    x: C[0].x * rx,
-    y: C[0].y * ry,
-  }
-  let ans2 = {
-    x: C[1].x * rx,
-    y: C[1].y * ry,
-  }
+  let ans1 = vec(C[0].x * rx, C[0].y * ry)
+  let ans2 = vec(C[1].x * rx, C[1].y * ry)
 
   // 回転を戻す
   ans1 = rotate(ans1, radian)
@@ -1067,14 +1030,8 @@ export function getCircleCenter(
   }
 
   const t = Math.sqrt(t2)
-  const ans1 = {
-    x: u1 + v2 * t,
-    y: v1 - u2 * t,
-  }
-  const ans2 = {
-    x: u1 - v2 * t,
-    y: v1 + u2 * t,
-  }
+  const ans1 = vec(u1 + v2 * t, v1 - u2 * t)
+  const ans2 = vec(u1 - v2 * t, v1 + u2 * t)
 
   return {
     centers: [ans1, ans2],
@@ -1099,10 +1056,7 @@ export function transform(points: IVec2[], params: number[]): IVec2[] {
   const e = params[4]
   const f = params[5]
 
-  return points.map((p) => ({
-    x: a * p.x + c * p.y + e,
-    y: b * p.x + d * p.y + f,
-  }))
+  return points.map((p) => vec(a * p.x + c * p.y + e, b * p.x + d * p.y + f))
 }
 
 /**
@@ -1156,14 +1110,14 @@ export function multiAffines(affines: AffineMatrix[]): AffineMatrix {
 /**
  * apply affine
  * @param affine affine matrix
- * @param vec vector2
- * @return affine x vec
+ * @param v vector2
+ * @return affine x v
  */
-export function applyAffine(affine: AffineMatrix, vec: IVec2): IVec2 {
-  return {
-    x: affine[0] * vec.x + affine[2] * vec.y + affine[4],
-    y: affine[1] * vec.x + affine[3] * vec.y + affine[5],
-  }
+export function applyAffine(affine: AffineMatrix, v: IVec2): IVec2 {
+  return vec(
+    affine[0] * v.x + affine[2] * v.y + affine[4],
+    affine[1] * v.x + affine[3] * v.y + affine[5]
+  )
 }
 
 /**
@@ -1462,10 +1416,10 @@ export function interpolateScaler(
  * @return interpolated value
  */
 export function interpolateVector(from: IVec2, to: IVec2, rate: number): IVec2 {
-  return {
-    x: interpolateScaler(from.x, to.x, rate),
-    y: interpolateScaler(from.y, to.y, rate),
-  }
+  return vec(
+    interpolateScaler(from.x, to.x, rate),
+    interpolateScaler(from.y, to.y, rate)
+  )
 }
 
 /**

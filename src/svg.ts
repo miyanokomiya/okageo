@@ -110,10 +110,9 @@ export function fitRect(
     ...info,
     d: info.d.map((p) => geo.vec(p.x + difX, p.y + difY)),
     included: (info.included || []).map((poly: IVec2[]) => {
-      return poly.map((p) => ({
-        x: (p.x - minX) * rate + difX,
-        y: (p.y - minY) * rate + difY,
-      }))
+      return poly.map((p) =>
+        geo.vec((p.x - minX) * rate + difX, (p.y - minY) * rate + difY)
+      )
     }),
   }))
 
@@ -288,10 +287,12 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
       case 'm':
       case 'l':
         // 直線(相対)
-        pList.push({
-          x: pastVec.x + _parseFloat(current[1]),
-          y: pastVec.y + _parseFloat(current[2]),
-        })
+        pList.push(
+          geo.vec(
+            pastVec.x + _parseFloat(current[1]),
+            pastVec.y + _parseFloat(current[2])
+          )
+        )
         break
       case 'H':
         // 水平(絶対)
@@ -312,14 +313,8 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
       case 'Q':
         // 制御点準備
         b0 = pastVec
-        b1 = {
-          x: _parseFloat(current[1]),
-          y: _parseFloat(current[2]),
-        }
-        b2 = {
-          x: _parseFloat(current[3]),
-          y: _parseFloat(current[4]),
-        }
+        b1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        b2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
         // 近似
         pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
@@ -328,14 +323,14 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
       case 'q':
         // 制御点準備
         b0 = pastVec
-        b1 = {
-          x: b0.x + _parseFloat(current[1]),
-          y: b0.y + _parseFloat(current[2]),
-        }
-        b2 = {
-          x: b0.x + _parseFloat(current[3]),
-          y: b0.y + _parseFloat(current[4]),
-        }
+        b1 = geo.vec(
+          b0.x + _parseFloat(current[1]),
+          b0.y + _parseFloat(current[2])
+        )
+        b2 = geo.vec(
+          b0.x + _parseFloat(current[3]),
+          b0.y + _parseFloat(current[4])
+        )
         // 近似
         pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
@@ -345,10 +340,7 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = {
-          x: _parseFloat(current[1]),
-          y: _parseFloat(current[2]),
-        }
+        b2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
         // 近似
         pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
@@ -358,10 +350,10 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = {
-          x: b0.x + _parseFloat(current[1]),
-          y: b0.y + _parseFloat(current[2]),
-        }
+        b2 = geo.vec(
+          b0.x + _parseFloat(current[1]),
+          b0.y + _parseFloat(current[2])
+        )
         // 近似
         pList = geo.approximateBezier([b0, b1, b2], splitSize)
         // 始点は前回点なので除去
@@ -370,18 +362,9 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
       case 'C':
         // 制御点準備
         b0 = pastVec
-        b1 = {
-          x: _parseFloat(current[1]),
-          y: _parseFloat(current[2]),
-        }
-        b2 = {
-          x: _parseFloat(current[3]),
-          y: _parseFloat(current[4]),
-        }
-        b3 = {
-          x: _parseFloat(current[5]),
-          y: _parseFloat(current[6]),
-        }
+        b1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        b2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
+        b3 = geo.vec(_parseFloat(current[5]), _parseFloat(current[6]))
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
@@ -390,18 +373,18 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
       case 'c':
         // 制御点準備
         b0 = pastVec
-        b1 = {
-          x: b0.x + _parseFloat(current[1]),
-          y: b0.y + _parseFloat(current[2]),
-        }
-        b2 = {
-          x: b0.x + _parseFloat(current[3]),
-          y: b0.y + _parseFloat(current[4]),
-        }
-        b3 = {
-          x: b0.x + _parseFloat(current[5]),
-          y: b0.y + _parseFloat(current[6]),
-        }
+        b1 = geo.vec(
+          b0.x + _parseFloat(current[1]),
+          b0.y + _parseFloat(current[2])
+        )
+        b2 = geo.vec(
+          b0.x + _parseFloat(current[3]),
+          b0.y + _parseFloat(current[4])
+        )
+        b3 = geo.vec(
+          b0.x + _parseFloat(current[5]),
+          b0.y + _parseFloat(current[6])
+        )
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
@@ -411,14 +394,8 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = {
-          x: _parseFloat(current[1]),
-          y: _parseFloat(current[2]),
-        }
-        b3 = {
-          x: _parseFloat(current[3]),
-          y: _parseFloat(current[4]),
-        }
+        b2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        b3 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
@@ -428,14 +405,14 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
         // 制御点準備
         b0 = pastVec
         b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = {
-          x: b0.x + _parseFloat(current[1]),
-          y: b0.y + _parseFloat(current[2]),
-        }
-        b3 = {
-          x: b0.x + _parseFloat(current[3]),
-          y: b0.y + _parseFloat(current[4]),
-        }
+        b2 = geo.vec(
+          b0.x + _parseFloat(current[1]),
+          b0.y + _parseFloat(current[2])
+        )
+        b3 = geo.vec(
+          b0.x + _parseFloat(current[3]),
+          b0.y + _parseFloat(current[4])
+        )
         // 近似
         pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
         // 始点は前回点なので除去
@@ -443,10 +420,7 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
         break
       case 'A':
         b0 = pastVec
-        b1 = {
-          x: _parseFloat(current[6]),
-          y: _parseFloat(current[7]),
-        }
+        b1 = geo.vec(_parseFloat(current[6]), _parseFloat(current[7]))
 
         pList = geo.approximateArcWithPoint(
           _parseFloat(current[1]),
@@ -463,10 +437,10 @@ export function parsePathD(dStr: string, split?: number): IVec2[] {
         break
       case 'a':
         b0 = pastVec
-        b1 = {
-          x: b0.x + _parseFloat(current[6]),
-          y: b0.y + _parseFloat(current[7]),
-        }
+        b1 = geo.vec(
+          b0.x + _parseFloat(current[6]),
+          b0.y + _parseFloat(current[7])
+        )
 
         pList = geo.approximateArcWithPoint(
           _parseFloat(current[1]),
@@ -607,10 +581,7 @@ export function adoptTransform(
           break
         }
         case 'translate': {
-          ret = ret.map((p) => ({
-            x: p.x + params[0],
-            y: p.y + params[1],
-          }))
+          ret = ret.map((p) => geo.vec(p.x + params[0], p.y + params[1]))
           break
         }
         case 'scale': {
@@ -620,10 +591,7 @@ export function adoptTransform(
           if (params.length > 1) {
             scaleY = params[1]
           }
-          ret = ret.map((p) => ({
-            x: p.x * scaleX,
-            y: p.y * scaleY,
-          }))
+          ret = ret.map((p) => geo.vec(p.x * scaleX, p.y * scaleY))
           break
         }
         case 'rotate': {
@@ -636,17 +604,15 @@ export function adoptTransform(
           break
         }
         case 'skewx': {
-          ret = ret.map((p) => ({
-            x: p.x + Math.tan((params[0] * Math.PI) / 180) * p.y,
-            y: p.y,
-          }))
+          ret = ret.map((p) =>
+            geo.vec(p.x + Math.tan((params[0] * Math.PI) / 180) * p.y, p.y)
+          )
           break
         }
         case 'skewy': {
-          ret = ret.map((p) => ({
-            x: p.x,
-            y: p.y + Math.tan((params[0] * Math.PI) / 180) * p.x,
-          }))
+          ret = ret.map((p) =>
+            geo.vec(p.x, p.y + Math.tan((params[0] * Math.PI) / 180) * p.x)
+          )
           break
         }
       }
