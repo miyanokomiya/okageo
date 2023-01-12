@@ -99,14 +99,28 @@ export function rotate(
   radian: number,
   from: IVec2 = vec(0, 0)
 ): IVec2 {
-  const fromBase: IVec2 = sub(a, from)
+  const fromBase = sub(a, from)
+  const s = Math.sin(radian)
+  const c = Math.cos(radian)
   return add(
-    vec(
-      Math.cos(radian) * fromBase.x - Math.sin(radian) * fromBase.y,
-      Math.sin(radian) * fromBase.x + Math.cos(radian) * fromBase.y
-    ),
+    vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y),
     from
   )
+}
+
+function getRotateFn(
+  radian: number,
+  from: IVec2 = vec(0, 0)
+): (a: IVec2) => IVec2 {
+  const s = Math.sin(radian)
+  const c = Math.cos(radian)
+  return (a) => {
+    const fromBase = sub(a, from)
+    return add(
+      vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y),
+      from
+    )
+  }
 }
 
 /**
@@ -831,12 +845,11 @@ export function approximateArc(
   const ret = []
   const range = endRadian - startRadian
   const unitT = range / size
+  const rotateFn = getRotateFn(radian)
 
   for (let i = 0; i <= size; i++) {
     const t = unitT * i + startRadian - radian
-    ret.push(
-      add(rotate(vec(rx * Math.cos(t), ry * Math.sin(t)), radian), center)
-    )
+    ret.push(add(rotateFn(vec(rx * Math.cos(t), ry * Math.sin(t))), center))
   }
 
   return ret
