@@ -1079,6 +1079,22 @@ describe('approximateArc 円弧近似', () => {
 
 describe('approximateArcWithPoint 楕円の近似', () => {
   it('サイズ1の近似が正しいこと', () => {
+    const res0 = geo.approximateArcWithPoint(
+      1,
+      2,
+      { x: 1, y: 0 },
+      { x: 0, y: 2 },
+      false,
+      false,
+      0,
+      1
+    )
+    expect(res0).toHaveLength(2)
+    expect(res0[0].x).toBeCloseTo(1)
+    expect(res0[0].y).toBeCloseTo(0)
+    expect(res0[1].x).toBeCloseTo(0)
+    expect(res0[1].y).toBeCloseTo(2)
+
     const res = geo.approximateArcWithPoint(
       1,
       2,

@@ -111,15 +111,23 @@ export function rotate(
 function getRotateFn(
   radian: number,
   from: IVec2 = vec(0, 0)
-): (a: IVec2) => IVec2 {
+): (a: IVec2, reverse?: boolean) => IVec2 {
   const s = Math.sin(radian)
   const c = Math.cos(radian)
-  return (a) => {
+  return (a, reverse) => {
     const fromBase = sub(a, from)
-    return add(
-      vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y),
-      from
-    )
+    return reverse
+      ? add(
+          vec(
+            c * fromBase.x + s * fromBase.y,
+            -s * fromBase.x + c * fromBase.y
+          ),
+          from
+        )
+      : add(
+          vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y),
+          from
+        )
   }
 }
 
@@ -856,8 +864,8 @@ export function approximateArc(
 }
 
 /**
- * ２点指定の円弧を直線で近似する
- * https://triple-underscore.github.io/SVG11/paths.html#PathDataEllipticalArcCommands
+ * Approximate arc path as a polyline
+ * https://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
  * @method approximateArcWithPoint
  * @param rx x軸半径
  * @param ry y軸半径
@@ -879,96 +887,87 @@ export function approximateArcWithPoint(
   radian: number,
   size: number
 ): IVec2[] {
-  // 範囲外の径の修正
-  // https://triple-underscore.github.io/SVG11/implnote.html#ArcImplementationNotes
-  // 径長ゼロを弾く
-  if (rx * ry === 0) return [startPoint, endPoint]
-
-  // 負の径長を訂正する
-  rx = Math.abs(rx)
-  ry = Math.abs(ry)
-
-  // 楕円中心取得
-  const centerInfo = getEllipseCenter(startPoint, endPoint, rx, ry, radian)
-  const centers = centerInfo.centers
-
-  // 径長を十分大きくする
-  rx *= centerInfo.radiusRate
-  ry *= centerInfo.radiusRate
-
-  let center = null
-
-  if ((largeArcFlag && sweepFlag) || (!largeArcFlag && !sweepFlag)) {
-    // 時計回り＆大きい側
-    // 反時計回り＆小さい側
-    // →始点終点中心が反時計回りになる
-    if (getLoopwise([startPoint, endPoint, centers[0]]) < 0) {
-      center = centers[0]
-    } else {
-      center = centers[1]
-    }
-  } else {
-    if (getLoopwise([startPoint, endPoint, centers[0]]) > 0) {
-      center = centers[0]
-    } else {
-      center = centers[1]
-    }
+  if (rx * ry < MINVALUE) {
+    return [startPoint, endPoint]
   }
-
-  // 回り方に応じて始点と終点を設定
-  let startRadian = 0
-  let endRadian = 0
-  const r1 = getRadianOnArc(startPoint, rx, center, radian)
-  const r2 = getRadianOnArc(endPoint, rx, center, radian)
-  if (sweepFlag) {
-    if (r1 > r2) {
-      startRadian = r1 - Math.PI * 2
-      endRadian = r2
-    } else {
-      startRadian = r1
-      endRadian = r2
-    }
-  } else {
-    if (r1 > r2) {
-      startRadian = r1
-      endRadian = r2
-    } else {
-      startRadian = r1
-      endRadian = r2 - Math.PI * 2
-    }
-  }
-
-  return approximateArc(rx, ry, startRadian, endRadian, center, radian, size)
+  return getApproPoints(
+    getArcLerpFn(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian),
+    size
+  )
 }
 
-/**
- * 円弧上の点の角度を求める
- * @param a 円弧上の点
- * @param rx x径長
- * @param center 中心座標
- * @param radian 傾き
- * @return ラジアン(0 <= t <= 2 * Math.PI)
- */
-function getRadianOnArc(
-  a: IVec2,
+function getArcLerpFn(
   rx: number,
-  center: IVec2,
+  ry: number,
+  startPoint: IVec2,
+  endPoint: IVec2,
+  largeArcFlag: boolean,
+  sweepFlag: boolean,
   radian: number
-): number {
-  // 回転打ち消し
-  a = rotate(a, -radian, center)
-  let ret = Math.acos((a.x - center.x) / rx)
-
-  // y座標の位置をみて絞り込み
-  if (a.y - center.y < 0) {
-    ret = -ret + Math.PI * 2
+): (t: number) => IVec2 {
+  if (rx * ry < MINVALUE) {
+    return (t) => lerp(p0, p1, t)
   }
 
-  // 回転戻す
-  ret += radian
-  ret %= Math.PI * 2
+  const r = radian
+  const rotateFn = getRotateFn(r)
+  const p0 = startPoint
+  const p1 = endPoint
+  const a = rotateFn(vec((p0.x - p1.x) / 2, (p0.y - p1.y) / 2), true)
+  const ax2 = a.x * a.x
+  const ay2 = a.y * a.y
 
-  return ret
+  const l = ax2 / rx / rx + ay2 / ry / ry
+  const lsqrt = l > 1 ? Math.sqrt(l) : 1
+  const { x: rxa, y: rya } = vec(Math.abs(rx) * lsqrt, Math.abs(ry) * lsqrt)
+
+  const rx2 = rxa * rxa
+  const ry2 = rya * rya
+  const b = multi(
+    multi(
+      vec((rxa * a.y) / rya, (-rya * a.x) / rxa),
+      Math.sqrt((rx2 * ry2 - rx2 * ay2 - ry2 * ax2) / (rx2 * ay2 + ry2 * ax2))
+    ),
+    largeArcFlag === sweepFlag ? -1 : 1
+  )
+
+  const c = add(rotateFn(b), multi(add(p0, p1), 0.5))
+
+  const u = vec((a.x - b.x) / rxa, (a.y - b.y) / rya)
+  const v = vec((-a.x - b.x) / rxa, (-a.y - b.y) / rya)
+  const theta = getRadian(u)
+  const dtheta_tmp = (getRadian(v) - getRadian(u)) % (2 * Math.PI)
+  const dtheta =
+    !sweepFlag && 0 < dtheta_tmp
+      ? dtheta_tmp - 2 * Math.PI
+      : sweepFlag && dtheta_tmp < 0
+      ? dtheta_tmp + 2 * Math.PI
+      : dtheta_tmp
+
+  return (t) => {
+    const dr = theta + dtheta * t
+    return add(rotateFn(vec(rxa * Math.cos(dr), rya * Math.sin(dr))), c)
+  }
+}
+
+function lerp(a: IVec2, b: IVec2, t: number): IVec2 {
+  return add(a, multi(sub(b, a), t))
+}
+
+function getApproPoints(lerpFn: (t: number) => IVec2, split: number): IVec2[] {
+  if (split <= 1) {
+    return [lerpFn(0), lerpFn(1)]
+  }
+
+  let step = 1 / split
+  let points: IVec2[] = []
+
+  for (let i = 0; i <= split; i++) {
+    let q = lerpFn(step * i)
+    points.push(q)
+  }
+
+  return points
 }
 
 /**
