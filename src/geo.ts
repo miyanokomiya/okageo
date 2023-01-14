@@ -896,7 +896,7 @@ export function approximateArcWithPoint(
   )
 }
 
-function getArcLerpFn(
+export function getArcLerpFn(
   rx: number,
   ry: number,
   startPoint: IVec2,
@@ -906,7 +906,7 @@ function getArcLerpFn(
   radian: number
 ): (t: number) => IVec2 {
   if (rx * ry < MINVALUE) {
-    return (t) => lerp(p0, p1, t)
+    return (t) => lerpPoint(p0, p1, t)
   }
 
   const r = radian
@@ -950,11 +950,14 @@ function getArcLerpFn(
   }
 }
 
-function lerp(a: IVec2, b: IVec2, t: number): IVec2 {
+export function lerpPoint(a: IVec2, b: IVec2, t: number): IVec2 {
   return add(a, multi(sub(b, a), t))
 }
 
-function getApproPoints(lerpFn: (t: number) => IVec2, split: number): IVec2[] {
+export function getApproPoints(
+  lerpFn: (t: number) => IVec2,
+  split: number
+): IVec2[] {
   if (split <= 1) {
     return [lerpFn(0), lerpFn(1)]
   }

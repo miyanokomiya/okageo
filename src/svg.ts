@@ -254,6 +254,277 @@ export function parseOpenPath(fontPath: { commands: any[] }): ISvgPath[] {
   return pathInfoList
 }
 
+interface PathSegments {
+  command: string
+  lerpFn: (t: number) => IVec2
+  curve?: boolean
+}
+
+function parsePathSegments(dStr: string): PathSegments[] {
+  const ret: PathSegments[] = []
+  const elementList = splitD(dStr)
+
+  let startP = geo.vec(0, 0)
+  let currentP = geo.vec(0, 0)
+  let currentControlP = geo.vec(0, 0)
+  elementList.forEach((current) => {
+    switch (current[0]) {
+      case 'M': {
+        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        ret.push({ command: 'M', lerpFn: () => p1 })
+        startP = p1
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'm': {
+        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        ret.push({ command: 'm', lerpFn: () => p1 })
+        startP = p1
+        currentP = p1
+        currentControlP = p1
+        break
+      }
+      case 'L': {
+        const p0 = currentP
+        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        ret.push({ command: 'L', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        startP ??= p1
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'l': {
+        const p0 = currentP
+        const p1 = geo.add(
+          currentP,
+          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        )
+        ret.push({ command: 'l', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        startP ??= p1
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'H': {
+        const p0 = currentP
+        const p1 = geo.vec(_parseFloat(current[1]), p0.y)
+        ret.push({ command: 'H', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'h': {
+        const p0 = currentP
+        const p1 = geo.vec(_parseFloat(current[1]) + p0.x, p0.y)
+        ret.push({ command: 'h', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'V': {
+        const p0 = currentP
+        const p1 = geo.vec(p0.x, _parseFloat(current[1]))
+        ret.push({ command: 'V', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'v': {
+        const p0 = currentP
+        const p1 = geo.vec(p0.x, _parseFloat(current[1]) + p0.y)
+        ret.push({ command: 'v', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'Q': {
+        const p0 = currentP
+        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        const p2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
+        ret.push({
+          command: 'Q',
+          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 'q': {
+        const p0 = currentP
+        const p1 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        )
+        const p2 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
+        )
+        ret.push({
+          command: 'q',
+          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 'T': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        ret.push({
+          command: 'T',
+          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 't': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        )
+        ret.push({
+          command: 't',
+          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 'C': {
+        const p0 = currentP
+        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        const p2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
+        const p3 = geo.vec(_parseFloat(current[5]), _parseFloat(current[6]))
+        ret.push({
+          command: 'C',
+          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 'c': {
+        const p0 = currentP
+        const p1 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        )
+        const p2 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
+        )
+        const p3 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[5]), _parseFloat(current[6]))
+        )
+        ret.push({
+          command: 'c',
+          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 'S': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        const p3 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
+        ret.push({
+          command: 'S',
+          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 's': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
+        )
+        const p3 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
+        )
+        ret.push({
+          command: 's',
+          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 'A': {
+        const p0 = currentP
+        const rx = _parseFloat(current[1])
+        const ry = _parseFloat(current[2])
+        const large = !!_parseInt(current[4], 10)
+        const sweep = !!_parseInt(current[5], 10)
+        const radian = (_parseFloat(current[3]) / 180) * Math.PI
+        const p1 = geo.vec(_parseFloat(current[6]), _parseFloat(current[7]))
+        ret.push({
+          command: 'A',
+          lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'a': {
+        const p0 = currentP
+        const rx = _parseFloat(current[1])
+        const ry = _parseFloat(current[2])
+        const large = !!_parseInt(current[4], 10)
+        const sweep = !!_parseInt(current[5], 10)
+        const radian = (_parseFloat(current[3]) / 180) * Math.PI
+        const p1 = geo.add(
+          p0,
+          geo.vec(_parseFloat(current[6]), _parseFloat(current[7]))
+        )
+        ret.push({
+          command: 'a',
+          lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'Z':
+      case 'z': {
+        const p0 = currentP
+        const p1 = startP
+        ret.push({
+          command: current[0],
+          lerpFn: (t) => geo.lerpPoint(p0, p1, t),
+        })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+    }
+  })
+
+  return ret
+}
+
 /**
  * pathタグを解析する
  * @param dStr SVGのpathタグd文字列
@@ -261,214 +532,17 @@ export function parseOpenPath(fontPath: { commands: any[] }): ISvgPath[] {
  */
 export function parsePathD(dStr: string, split?: number): IVec2[] {
   const splitSize = split ?? configs.bezierSplitSize
-  let ret: IVec2[] = []
-
-  // d属性分解
-  const elementList: string[][] = splitD(dStr)
-
-  // 前回座標
-  let pastVec: IVec2 = geo.vec(0, 0)
-  // 前回制御点
-  let pastControlVec: IVec2 = geo.vec(0, 0)
-  elementList.forEach((current) => {
-    let pList: IVec2[] = []
-
-    let b0: IVec2 | undefined
-    let b1: IVec2 | undefined
-    let b2: IVec2 | undefined
-    let b3: IVec2 | undefined
-
-    switch (current[0]) {
-      case 'M':
-      case 'L':
-        // 直線(絶対)
-        pList.push(geo.vec(_parseFloat(current[1]), _parseFloat(current[2])))
-        break
-      case 'm':
-      case 'l':
-        // 直線(相対)
-        pList.push(
-          geo.vec(
-            pastVec.x + _parseFloat(current[1]),
-            pastVec.y + _parseFloat(current[2])
-          )
-        )
-        break
-      case 'H':
-        // 水平(絶対)
-        pList.push(geo.vec(_parseFloat(current[1]), pastVec.y))
-        break
-      case 'V':
-        // 垂直(絶対)
-        pList.push(geo.vec(pastVec.x, _parseFloat(current[1])))
-        break
-      case 'h':
-        // 垂直(相対)
-        pList.push(geo.vec(pastVec.x + _parseFloat(current[1]), pastVec.y))
-        break
-      case 'v':
-        // 垂直(相対)
-        pList.push(geo.vec(pastVec.x, pastVec.y + _parseFloat(current[1])))
-        break
-      case 'Q':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        b2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 'q':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.vec(
-          b0.x + _parseFloat(current[1]),
-          b0.y + _parseFloat(current[2])
-        )
-        b2 = geo.vec(
-          b0.x + _parseFloat(current[3]),
-          b0.y + _parseFloat(current[4])
-        )
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 'T':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 't':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = geo.vec(
-          b0.x + _parseFloat(current[1]),
-          b0.y + _parseFloat(current[2])
-        )
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 'C':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        b2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        b3 = geo.vec(_parseFloat(current[5]), _parseFloat(current[6]))
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 'c':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.vec(
-          b0.x + _parseFloat(current[1]),
-          b0.y + _parseFloat(current[2])
-        )
-        b2 = geo.vec(
-          b0.x + _parseFloat(current[3]),
-          b0.y + _parseFloat(current[4])
-        )
-        b3 = geo.vec(
-          b0.x + _parseFloat(current[5]),
-          b0.y + _parseFloat(current[6])
-        )
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 'S':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        b3 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 's':
-        // 制御点準備
-        b0 = pastVec
-        b1 = geo.getSymmetry(b0, pastControlVec)
-        b2 = geo.vec(
-          b0.x + _parseFloat(current[1]),
-          b0.y + _parseFloat(current[2])
-        )
-        b3 = geo.vec(
-          b0.x + _parseFloat(current[3]),
-          b0.y + _parseFloat(current[4])
-        )
-        // 近似
-        pList = geo.approximateBezier([b0, b1, b2, b3], splitSize)
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 'A':
-        b0 = pastVec
-        b1 = geo.vec(_parseFloat(current[6]), _parseFloat(current[7]))
-
-        pList = geo.approximateArcWithPoint(
-          _parseFloat(current[1]),
-          _parseFloat(current[2]),
-          b0,
-          b1,
-          !!_parseInt(current[4], 10),
-          !!_parseInt(current[5], 10),
-          (_parseFloat(current[3]) / 180) * Math.PI,
-          splitSize
-        )
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-      case 'a':
-        b0 = pastVec
-        b1 = geo.vec(
-          b0.x + _parseFloat(current[6]),
-          b0.y + _parseFloat(current[7])
-        )
-
-        pList = geo.approximateArcWithPoint(
-          _parseFloat(current[1]),
-          _parseFloat(current[2]),
-          b0,
-          b1,
-          !!_parseInt(current[4], 10),
-          !!_parseInt(current[5], 10),
-          (_parseFloat(current[3]) / 180) * Math.PI,
-          splitSize
-        )
-        // 始点は前回点なので除去
-        pList.shift()
-        break
-    }
-
-    if (pList.length > 0) {
-      pastVec = pList[pList.length - 1]
-      ret = ret.concat(pList)
-
-      if (pList.length > 1) {
-        // 前回制御点記録
-        pastControlVec = pList[pList.length - 2]
+  const segments = parsePathSegments(dStr)
+  return segments
+    .filter((seg) => seg.command.toUpperCase() !== 'Z')
+    .flatMap((seg) => {
+      if (seg.curve) {
+        const [, ...points] = geo.getApproPoints(seg.lerpFn, splitSize)
+        return points
+      } else {
+        return [seg.lerpFn(1)]
       }
-    }
-  })
-
-  return ret
+    })
 }
 
 /**

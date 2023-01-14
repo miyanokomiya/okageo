@@ -390,17 +390,26 @@ describe('parsePath path解析', () => {
   })
   describe('T解析', () => {
     it('結果が正しいこと', () => {
-      const str = '<path d="M 1,2 T 3,4" />'
+      const str = '<path d="M-10,-10 Q1,2 0,0 T 5,6" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const pList = geo.approximateBezier(
+      const qPoints = geo.approximateBezier(
         [
+          { x: -10, y: -10 },
           { x: 1, y: 2 },
-          { x: -1, y: -2 },
-          { x: 3, y: 4 },
+          { x: 0, y: 0 },
         ],
         svg.configs.bezierSplitSize
       )
+      const [, ...tPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: -1, y: -2 },
+          { x: 5, y: 6 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...qPoints, ...tPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
         expect(p.x).toBeCloseTo(res[i].x)
@@ -410,17 +419,26 @@ describe('parsePath path解析', () => {
   })
   describe('t解析', () => {
     it('結果が正しいこと', () => {
-      const str = '<path d="M 1,2 t 3,4" />'
+      const str = '<path d="M-10,-10 Q3,4 1,1 t 4,5" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const pList = geo.approximateBezier(
+      const qPoints = geo.approximateBezier(
         [
-          { x: 1, y: 2 },
-          { x: -1, y: -2 },
-          { x: 4, y: 6 },
+          { x: -10, y: -10 },
+          { x: 3, y: 4 },
+          { x: 1, y: 1 },
         ],
         svg.configs.bezierSplitSize
       )
+      const [, ...tPoints] = geo.approximateBezier(
+        [
+          { x: 1, y: 1 },
+          { x: -1, y: -2 },
+          { x: 5, y: 6 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...qPoints, ...tPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
         expect(p.x).toBeCloseTo(res[i].x)
@@ -472,18 +490,27 @@ describe('parsePath path解析', () => {
   })
   describe('S解析', () => {
     it('結果が正しいこと', () => {
-      const str = '<path d="M 1,2 S 3,4 5,6" />'
+      const str = '<path d="M-10,-10 Q1,2 0,0 S 5,6 7,8" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const pList = geo.approximateBezier(
+      const qPoints = geo.approximateBezier(
         [
+          { x: -10, y: -10 },
           { x: 1, y: 2 },
-          { x: -1, y: -2 },
-          { x: 3, y: 4 },
-          { x: 5, y: 6 },
+          { x: 0, y: 0 },
         ],
         svg.configs.bezierSplitSize
       )
+      const [, ...sPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: -1, y: -2 },
+          { x: 5, y: 6 },
+          { x: 7, y: 8 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...qPoints, ...sPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
         expect(p.x).toBeCloseTo(res[i].x)
@@ -493,18 +520,27 @@ describe('parsePath path解析', () => {
   })
   describe('s解析', () => {
     it('結果が正しいこと', () => {
-      const str = '<path d="M 1,2 s 3,4 5,6" />'
+      const str = '<path d="M-10,-10 Q3,4 1,1 s 4,5 6,7" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const pList = geo.approximateBezier(
+      const qPoints = geo.approximateBezier(
         [
-          { x: 1, y: 2 },
-          { x: -1, y: -2 },
-          { x: 4, y: 6 },
-          { x: 6, y: 8 },
+          { x: -10, y: -10 },
+          { x: 3, y: 4 },
+          { x: 1, y: 1 },
         ],
         svg.configs.bezierSplitSize
       )
+      const [, ...sPoints] = geo.approximateBezier(
+        [
+          { x: 1, y: 1 },
+          { x: -1, y: -2 },
+          { x: 5, y: 6 },
+          { x: 7, y: 8 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...qPoints, ...sPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
         expect(p.x).toBeCloseTo(res[i].x)
