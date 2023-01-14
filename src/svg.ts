@@ -3,7 +3,6 @@ import * as geo from './geo'
 
 const HTTP_SVG = 'http://www.w3.org/2000/svg'
 const _parseFloat = parseFloat
-const _parseInt = parseInt
 
 export const configs: ISvgConfigs = {
   bezierSplitSize: 10,
@@ -262,12 +261,10 @@ interface PathSegments {
 
 function parsePathSegments(dStr: string): PathSegments[] {
   const ret: PathSegments[] = []
-  const elementList = splitD(dStr)
-
   let startP = geo.vec(0, 0)
   let currentP = geo.vec(0, 0)
   let currentControlP = geo.vec(0, 0)
-  elementList.forEach((current) => {
+  splitD(dStr).forEach((current) => {
     switch (current[0]) {
       case 'M': {
         const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
@@ -474,8 +471,8 @@ function parsePathSegments(dStr: string): PathSegments[] {
         const p0 = currentP
         const rx = _parseFloat(current[1])
         const ry = _parseFloat(current[2])
-        const large = !!_parseInt(current[4], 10)
-        const sweep = !!_parseInt(current[5], 10)
+        const large = current[4] !== '0'
+        const sweep = current[5] !== '0'
         const radian = (_parseFloat(current[3]) / 180) * Math.PI
         const p1 = geo.vec(_parseFloat(current[6]), _parseFloat(current[7]))
         ret.push({
@@ -491,8 +488,8 @@ function parsePathSegments(dStr: string): PathSegments[] {
         const p0 = currentP
         const rx = _parseFloat(current[1])
         const ry = _parseFloat(current[2])
-        const large = !!_parseInt(current[4], 10)
-        const sweep = !!_parseInt(current[5], 10)
+        const large = current[4] !== '0'
+        const sweep = current[5] !== '0'
         const radian = (_parseFloat(current[3]) / 180) * Math.PI
         const p1 = geo.add(
           p0,
@@ -526,23 +523,24 @@ function parsePathSegments(dStr: string): PathSegments[] {
 }
 
 /**
- * pathタグを解析する
- * @param dStr SVGのpathタグd文字列
- * @return 座標リスト
+ * Parse path d string and approximate it as a polyline
+ * Note:
+ * - Jump information by M/m commands doesn't remain in a polyline
+ * - Z/z commands are ignored => The tail point doesn't become the same as the head one by these commands
+ * @param dStr d string of path element
+ * @return approximated polyline
  */
-export function parsePathD(dStr: string, split?: number): IVec2[] {
-  const splitSize = split ?? configs.bezierSplitSize
-  const segments = parsePathSegments(dStr)
-  return segments
+export function parsePathD(
+  dStr: string,
+  split = configs.bezierSplitSize
+): IVec2[] {
+  return parsePathSegments(dStr)
     .filter((seg) => seg.command.toUpperCase() !== 'Z')
-    .flatMap((seg) => {
-      if (seg.curve) {
-        const [, ...points] = geo.getApproPoints(seg.lerpFn, splitSize)
-        return points
-      } else {
-        return [seg.lerpFn(1)]
-      }
-    })
+    .flatMap((seg) =>
+      seg.curve
+        ? geo.getApproPoints(seg.lerpFn, split).slice(1)
+        : [seg.lerpFn(1)]
+    )
 }
 
 /**
