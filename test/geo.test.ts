@@ -1260,6 +1260,59 @@ describe('approximateArcWithPoint 楕円の近似', () => {
   })
 })
 
+describe('getArcLerpFn', () => {
+  it('should return lerp function for arc path', () => {
+    const res = geo.getArcLerpFn(
+      1,
+      1,
+      { x: Math.sqrt(3) / 2, y: 1 / 2 },
+      { x: Math.sqrt(3) / 2, y: -1 / 2 },
+      false,
+      true,
+      Math.PI / 2
+    )
+    expect(res(0).x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res(0).y).toBeCloseTo(1 / 2)
+    expect(res(0.5).x).toBeCloseTo(Math.sqrt(3) - 1)
+    expect(res(0.5).y).toBeCloseTo(0)
+    expect(res(1).x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res(1).y).toBeCloseTo(-1 / 2)
+  })
+})
+
+describe('lerpPoint', () => {
+  it('should lerp between points', () => {
+    const res = geo.lerpPoint({ x: 10, y: 20 }, { x: 110, y: 220 }, 0.2)
+    expect(res.x).toBeCloseTo(30)
+    expect(res.y).toBeCloseTo(60)
+  })
+})
+
+describe('getApproPoints', () => {
+  it('should return splited points', () => {
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 0)).toEqual([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+    ])
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 1)).toEqual([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+    ])
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 2)).toEqual([
+      { x: 0, y: 0 },
+      { x: 0.5, y: 0 },
+      { x: 1, y: 0 },
+    ])
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 4)).toEqual([
+      { x: 0, y: 0 },
+      { x: 0.25, y: 0 },
+      { x: 0.5, y: 0 },
+      { x: 0.75, y: 0 },
+      { x: 1, y: 0 },
+    ])
+  })
+})
+
 describe('getEllipseCenter 2点を通る楕円の中心', () => {
   it('正しく取得できること', () => {
     const res = geo.getEllipseCenter({ x: 1, y: 0 }, { x: 0, y: 2 }, 1, 2, 0)
