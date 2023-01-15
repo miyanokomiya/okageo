@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.3] - 2023-01-11
+### Added
+- Add new argument for `parsePathD` to adjust its accuracy
+- Add `getPathTotalLength` as an alternative of `SVGGeometryElement.getTotalLength`
+- Add `getPathPointAtLength` as an alternative of `SVGGeometryElement.getPointAtLength`
+
 ## [3.0.2] - 2022-06-27
 ### Changed
 - Replace build system
