@@ -146,7 +146,7 @@ function parseSvgTree(
   const transformStr = elm.getAttribute('transform')
   const parentTransform = parentInfo?.transform ?? geo.IDENTITY_AFFINE
 
-  const ret: ISvgPath[] = []
+  let ret: ISvgPath[] = []
 
   const svgPath = parseSVGShape(elm)
   if (svgPath) {
@@ -161,11 +161,9 @@ function parseSvgTree(
       ? geo.multiAffine(parentTransform, parseTransform(transformStr))
       : parentTransform
 
-    ret.push(
-      ...Array.from(elm.children).flatMap((child) => {
-        return parseSvgTree(child as SVGElement, { style, transform })
-      })
-    )
+    Array.from(elm.children).forEach((child) => {
+      ret = ret.concat(parseSvgTree(child as SVGElement, { style, transform }))
+    })
   }
 
   return ret
@@ -253,13 +251,19 @@ export function parseOpenPath(fontPath: { commands: any[] }): ISvgPath[] {
   return pathInfoList
 }
 
-interface PathSegment {
-  command: string
-  lerpFn: (t: number) => IVec2
-  curve?: boolean
-}
+type PathSegment =
+  | {
+      command: string
+      lerpFn: (t: number) => IVec2
+      curve: true
+    }
+  | {
+      command: string
+      segment: [IVec2, IVec2]
+      curve?: undefined
+    }
 
-function parsePathSegments(dStr: string): PathSegment[] {
+export function parsePathSegments(dStr: string): PathSegment[] {
   const ret: PathSegment[] = []
   let startP = geo.vec(0, 0)
   let currentP = geo.vec(0, 0)
@@ -268,7 +272,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
     switch (current[0]) {
       case 'M': {
         const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        ret.push({ command: 'M', lerpFn: () => p1 })
+        ret.push({ command: 'M', segment: [p1, p1] })
         startP = p1
         currentControlP = p1
         currentP = p1
@@ -276,7 +280,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
       }
       case 'm': {
         const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        ret.push({ command: 'm', lerpFn: () => p1 })
+        ret.push({ command: 'm', segment: [p1, p1] })
         startP = p1
         currentP = p1
         currentControlP = p1
@@ -285,7 +289,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
       case 'L': {
         const p0 = currentP
         const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        ret.push({ command: 'L', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        ret.push({ command: 'L', segment: [p0, p1] })
         startP ??= p1
         currentControlP = p1
         currentP = p1
@@ -297,7 +301,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
           currentP,
           geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
         )
-        ret.push({ command: 'l', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        ret.push({ command: 'l', segment: [p0, p1] })
         startP ??= p1
         currentControlP = p1
         currentP = p1
@@ -306,7 +310,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
       case 'H': {
         const p0 = currentP
         const p1 = geo.vec(_parseFloat(current[1]), p0.y)
-        ret.push({ command: 'H', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        ret.push({ command: 'H', segment: [p0, p1] })
         currentControlP = p1
         currentP = p1
         break
@@ -314,7 +318,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
       case 'h': {
         const p0 = currentP
         const p1 = geo.vec(_parseFloat(current[1]) + p0.x, p0.y)
-        ret.push({ command: 'h', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        ret.push({ command: 'h', segment: [p0, p1] })
         currentControlP = p1
         currentP = p1
         break
@@ -322,7 +326,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
       case 'V': {
         const p0 = currentP
         const p1 = geo.vec(p0.x, _parseFloat(current[1]))
-        ret.push({ command: 'V', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        ret.push({ command: 'V', segment: [p0, p1] })
         currentControlP = p1
         currentP = p1
         break
@@ -330,7 +334,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
       case 'v': {
         const p0 = currentP
         const p1 = geo.vec(p0.x, _parseFloat(current[1]) + p0.y)
-        ret.push({ command: 'v', lerpFn: (t) => geo.lerpPoint(p0, p1, t) })
+        ret.push({ command: 'v', segment: [p0, p1] })
         currentControlP = p1
         currentP = p1
         break
@@ -341,7 +345,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         const p2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
         ret.push({
           command: 'Q',
-          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
           curve: true,
         })
         currentControlP = p1
@@ -360,7 +364,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         )
         ret.push({
           command: 'q',
-          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
           curve: true,
         })
         currentControlP = p1
@@ -373,7 +377,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         const p2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
         ret.push({
           command: 'T',
-          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
           curve: true,
         })
         currentControlP = p1
@@ -389,7 +393,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         )
         ret.push({
           command: 't',
-          lerpFn: (t) => geo.getPointOnBezier2([p0, p1, p2], t),
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
           curve: true,
         })
         currentControlP = p1
@@ -403,7 +407,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         const p3 = geo.vec(_parseFloat(current[5]), _parseFloat(current[6]))
         ret.push({
           command: 'C',
-          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
           curve: true,
         })
         currentControlP = p2
@@ -426,7 +430,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         )
         ret.push({
           command: 'c',
-          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
           curve: true,
         })
         currentControlP = p2
@@ -440,7 +444,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         const p3 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
         ret.push({
           command: 'S',
-          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
           curve: true,
         })
         currentControlP = p2
@@ -460,7 +464,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         )
         ret.push({
           command: 's',
-          lerpFn: (t) => geo.getPointOnBezier3([p0, p1, p2, p3], t),
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
           curve: true,
         })
         currentControlP = p2
@@ -510,7 +514,7 @@ function parsePathSegments(dStr: string): PathSegment[] {
         const p1 = startP
         ret.push({
           command: current[0],
-          lerpFn: (t) => geo.lerpPoint(p0, p1, t),
+          segment: [p0, p1],
         })
         currentControlP = p1
         currentP = p1
@@ -523,7 +527,6 @@ function parsePathSegments(dStr: string): PathSegment[] {
 }
 
 export interface PathLengthStruct {
-  command: string
   lerpFn: (t: number) => IVec2
   length: number
 }
@@ -533,12 +536,11 @@ export function getPathLengthStructs(
   split = configs.bezierSplitSize
 ): PathLengthStruct[] {
   return parsePathSegments(dStr).map((seg) => ({
-    command: seg.command,
-    lerpFn: seg.lerpFn,
+    lerpFn: seg.curve
+      ? seg.lerpFn
+      : (t) => geo.lerpPoint(seg.segment[0], seg.segment[1], t),
     length: geo.getPolylineLength(
-      seg.curve
-        ? geo.getApproPoints(seg.lerpFn, split)
-        : [seg.lerpFn(0), seg.lerpFn(1)]
+      seg.curve ? geo.getApproPoints(seg.lerpFn, split) : seg.segment
     ),
   }))
 }
@@ -614,13 +616,19 @@ export function parsePathD(
   dStr: string,
   split = configs.bezierSplitSize
 ): IVec2[] {
-  return parsePathSegments(dStr)
-    .filter((seg) => seg.command.toUpperCase() !== 'Z')
-    .flatMap((seg) =>
-      seg.curve
-        ? geo.getApproPoints(seg.lerpFn, split).slice(1)
-        : [seg.lerpFn(1)]
-    )
+  let ret: IVec2[] = []
+  parsePathSegments(dStr).forEach((seg) => {
+    if (seg.command === 'Z' || seg.command === 'z') return
+
+    if (seg.curve) {
+      const list = geo.getApproPoints(seg.lerpFn, split)
+      list.shift()
+      ret = ret.concat(list)
+    } else {
+      ret.push(seg.segment[1])
+    }
+  })
+  return ret
 }
 
 /**

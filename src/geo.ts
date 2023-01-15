@@ -789,10 +789,17 @@ export function getPointOnBezier2(
   rate: number
 ): IVec2 {
   const t = rate
-  const c0 = multi(pointList[0], (1 - t) * (1 - t))
-  const c1 = multi(pointList[1], 2 * t * (1 - t))
+  const nt = 1 - t
+  const c0 = multi(pointList[0], nt * nt)
+  const c1 = multi(pointList[1], 2 * t * nt)
   const c2 = multi(pointList[2], t * t)
   return vec(c0.x + c1.x + c2.x, c0.y + c1.y + c2.y)
+}
+
+export function getBezier2LerpFn(
+  pointList: Readonly<[IVec2, IVec2, IVec2]>
+): (t: number) => IVec2 {
+  return (t) => getPointOnBezier2(pointList, t)
 }
 
 /**
@@ -806,11 +813,18 @@ export function getPointOnBezier3(
   rate: number
 ): IVec2 {
   const t = rate
-  const c0 = multi(pointList[0], (1 - t) * (1 - t) * (1 - t))
-  const c1 = multi(pointList[1], 3 * t * (1 - t) * (1 - t))
-  const c2 = multi(pointList[2], 3 * t * t * (1 - t))
+  const nt = 1 - t
+  const c0 = multi(pointList[0], nt * nt * nt)
+  const c1 = multi(pointList[1], 3 * t * nt * nt)
+  const c2 = multi(pointList[2], 3 * t * t * nt)
   const c3 = multi(pointList[3], t * t * t)
   return vec(c0.x + c1.x + c2.x + c3.x, c0.y + c1.y + c2.y + c3.y)
+}
+
+export function getBezier3LerpFn(
+  pointList: Readonly<[IVec2, IVec2, IVec2, IVec2]>
+): (t: number) => IVec2 {
+  return (t) => getPointOnBezier3(pointList, t)
 }
 
 /**
@@ -975,14 +989,11 @@ export function getApproPoints(
     return [lerpFn(0), lerpFn(1)]
   }
 
+  const points: IVec2[] = []
   let step = 1 / split
-  let points: IVec2[] = []
-
   for (let i = 0; i <= split; i++) {
-    let q = lerpFn(step * i)
-    points.push(q)
+    points.push(lerpFn(step * i))
   }
-
   return points
 }
 
