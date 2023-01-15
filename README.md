@@ -50,4 +50,4 @@ $ yarn demo
 ```
 
 ## publish
-Update `version` in `package.json`, commit with a comment `Release x.x.x` and merge into the `main` branch.
+Create new release on Github.
