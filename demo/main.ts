@@ -2,6 +2,44 @@ import * as geo from '../src/geo'
 import * as svg from '../src/svg'
 import { ISvgPath } from '../src/types'
 
+const count = 100000
+
+{
+  svg.configs.bezierSplitSize = 100
+  svg.configs.ellipseSplitSize = 100
+  console.log('okageo')
+  console.log(geo.getPolylineLength(svg.parsePathD('M 25 25 Q 175 25 175 175')))
+  console.log(
+    geo.getPolylineLength(svg.parsePathD('M 75,100 A 1,4 0 0,1 125,100'))
+  )
+  const start = Date.now()
+  let d = 0
+  let i = 0
+  for (i = 0; i < count; i++) {
+    d += geo.getPolylineLength(svg.parsePathD('M 25 25 Q 175 25 175 175'))
+    d += geo.getPolylineLength(svg.parsePathD('M 75,100 A 1,4 0 0,1 125,100'))
+  }
+  const end = Date.now()
+  console.log(i, d, end - start)
+}
+
+{
+  svg.configs.bezierSplitSize = 100
+  svg.configs.ellipseSplitSize = 100
+  console.log('okageo')
+  console.log(svg.getPathTotalLength('M 25 25 Q 175 25 175 175'))
+  console.log(svg.getPathTotalLength('M 75,100 A 1,4 0 0,1 125,100'))
+  const start = Date.now()
+  let d = 0
+  let i = 0
+  for (i = 0; i < count; i++) {
+    d += svg.getPathTotalLength('M 25 25 Q 175 25 175 175')
+    d += svg.getPathTotalLength('M 75,100 A 1,4 0 0,1 125,100')
+  }
+  const end = Date.now()
+  console.log(i, d, end - start)
+}
+
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext('2d')
 if (ctx) {
