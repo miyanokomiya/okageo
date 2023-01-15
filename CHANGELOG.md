@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.4] - 2023-01-15
+### Fixed
+- Fix `getArcLerpFn` not to deal with complex number
+
 ## [3.0.3] - 2023-01-11
 ### Added
 - Add new argument for `parsePathD` to adjust its accuracy

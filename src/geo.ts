@@ -914,7 +914,7 @@ export function approximateArcWithPoint(
   radian: number,
   size: number
 ): IVec2[] {
-  if (rx * ry < MINVALUE) {
+  if (Math.abs(rx * ry) < MINVALUE) {
     return [startPoint, endPoint]
   }
   return getApproPoints(
@@ -932,7 +932,7 @@ export function getArcLerpFn(
   sweepFlag: boolean,
   radian: number
 ): (t: number) => IVec2 {
-  if (rx * ry < MINVALUE) {
+  if (Math.abs(rx * ry) < MINVALUE) {
     return (t) => lerpPoint(p0, p1, t)
   }
 
@@ -953,7 +953,9 @@ export function getArcLerpFn(
   const b = multi(
     multi(
       vec((rxa * a.y) / rya, (-rya * a.x) / rxa),
-      Math.sqrt((rx2 * ry2 - rx2 * ay2 - ry2 * ax2) / (rx2 * ay2 + ry2 * ax2))
+      Math.sqrt(
+        Math.max(0, rx2 * ry2 - rx2 * ay2 - ry2 * ax2) / (rx2 * ay2 + ry2 * ax2)
+      )
     ),
     largeArcFlag === sweepFlag ? -1 : 1
   )
