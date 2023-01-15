@@ -1647,6 +1647,17 @@ describe('getPathPointAtLength', () => {
     expect(svg.getPathPointAtLength(d, 19)).toEqual({ x: 20, y: 20 })
     expect(svg.getPathPointAtLength(d, 20)).toEqual({ x: 20, y: 20 })
   })
+
+  it('reported case: should avoid NaN', () => {
+    const d = 'M75,100 A1 4 11 0 1 125,100'
+    const length = svg.getPathTotalLength(d)
+    const res0 = svg.getPathPointAtLength(d, 0)
+    expect(res0.x).toBeCloseTo(75)
+    expect(res0.y).toBeCloseTo(100)
+    const res1 = svg.getPathPointAtLength(d, length)
+    expect(res1.x).toBeCloseTo(125)
+    expect(res1.y).toBeCloseTo(100)
+  })
 })
 
 describe('parsePathD', () => {

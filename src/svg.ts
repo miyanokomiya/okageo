@@ -583,7 +583,9 @@ export function getPathPointAtLengthFromStructs(
       l -= s.length
     }
   }
-  return structs[structs.length - 1].lerpFn(1)
+  return structs.length > 0
+    ? structs[structs.length - 1].lerpFn(1)
+    : geo.vec(0, 0)
 }
 
 /**
