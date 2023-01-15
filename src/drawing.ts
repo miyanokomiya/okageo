@@ -123,7 +123,7 @@ export function resizeRectByLeftTop(
     x: org.x,
     y: org.y,
   }
-  const diag = [base, { x: org.x + org.width, y: org.y + org.height }]
+  const diag = [base, geo.vec(org.x + org.width, org.y + org.height)]
   const adjusted = geo.sub(geo.getPedal(geo.add(base, diff), diag), base)
   return resizeRectByTop(resizeRectByLeft(org, adjusted.x), adjusted.y)
 }
@@ -147,7 +147,7 @@ export function resizeRectByRightTop(
     x: org.x + org.width,
     y: org.y,
   }
-  const diag = [base, { x: org.x, y: org.y + org.height }]
+  const diag = [base, geo.vec(org.x, org.y + org.height)]
   const adjusted = geo.sub(geo.getPedal(geo.add(base, diff), diag), base)
   return resizeRectByTop(resizeRectByRight(org, adjusted.x), adjusted.y)
 }
@@ -195,7 +195,7 @@ export function resizeRectByLeftBottom(
     x: org.x,
     y: org.y + org.height,
   }
-  const diag = [base, { x: org.x + org.width, y: org.y }]
+  const diag = [base, geo.vec(org.x + org.width, org.y)]
   const adjusted = geo.sub(geo.getPedal(geo.add(base, diff), diag), base)
   return resizeRectByBottom(resizeRectByLeft(org, adjusted.x), adjusted.y)
 }

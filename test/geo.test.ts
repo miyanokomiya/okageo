@@ -46,6 +46,30 @@ describe('getDistance 距離取得', () => {
   })
 })
 
+describe('getPolylineLength', () => {
+  it('should return the length of target polyline', () => {
+    expect(
+      geo.getPolylineLength([
+        { x: 0, y: 0 },
+        { x: 3, y: 0 },
+        { x: 3, y: 4 },
+      ])
+    ).toBe(7)
+  })
+  it('should treat target as a polygon when "closed" is true', () => {
+    expect(
+      geo.getPolylineLength(
+        [
+          { x: 0, y: 0 },
+          { x: 3, y: 0 },
+          { x: 3, y: 4 },
+        ],
+        true
+      )
+    ).toBe(12)
+  })
+})
+
 describe('getNorm ノルム取得', () => {
   it('計算結果が正しいこと', () => {
     const a: IVec2 = { x: 3, y: 4 }
@@ -1079,6 +1103,22 @@ describe('approximateArc 円弧近似', () => {
 
 describe('approximateArcWithPoint 楕円の近似', () => {
   it('サイズ1の近似が正しいこと', () => {
+    const res0 = geo.approximateArcWithPoint(
+      1,
+      2,
+      { x: 1, y: 0 },
+      { x: 0, y: 2 },
+      false,
+      false,
+      0,
+      1
+    )
+    expect(res0).toHaveLength(2)
+    expect(res0[0].x).toBeCloseTo(1)
+    expect(res0[0].y).toBeCloseTo(0)
+    expect(res0[1].x).toBeCloseTo(0)
+    expect(res0[1].y).toBeCloseTo(2)
+
     const res = geo.approximateArcWithPoint(
       1,
       2,
@@ -1241,6 +1281,59 @@ describe('approximateArcWithPoint 楕円の近似', () => {
     expect(res[1].y).toBeCloseTo(2)
     expect(res[2].x).toBeCloseTo(2)
     expect(res[2].y).toBeCloseTo(0)
+  })
+})
+
+describe('getArcLerpFn', () => {
+  it('should return lerp function for arc path', () => {
+    const res = geo.getArcLerpFn(
+      1,
+      1,
+      { x: Math.sqrt(3) / 2, y: 1 / 2 },
+      { x: Math.sqrt(3) / 2, y: -1 / 2 },
+      false,
+      true,
+      Math.PI / 2
+    )
+    expect(res(0).x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res(0).y).toBeCloseTo(1 / 2)
+    expect(res(0.5).x).toBeCloseTo(Math.sqrt(3) - 1)
+    expect(res(0.5).y).toBeCloseTo(0)
+    expect(res(1).x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res(1).y).toBeCloseTo(-1 / 2)
+  })
+})
+
+describe('lerpPoint', () => {
+  it('should lerp between points', () => {
+    const res = geo.lerpPoint({ x: 10, y: 20 }, { x: 110, y: 220 }, 0.2)
+    expect(res.x).toBeCloseTo(30)
+    expect(res.y).toBeCloseTo(60)
+  })
+})
+
+describe('getApproPoints', () => {
+  it('should return splited points', () => {
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 0)).toEqual([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+    ])
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 1)).toEqual([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+    ])
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 2)).toEqual([
+      { x: 0, y: 0 },
+      { x: 0.5, y: 0 },
+      { x: 1, y: 0 },
+    ])
+    expect(geo.getApproPoints((t) => ({ x: t, y: 0 }), 4)).toEqual([
+      { x: 0, y: 0 },
+      { x: 0.25, y: 0 },
+      { x: 0.5, y: 0 },
+      { x: 0.75, y: 0 },
+      { x: 1, y: 0 },
+    ])
   })
 })
 

@@ -4,16 +4,20 @@ export const MINVALUE: number = 0.000001
 
 export const IDENTITY_AFFINE: AffineMatrix = [1, 0, 0, 1, 0, 0]
 
+export function vec(x: number, y: number): IVec2 {
+  return { x, y }
+}
+
 export function add(a: IVec2, b: IVec2): IVec2 {
-  return { x: a.x + b.x, y: a.y + b.y }
+  return vec(a.x + b.x, a.y + b.y)
 }
 
 export function sub(a: IVec2, b: IVec2): IVec2 {
-  return { x: a.x - b.x, y: a.y - b.y }
+  return vec(a.x - b.x, a.y - b.y)
 }
 
 export function multi(a: IVec2, b: number): IVec2 {
-  return { x: a.x * b, y: a.y * b }
+  return vec(a.x * b, a.y * b)
 }
 
 export function isSame(a: IVec2, b: IVec2): boolean {
@@ -23,6 +27,19 @@ export function isSame(a: IVec2, b: IVec2): boolean {
 
 export function getDistance(a: IVec2, b: IVec2): number {
   return getNorm(sub(a, b))
+}
+
+export function getPolylineLength(polyline: IVec2[], closed = false): number {
+  if (polyline.length < 2) return 0
+
+  let ret = 0
+  for (let i = 0; i < polyline.length - 1; i++) {
+    ret += getDistance(polyline[i], polyline[i + 1])
+  }
+  if (closed) {
+    ret += getDistance(polyline[polyline.length - 1], polyline[0])
+  }
+  return ret
 }
 
 export function getNorm(a: IVec2): number {
@@ -56,22 +73,19 @@ export function getCenter(a: IVec2, b: IVec2): IVec2 {
 }
 
 export function getRectCenter(rec: IRectangle): IVec2 {
-  return {
-    x: rec.x + rec.width / 2,
-    y: rec.y + rec.height / 2,
-  }
+  return vec(rec.x + rec.width / 2, rec.y + rec.height / 2)
 }
 
 export function getPolygonCenter(polygon: IVec2[]): IVec2 {
-  if (polygon.length === 0) return { x: 0, y: 0 }
+  if (polygon.length === 0) return vec(0, 0)
 
   return multi(
-    polygon.reduce((p, c) => add(p, c), { x: 0, y: 0 }),
+    polygon.reduce((p, c) => add(p, c), vec(0, 0)),
     1 / polygon.length
   )
 }
 
-export function getRadian(a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
+export function getRadian(a: IVec2, from: IVec2 = vec(0, 0)): number {
   const dif = sub(a, from)
   return Math.atan2(dif.y, dif.x)
 }
@@ -82,7 +96,7 @@ export function getRadian(a: IVec2, from: IVec2 = { x: 0, y: 0 }): number {
  * @param from 基点
  * @param 点対称ベクトル
  */
-export function getSymmetry(a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
+export function getSymmetry(a: IVec2, from: IVec2 = vec(0, 0)): IVec2 {
   return add(multi(sub(from, a), 2), a)
 }
 
@@ -96,16 +110,38 @@ export function getSymmetry(a: IVec2, from: IVec2 = { x: 0, y: 0 }): IVec2 {
 export function rotate(
   a: IVec2,
   radian: number,
-  from: IVec2 = { x: 0, y: 0 }
+  from: IVec2 = vec(0, 0)
 ): IVec2 {
-  const fromBase: IVec2 = sub(a, from)
+  const fromBase = sub(a, from)
+  const s = Math.sin(radian)
+  const c = Math.cos(radian)
   return add(
-    {
-      x: Math.cos(radian) * fromBase.x - Math.sin(radian) * fromBase.y,
-      y: Math.sin(radian) * fromBase.x + Math.cos(radian) * fromBase.y,
-    },
+    vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y),
     from
   )
+}
+
+function getRotateFn(
+  radian: number,
+  from: IVec2 = vec(0, 0)
+): (a: IVec2, reverse?: boolean) => IVec2 {
+  const s = Math.sin(radian)
+  const c = Math.cos(radian)
+  return (a, reverse) => {
+    const fromBase = sub(a, from)
+    return reverse
+      ? add(
+          vec(
+            c * fromBase.x + s * fromBase.y,
+            -s * fromBase.x + c * fromBase.y
+          ),
+          from
+        )
+      : add(
+          vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y),
+          from
+        )
+  }
 }
 
 /**
@@ -205,10 +241,12 @@ export function getCrossLineAndBezier(
 ) {
   return rayToBezier(p0, p1, p2, p, q)
     .filter((t) => 0 <= t && t <= 1)
-    .map((t) => ({
-      x: (p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x,
-      y: (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y,
-    }))
+    .map((t) =>
+      vec(
+        (p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x,
+        (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y
+      )
+    )
 }
 
 /**
@@ -319,7 +357,7 @@ function isCrossSegAndRightHorizon(p: IVec2, seg: IVec2[]): boolean {
   }
 
   // 交点は厳密にpの右側でなければいけない
-  const cross = getCrossSegAndLine(seg, [p, { x: p.x + 1, y: p.y }])
+  const cross = getCrossSegAndLine(seg, [p, vec(p.x + 1, p.y)])
   if (!cross || cross.x <= p.x) {
     return false
   }
@@ -379,10 +417,10 @@ export function getCrossSegAndLine(seg: IVec2[], line: IVec2[]): IVec2 | null {
   const isExistCorss = 0 < rate && rate < 1
 
   return isExistCorss
-    ? {
-        x: seg[0].x + (seg[1].x - seg[0].x) * rate,
-        y: seg[0].y + (seg[1].y - seg[0].y) * rate,
-      }
+    ? vec(
+        seg[0].x + (seg[1].x - seg[0].x) * rate,
+        seg[0].y + (seg[1].y - seg[0].y) * rate
+      )
     : null
 }
 
@@ -481,17 +519,11 @@ export function splitPolyByLine(pol: IVec2[], line: IVec2[]): IVec2[][] {
   let splitPol = []
   // 交点まで追加
   for (let i = 0; i <= crossIndex[0]; i++) {
-    splitPol.push({
-      x: points[i].x,
-      y: points[i].y,
-    })
+    splitPol.push(vec(points[i].x, points[i].y))
   }
   // 交点から追加
   for (let i = crossIndex[1]; i < points.length; i++) {
-    splitPol.push({
-      x: points[i].x,
-      y: points[i].y,
-    })
+    splitPol.push(vec(points[i].x, points[i].y))
   }
   // 確定
   splitedPolygons.push(splitPol)
@@ -500,10 +532,7 @@ export function splitPolyByLine(pol: IVec2[], line: IVec2[]): IVec2[][] {
   splitPol = []
   // 交点から交点まで追加
   for (let i = crossIndex[0]; i <= crossIndex[1]; i++) {
-    splitPol.push({
-      x: points[i].x,
-      y: points[i].y,
-    })
+    splitPol.push(vec(points[i].x, points[i].y))
   }
   // 確定
   splitedPolygons.push(splitPol)
@@ -760,13 +789,17 @@ export function getPointOnBezier2(
   rate: number
 ): IVec2 {
   const t = rate
-  const c0 = multi(pointList[0], (1 - t) * (1 - t))
-  const c1 = multi(pointList[1], 2 * t * (1 - t))
+  const nt = 1 - t
+  const c0 = multi(pointList[0], nt * nt)
+  const c1 = multi(pointList[1], 2 * t * nt)
   const c2 = multi(pointList[2], t * t)
-  return {
-    x: c0.x + c1.x + c2.x,
-    y: c0.y + c1.y + c2.y,
-  }
+  return vec(c0.x + c1.x + c2.x, c0.y + c1.y + c2.y)
+}
+
+export function getBezier2LerpFn(
+  pointList: Readonly<[IVec2, IVec2, IVec2]>
+): (t: number) => IVec2 {
+  return (t) => getPointOnBezier2(pointList, t)
 }
 
 /**
@@ -780,14 +813,18 @@ export function getPointOnBezier3(
   rate: number
 ): IVec2 {
   const t = rate
-  const c0 = multi(pointList[0], (1 - t) * (1 - t) * (1 - t))
-  const c1 = multi(pointList[1], 3 * t * (1 - t) * (1 - t))
-  const c2 = multi(pointList[2], 3 * t * t * (1 - t))
+  const nt = 1 - t
+  const c0 = multi(pointList[0], nt * nt * nt)
+  const c1 = multi(pointList[1], 3 * t * nt * nt)
+  const c2 = multi(pointList[2], 3 * t * t * nt)
   const c3 = multi(pointList[3], t * t * t)
-  return {
-    x: c0.x + c1.x + c2.x + c3.x,
-    y: c0.y + c1.y + c2.y + c3.y,
-  }
+  return vec(c0.x + c1.x + c2.x + c3.x, c0.y + c1.y + c2.y + c3.y)
+}
+
+export function getBezier3LerpFn(
+  pointList: Readonly<[IVec2, IVec2, IVec2, IVec2]>
+): (t: number) => IVec2 {
+  return (t) => getPointOnBezier3(pointList, t)
 }
 
 /**
@@ -843,29 +880,19 @@ export function approximateArc(
   const ret = []
   const range = endRadian - startRadian
   const unitT = range / size
+  const rotateFn = getRotateFn(radian)
 
   for (let i = 0; i <= size; i++) {
     const t = unitT * i + startRadian - radian
-    ret.push(
-      add(
-        rotate(
-          {
-            x: rx * Math.cos(t),
-            y: ry * Math.sin(t),
-          },
-          radian
-        ),
-        center
-      )
-    )
+    ret.push(add(rotateFn(vec(rx * Math.cos(t), ry * Math.sin(t))), center))
   }
 
   return ret
 }
 
 /**
- * ２点指定の円弧を直線で近似する
- * https://triple-underscore.github.io/SVG11/paths.html#PathDataEllipticalArcCommands
+ * Approximate arc path as a polyline
+ * https://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
  * @method approximateArcWithPoint
  * @param rx x軸半径
  * @param ry y軸半径
@@ -887,96 +914,87 @@ export function approximateArcWithPoint(
   radian: number,
   size: number
 ): IVec2[] {
-  // 範囲外の径の修正
-  // https://triple-underscore.github.io/SVG11/implnote.html#ArcImplementationNotes
-  // 径長ゼロを弾く
-  if (rx * ry === 0) return [startPoint, endPoint]
-
-  // 負の径長を訂正する
-  rx = Math.abs(rx)
-  ry = Math.abs(ry)
-
-  // 楕円中心取得
-  const centerInfo = getEllipseCenter(startPoint, endPoint, rx, ry, radian)
-  const centers = centerInfo.centers
-
-  // 径長を十分大きくする
-  rx *= centerInfo.radiusRate
-  ry *= centerInfo.radiusRate
-
-  let center = null
-
-  if ((largeArcFlag && sweepFlag) || (!largeArcFlag && !sweepFlag)) {
-    // 時計回り＆大きい側
-    // 反時計回り＆小さい側
-    // →始点終点中心が反時計回りになる
-    if (getLoopwise([startPoint, endPoint, centers[0]]) < 0) {
-      center = centers[0]
-    } else {
-      center = centers[1]
-    }
-  } else {
-    if (getLoopwise([startPoint, endPoint, centers[0]]) > 0) {
-      center = centers[0]
-    } else {
-      center = centers[1]
-    }
+  if (rx * ry < MINVALUE) {
+    return [startPoint, endPoint]
   }
-
-  // 回り方に応じて始点と終点を設定
-  let startRadian = 0
-  let endRadian = 0
-  const r1 = getRadianOnArc(startPoint, rx, center, radian)
-  const r2 = getRadianOnArc(endPoint, rx, center, radian)
-  if (sweepFlag) {
-    if (r1 > r2) {
-      startRadian = r1 - Math.PI * 2
-      endRadian = r2
-    } else {
-      startRadian = r1
-      endRadian = r2
-    }
-  } else {
-    if (r1 > r2) {
-      startRadian = r1
-      endRadian = r2
-    } else {
-      startRadian = r1
-      endRadian = r2 - Math.PI * 2
-    }
-  }
-
-  return approximateArc(rx, ry, startRadian, endRadian, center, radian, size)
+  return getApproPoints(
+    getArcLerpFn(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian),
+    size
+  )
 }
 
-/**
- * 円弧上の点の角度を求める
- * @param a 円弧上の点
- * @param rx x径長
- * @param center 中心座標
- * @param radian 傾き
- * @return ラジアン(0 <= t <= 2 * Math.PI)
- */
-function getRadianOnArc(
-  a: IVec2,
+export function getArcLerpFn(
   rx: number,
-  center: IVec2,
+  ry: number,
+  startPoint: IVec2,
+  endPoint: IVec2,
+  largeArcFlag: boolean,
+  sweepFlag: boolean,
   radian: number
-): number {
-  // 回転打ち消し
-  a = rotate(a, -radian, center)
-  let ret = Math.acos((a.x - center.x) / rx)
-
-  // y座標の位置をみて絞り込み
-  if (a.y - center.y < 0) {
-    ret = -ret + Math.PI * 2
+): (t: number) => IVec2 {
+  if (rx * ry < MINVALUE) {
+    return (t) => lerpPoint(p0, p1, t)
   }
 
-  // 回転戻す
-  ret += radian
-  ret %= Math.PI * 2
+  const r = radian
+  const rotateFn = getRotateFn(r)
+  const p0 = startPoint
+  const p1 = endPoint
+  const a = rotateFn(vec((p0.x - p1.x) / 2, (p0.y - p1.y) / 2), true)
+  const ax2 = a.x * a.x
+  const ay2 = a.y * a.y
 
-  return ret
+  const l = ax2 / rx / rx + ay2 / ry / ry
+  const lsqrt = l > 1 ? Math.sqrt(l) : 1
+  const { x: rxa, y: rya } = vec(Math.abs(rx) * lsqrt, Math.abs(ry) * lsqrt)
+
+  const rx2 = rxa * rxa
+  const ry2 = rya * rya
+  const b = multi(
+    multi(
+      vec((rxa * a.y) / rya, (-rya * a.x) / rxa),
+      Math.sqrt((rx2 * ry2 - rx2 * ay2 - ry2 * ax2) / (rx2 * ay2 + ry2 * ax2))
+    ),
+    largeArcFlag === sweepFlag ? -1 : 1
+  )
+
+  const c = add(rotateFn(b), multi(add(p0, p1), 0.5))
+
+  const u = vec((a.x - b.x) / rxa, (a.y - b.y) / rya)
+  const v = vec((-a.x - b.x) / rxa, (-a.y - b.y) / rya)
+  const theta = getRadian(u)
+  const dtheta_tmp = (getRadian(v) - getRadian(u)) % (2 * Math.PI)
+  const dtheta =
+    !sweepFlag && 0 < dtheta_tmp
+      ? dtheta_tmp - 2 * Math.PI
+      : sweepFlag && dtheta_tmp < 0
+      ? dtheta_tmp + 2 * Math.PI
+      : dtheta_tmp
+
+  return (t) => {
+    const dr = theta + dtheta * t
+    return add(rotateFn(vec(rxa * Math.cos(dr), rya * Math.sin(dr))), c)
+  }
+}
+
+export function lerpPoint(a: IVec2, b: IVec2, t: number): IVec2 {
+  return add(a, multi(sub(b, a), t))
+}
+
+export function getApproPoints(
+  lerpFn: (t: number) => IVec2,
+  split: number
+): IVec2[] {
+  if (split <= 1) {
+    return [lerpFn(0), lerpFn(1)]
+  }
+
+  const points: IVec2[] = []
+  let step = 1 / split
+  for (let i = 0; i <= split; i++) {
+    points.push(lerpFn(step * i))
+  }
+  return points
 }
 
 /**
@@ -1001,28 +1019,16 @@ export function getEllipseCenter(
   b = rotate(b, -radian)
 
   // 媒介変数を利用して円の中心問題にする
-  const A = {
-    x: a.x / rx,
-    y: a.y / ry,
-  }
-  const B = {
-    x: b.x / rx,
-    y: b.y / ry,
-  }
+  const A = vec(a.x / rx, a.y / ry)
+  const B = vec(b.x / rx, b.y / ry)
 
   // 円の中心取得
   const centerInfo = getCircleCenter(A, B, 1)
   const C = centerInfo.centers
 
   // 楕円に戻す
-  let ans1 = {
-    x: C[0].x * rx,
-    y: C[0].y * ry,
-  }
-  let ans2 = {
-    x: C[1].x * rx,
-    y: C[1].y * ry,
-  }
+  let ans1 = vec(C[0].x * rx, C[0].y * ry)
+  let ans2 = vec(C[1].x * rx, C[1].y * ry)
 
   // 回転を戻す
   ans1 = rotate(ans1, radian)
@@ -1063,14 +1069,8 @@ export function getCircleCenter(
   }
 
   const t = Math.sqrt(t2)
-  const ans1 = {
-    x: u1 + v2 * t,
-    y: v1 - u2 * t,
-  }
-  const ans2 = {
-    x: u1 - v2 * t,
-    y: v1 + u2 * t,
-  }
+  const ans1 = vec(u1 + v2 * t, v1 - u2 * t)
+  const ans2 = vec(u1 - v2 * t, v1 + u2 * t)
 
   return {
     centers: [ans1, ans2],
@@ -1095,10 +1095,7 @@ export function transform(points: IVec2[], params: number[]): IVec2[] {
   const e = params[4]
   const f = params[5]
 
-  return points.map((p) => ({
-    x: a * p.x + c * p.y + e,
-    y: b * p.x + d * p.y + f,
-  }))
+  return points.map((p) => vec(a * p.x + c * p.y + e, b * p.x + d * p.y + f))
 }
 
 /**
@@ -1152,14 +1149,14 @@ export function multiAffines(affines: AffineMatrix[]): AffineMatrix {
 /**
  * apply affine
  * @param affine affine matrix
- * @param vec vector2
- * @return affine x vec
+ * @param v vector2
+ * @return affine x v
  */
-export function applyAffine(affine: AffineMatrix, vec: IVec2): IVec2 {
-  return {
-    x: affine[0] * vec.x + affine[2] * vec.y + affine[4],
-    y: affine[1] * vec.x + affine[3] * vec.y + affine[5],
-  }
+export function applyAffine(affine: AffineMatrix, v: IVec2): IVec2 {
+  return vec(
+    affine[0] * v.x + affine[2] * v.y + affine[4],
+    affine[1] * v.x + affine[3] * v.y + affine[5]
+  )
 }
 
 /**
@@ -1380,10 +1377,7 @@ export function getGrid(
   let x = minX + dX
   while (x < maxX) {
     if (minX < x && x < maxX) {
-      gridList.push([
-        { x, y: minY },
-        { x, y: maxY },
-      ])
+      gridList.push([vec(x, minY), vec(x, maxY)])
     }
     x += gridSize
   }
@@ -1391,10 +1385,7 @@ export function getGrid(
   let y = minY + dY
   while (y < maxY) {
     if (minY < y && y < maxY) {
-      gridList.push([
-        { x: minX, y },
-        { x: maxX, y },
-      ])
+      gridList.push([vec(minX, y), vec(maxX, y)])
     }
     y += gridSize
   }
@@ -1464,10 +1455,10 @@ export function interpolateScaler(
  * @return interpolated value
  */
 export function interpolateVector(from: IVec2, to: IVec2, rate: number): IVec2 {
-  return {
-    x: interpolateScaler(from.x, to.x, rate),
-    y: interpolateScaler(from.y, to.y, rate),
-  }
+  return vec(
+    interpolateScaler(from.x, to.x, rate),
+    interpolateScaler(from.y, to.y, rate)
+  )
 }
 
 /**
