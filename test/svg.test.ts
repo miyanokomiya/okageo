@@ -1609,6 +1609,46 @@ describe('parseMatrix', () => {
   })
 })
 
+describe('getPathLengthStructs', () => {
+  it('should return length information of each path segment', () => {
+    const res0 = svg.getPathLengthStructs(
+      'M0,0 L3,0 L3,4 M10,10 L13,10 L13,14z M20,20 Q20,30 30,30'
+    )
+    expect(res0).toHaveLength(9)
+    expect(res0[0].length).toBeCloseTo(0)
+    expect(res0[1].length).toBeCloseTo(3)
+    expect(res0[2].length).toBeCloseTo(4)
+    expect(res0[3].length).toBeCloseTo(0)
+    expect(res0[4].length).toBeCloseTo(3)
+    expect(res0[5].length).toBeCloseTo(4)
+    expect(res0[6].length).toBeCloseTo(5)
+    expect(res0[7].length).toBeCloseTo(0)
+    expect(res0[8].length).toBeCloseTo(16.21557117)
+  })
+})
+
+describe('getPathTotalLength', () => {
+  it('should return total length of the path', () => {
+    const res = svg.getPathTotalLength(
+      'M0,0 L3,0 L3,4 M10,10 L13,10 L13,14z M20,20'
+    )
+    expect(res).toBeCloseTo(19)
+  })
+})
+
+describe('getPathPointAtLength', () => {
+  it('should return the point at target length of the path', () => {
+    const d = 'M0,0 L3,0 L3,4 M10,10 L13,10 L13,14z M20,20'
+    expect(svg.getPathPointAtLength(d, -1)).toEqual({ x: 0, y: 0 })
+    expect(svg.getPathPointAtLength(d, 0)).toEqual({ x: 0, y: 0 })
+    expect(svg.getPathPointAtLength(d, 2)).toEqual({ x: 2, y: 0 })
+    expect(svg.getPathPointAtLength(d, 4)).toEqual({ x: 3, y: 1 })
+    expect(svg.getPathPointAtLength(d, 8)).toEqual({ x: 11, y: 10 })
+    expect(svg.getPathPointAtLength(d, 19)).toEqual({ x: 20, y: 20 })
+    expect(svg.getPathPointAtLength(d, 20)).toEqual({ x: 20, y: 20 })
+  })
+})
+
 describe('parsePathD', () => {
   it('should approximate curves via "split" option', () => {
     const d = 'M0 0 Q 10 0 10 10'

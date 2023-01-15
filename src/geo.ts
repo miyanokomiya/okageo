@@ -29,6 +29,19 @@ export function getDistance(a: IVec2, b: IVec2): number {
   return getNorm(sub(a, b))
 }
 
+export function getPolylineLength(polyline: IVec2[], closed = false): number {
+  if (polyline.length < 2) return 0
+
+  let ret = 0
+  for (let i = 0; i < polyline.length - 1; i++) {
+    ret += getDistance(polyline[i], polyline[i + 1])
+  }
+  if (closed) {
+    ret += getDistance(polyline[polyline.length - 1], polyline[0])
+  }
+  return ret
+}
+
 export function getNorm(a: IVec2): number {
   return Math.sqrt(a.x * a.x + a.y * a.y)
 }

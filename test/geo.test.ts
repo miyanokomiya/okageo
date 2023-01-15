@@ -46,6 +46,30 @@ describe('getDistance 距離取得', () => {
   })
 })
 
+describe('getPolylineLength', () => {
+  it('should return the length of target polyline', () => {
+    expect(
+      geo.getPolylineLength([
+        { x: 0, y: 0 },
+        { x: 3, y: 0 },
+        { x: 3, y: 4 },
+      ])
+    ).toBe(7)
+  })
+  it('should treat target as a polygon when "closed" is true', () => {
+    expect(
+      geo.getPolylineLength(
+        [
+          { x: 0, y: 0 },
+          { x: 3, y: 0 },
+          { x: 3, y: 4 },
+        ],
+        true
+      )
+    ).toBe(12)
+  })
+})
+
 describe('getNorm ノルム取得', () => {
   it('計算結果が正しいこと', () => {
     const a: IVec2 = { x: 3, y: 4 }
