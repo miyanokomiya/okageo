@@ -4,41 +4,65 @@ import { ISvgPath } from '../src/types'
 
 const count = 100000
 
-{
-  svg.configs.bezierSplitSize = 100
-  svg.configs.ellipseSplitSize = 100
-  console.log('okageo')
-  console.log(geo.getPolylineLength(svg.parsePathD('M 25 25 Q 175 25 175 175')))
-  console.log(
-    geo.getPolylineLength(svg.parsePathD('M 75,100 A 1,4 0 0,1 125,100'))
-  )
-  const start = Date.now()
-  let d = 0
-  let i = 0
-  for (i = 0; i < count; i++) {
-    d += geo.getPolylineLength(svg.parsePathD('M 25 25 Q 175 25 175 175'))
-    d += geo.getPolylineLength(svg.parsePathD('M 75,100 A 1,4 0 0,1 125,100'))
-  }
-  const end = Date.now()
-  console.log(i, d, end - start)
-}
+// {
+//   const start = Date.now()
+//   let d: any[] = []
+//   let i = 0
+//   for (i = 0; i < count; i++) {
+//     // let a: any[] = []
+//     // ;[...Array(10)].forEach((_, i) => (a = a.concat([...Array(10)])))
+//     // d = d.concat(a)
+//     ;[...Array(10)].forEach((_, i) => (d.push(...[...Array(10)])))
+//   }
+//   const end = Date.now()
+//   console.log(i, d.length, end - start)
+// }
+//
+// {
+//   const start = Date.now()
+//   let d: any[] = []
+//   let i = 0
+//   for (i = 0; i < count; i++) {
+//     d = d.concat([...Array(10)].flatMap((_, i) => [...Array(10)]))
+//   }
+//   const end = Date.now()
+//   console.log(i, d.length, end - start)
+// }
 
 {
   svg.configs.bezierSplitSize = 100
   svg.configs.ellipseSplitSize = 100
   console.log('okageo')
-  console.log(svg.getPathTotalLength('M 25 25 Q 175 25 175 175'))
-  console.log(svg.getPathTotalLength('M 75,100 A 1,4 0 0,1 125,100'))
   const start = Date.now()
   let d = 0
   let i = 0
   for (i = 0; i < count; i++) {
-    d += svg.getPathTotalLength('M 25 25 Q 175 25 175 175')
-    d += svg.getPathTotalLength('M 75,100 A 1,4 0 0,1 125,100')
+    d += geo.getPolylineLength(
+      svg.parsePathD(
+        'M 25 25 q 75 25 75 75 q 75 25 75 75 q 75 25 75 75 q 75 25 75 75'
+      )
+    )
   }
   const end = Date.now()
   console.log(i, d, end - start)
 }
+
+// {
+//   svg.configs.bezierSplitSize = 100
+//   svg.configs.ellipseSplitSize = 100
+//   console.log('okageo')
+//   console.log(svg.getPathTotalLength('M 25 25 Q 175 25 175 175'))
+//   console.log(svg.getPathTotalLength('M 75,100 A 1,4 0 0,1 125,100'))
+//   const start = Date.now()
+//   let d = 0
+//   let i = 0
+//   for (i = 0; i < count; i++) {
+//     d += svg.getPathTotalLength('M 25 25 Q 175 25 175 175')
+//     d += svg.getPathTotalLength('M 75,100 A 1,4 0 0,1 125,100')
+//   }
+//   const end = Date.now()
+//   console.log(i, d, end - start)
+// }
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext('2d')
