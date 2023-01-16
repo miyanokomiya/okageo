@@ -2,7 +2,8 @@ import { AffineMatrix, ISvgConfigs, ISvgPath, ISvgStyle, IVec2 } from './types'
 import * as geo from './geo'
 
 const HTTP_SVG = 'http://www.w3.org/2000/svg'
-const _parseFloat = parseFloat
+// Unary plus operator seems faster than native parseFloat
+const _parseFloat = (v: string) => +v
 
 export const configs: ISvgConfigs = {
   bezierSplitSize: 10,
@@ -618,14 +619,16 @@ export function parsePathD(
   dStr: string,
   split = configs.bezierSplitSize
 ): IVec2[] {
+  const _split = Math.max(1, split)
   let ret: IVec2[] = []
+  let step = 1 / _split
   parsePathSegments(dStr).forEach((seg) => {
     if (seg.command === 'Z' || seg.command === 'z') return
 
     if (seg.curve) {
-      const list = geo.getApproPoints(seg.lerpFn, split)
-      list.shift()
-      ret = ret.concat(list)
+      for (let i = 1; i <= _split; i++) {
+        ret.push(seg.lerpFn(step * i))
+      }
     } else {
       ret.push(seg.segment[1])
     }
@@ -784,14 +787,15 @@ export function adoptTransform(
   return ret
 }
 
+// All commands (BbRr isn't supported)
+const allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g
+
 /**
  * pathタグd属性文字列を分割する
  * @param dString pathのd要素文字列
  * @return コマンド単位の情報配列の配列
  */
 export function splitD(dString: string): string[][] {
-  // 全コマンドリスト(BbRr非対応)
-  const allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g
   // 要素分割
   const strList = dString
     .replace(allCommand, ' $& ')
@@ -801,47 +805,64 @@ export function splitD(dString: string): string[][] {
   // 直前のコマンド
   let pastCommand = 'M'
 
-  const ret = []
+  const ret: string[][] = []
   for (let i = 0; i < strList.length; ) {
-    let info = []
-    // コマンドがあるか？
+    const info: string[] = []
+    // Check if a command exists
     if (strList[i].match(allCommand)) {
-      // あるので回収
-      info[0] = strList[i].trim()
+      info.push(strList[i])
       pastCommand = info[0]
-      // 進む
       i++
-    } else {
-      // 前回同様
-      info[0] = pastCommand
+    } else if (pastCommand.toUpperCase() !== 'Z') {
+      // Reuse previous command
+      // Avoid reusing 'Z' that can cause infinite loop
+      info.push(pastCommand)
     }
 
-    // 情報数で場合分け
-    if (info[0].match(/Z|z/)) {
-      // 0つ
-    } else if (info[0].match(/V|v|H|h/)) {
-      // 1つ
-      info = info.concat(strList.slice(i, i + 1))
-      i += 1
-    } else if (info[0].match(/M|m|L|l|T|t/)) {
-      // 2つ
-      info = info.concat(strList.slice(i, i + 2))
-      i += 2
-    } else if (info[0].match(/Q|q|S|s/)) {
-      // 4つ
-      info = info.concat(strList.slice(i, i + 4))
-      i += 4
-    } else if (info[0].match(/C|c/)) {
-      // 6つ
-      info = info.concat(strList.slice(i, i + 6))
-      i += 6
-    } else if (info[0].match(/A|a/)) {
-      // 7つ
-      info = info.concat(strList.slice(i, i + 7))
-      i += 7
-    } else {
-      // 不適
-      break
+    switch (info[0].toUpperCase()) {
+      case 'Z':
+        break
+      case 'V':
+      case 'H':
+        info.push(strList[i])
+        i += 1
+        break
+      case 'M':
+      case 'L':
+      case 'T':
+        info.push(strList[i], strList[i + 1])
+        i += 2
+        break
+      case 'Q':
+      case 'S':
+        info.push(strList[i], strList[i + 1], strList[i + 2], strList[i + 3])
+        i += 4
+        break
+      case 'C':
+        info.push(
+          strList[i],
+          strList[i + 1],
+          strList[i + 2],
+          strList[i + 3],
+          strList[i + 4],
+          strList[i + 5]
+        )
+        i += 6
+        break
+      case 'A':
+        info.push(
+          strList[i],
+          strList[i + 1],
+          strList[i + 2],
+          strList[i + 3],
+          strList[i + 4],
+          strList[i + 5],
+          strList[i + 6]
+        )
+        i += 7
+        break
+      default:
+        throw new Error(`Unexpected error`)
     }
 
     ret.push(info)
