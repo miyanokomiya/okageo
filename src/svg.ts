@@ -252,6 +252,32 @@ export function parseOpenPath(fontPath: { commands: any[] }): ISvgPath[] {
   return pathInfoList
 }
 
+export type PathSegmentRaw =
+  | ['Z' | 'z']
+  | ['H' | 'h' | 'V' | 'v', number]
+  | ['M' | 'm' | 'L' | 'l' | 'T' | 't', number, number]
+  | ['Q' | 'q' | 'S' | 's', number, number, number, number]
+  | ['C' | 'c', number, number, number, number, number, number]
+  | ['A' | 'a', number, number, number, boolean, boolean, number, number]
+
+function parsePathSegmentValue(segment: string[]): PathSegmentRaw {
+  if (segment.length === 8) {
+    return [
+      segment[0],
+      _parseFloat(segment[1]),
+      _parseFloat(segment[2]),
+      _parseFloat(segment[3]),
+      segment[4] !== '0',
+      segment[5] !== '0',
+      _parseFloat(segment[6]),
+      _parseFloat(segment[7]),
+    ] as PathSegmentRaw
+  } else {
+    const [c, ...values] = segment
+    return [c, ...values.map(_parseFloat)] as PathSegmentRaw
+  }
+}
+
 type PathSegment =
   | {
       command: string
@@ -269,260 +295,232 @@ export function parsePathSegments(dStr: string): PathSegment[] {
   let startP = geo.vec(0, 0)
   let currentP = geo.vec(0, 0)
   let currentControlP = geo.vec(0, 0)
-  splitD(dStr).forEach((current) => {
-    switch (current[0]) {
-      case 'M': {
-        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        ret.push({ command: 'M', segment: [p1, p1] })
-        startP = p1
-        currentControlP = p1
-        currentP = p1
-        break
+  splitD(dStr)
+    .map((c) => parsePathSegmentValue(c))
+    .forEach((current) => {
+      switch (current[0]) {
+        case 'M': {
+          const p1 = geo.vec(current[1], current[2])
+          ret.push({ command: 'M', segment: [p1, p1] })
+          startP = p1
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'm': {
+          const p1 = geo.vec(current[1], current[2])
+          ret.push({ command: 'm', segment: [p1, p1] })
+          startP = p1
+          currentP = p1
+          currentControlP = p1
+          break
+        }
+        case 'L': {
+          const p0 = currentP
+          const p1 = geo.vec(current[1], current[2])
+          ret.push({ command: 'L', segment: [p0, p1] })
+          startP ??= p1
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'l': {
+          const p0 = currentP
+          const p1 = geo.add(currentP, geo.vec(current[1], current[2]))
+          ret.push({ command: 'l', segment: [p0, p1] })
+          startP ??= p1
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'H': {
+          const p0 = currentP
+          const p1 = geo.vec(current[1], p0.y)
+          ret.push({ command: 'H', segment: [p0, p1] })
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'h': {
+          const p0 = currentP
+          const p1 = geo.vec(current[1] + p0.x, p0.y)
+          ret.push({ command: 'h', segment: [p0, p1] })
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'V': {
+          const p0 = currentP
+          const p1 = geo.vec(p0.x, current[1])
+          ret.push({ command: 'V', segment: [p0, p1] })
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'v': {
+          const p0 = currentP
+          const p1 = geo.vec(p0.x, current[1] + p0.y)
+          ret.push({ command: 'v', segment: [p0, p1] })
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'Q': {
+          const p0 = currentP
+          const p1 = geo.vec(current[1], current[2])
+          const p2 = geo.vec(current[3], current[4])
+          ret.push({
+            command: 'Q',
+            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+            curve: true,
+          })
+          currentControlP = p1
+          currentP = p2
+          break
+        }
+        case 'q': {
+          const p0 = currentP
+          const p1 = geo.add(p0, geo.vec(current[1], current[2]))
+          const p2 = geo.add(p0, geo.vec(current[3], current[4]))
+          ret.push({
+            command: 'q',
+            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+            curve: true,
+          })
+          currentControlP = p1
+          currentP = p2
+          break
+        }
+        case 'T': {
+          const p0 = currentP
+          const p1 = geo.getSymmetry(currentControlP, p0)
+          const p2 = geo.vec(current[1], current[2])
+          ret.push({
+            command: 'T',
+            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+            curve: true,
+          })
+          currentControlP = p1
+          currentP = p2
+          break
+        }
+        case 't': {
+          const p0 = currentP
+          const p1 = geo.getSymmetry(currentControlP, p0)
+          const p2 = geo.add(p0, geo.vec(current[1], current[2]))
+          ret.push({
+            command: 't',
+            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+            curve: true,
+          })
+          currentControlP = p1
+          currentP = p2
+          break
+        }
+        case 'C': {
+          const p0 = currentP
+          const p1 = geo.vec(current[1], current[2])
+          const p2 = geo.vec(current[3], current[4])
+          const p3 = geo.vec(current[5], current[6])
+          ret.push({
+            command: 'C',
+            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+            curve: true,
+          })
+          currentControlP = p2
+          currentP = p3
+          break
+        }
+        case 'c': {
+          const p0 = currentP
+          const p1 = geo.add(p0, geo.vec(current[1], current[2]))
+          const p2 = geo.add(p0, geo.vec(current[3], current[4]))
+          const p3 = geo.add(p0, geo.vec(current[5], current[6]))
+          ret.push({
+            command: 'c',
+            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+            curve: true,
+          })
+          currentControlP = p2
+          currentP = p3
+          break
+        }
+        case 'S': {
+          const p0 = currentP
+          const p1 = geo.getSymmetry(currentControlP, p0)
+          const p2 = geo.vec(current[1], current[2])
+          const p3 = geo.vec(current[3], current[4])
+          ret.push({
+            command: 'S',
+            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+            curve: true,
+          })
+          currentControlP = p2
+          currentP = p3
+          break
+        }
+        case 's': {
+          const p0 = currentP
+          const p1 = geo.getSymmetry(currentControlP, p0)
+          const p2 = geo.add(p0, geo.vec(current[1], current[2]))
+          const p3 = geo.add(p0, geo.vec(current[3], current[4]))
+          ret.push({
+            command: 's',
+            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+            curve: true,
+          })
+          currentControlP = p2
+          currentP = p3
+          break
+        }
+        case 'A': {
+          const p0 = currentP
+          const rx = current[1]
+          const ry = current[2]
+          const large = current[4]
+          const sweep = current[5]
+          const radian = (current[3] / 180) * Math.PI
+          const p1 = geo.vec(current[6], current[7])
+          ret.push({
+            command: 'A',
+            lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
+            curve: true,
+          })
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'a': {
+          const p0 = currentP
+          const rx = current[1]
+          const ry = current[2]
+          const large = current[4]
+          const sweep = current[5]
+          const radian = (current[3] / 180) * Math.PI
+          const p1 = geo.add(p0, geo.vec(current[6], current[7]))
+          ret.push({
+            command: 'a',
+            lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
+            curve: true,
+          })
+          currentControlP = p1
+          currentP = p1
+          break
+        }
+        case 'Z':
+        case 'z': {
+          const p0 = currentP
+          const p1 = startP
+          ret.push({
+            command: current[0],
+            segment: [p0, p1],
+          })
+          currentControlP = p1
+          currentP = p1
+          break
+        }
       }
-      case 'm': {
-        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        ret.push({ command: 'm', segment: [p1, p1] })
-        startP = p1
-        currentP = p1
-        currentControlP = p1
-        break
-      }
-      case 'L': {
-        const p0 = currentP
-        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        ret.push({ command: 'L', segment: [p0, p1] })
-        startP ??= p1
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'l': {
-        const p0 = currentP
-        const p1 = geo.add(
-          currentP,
-          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        )
-        ret.push({ command: 'l', segment: [p0, p1] })
-        startP ??= p1
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'H': {
-        const p0 = currentP
-        const p1 = geo.vec(_parseFloat(current[1]), p0.y)
-        ret.push({ command: 'H', segment: [p0, p1] })
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'h': {
-        const p0 = currentP
-        const p1 = geo.vec(_parseFloat(current[1]) + p0.x, p0.y)
-        ret.push({ command: 'h', segment: [p0, p1] })
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'V': {
-        const p0 = currentP
-        const p1 = geo.vec(p0.x, _parseFloat(current[1]))
-        ret.push({ command: 'V', segment: [p0, p1] })
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'v': {
-        const p0 = currentP
-        const p1 = geo.vec(p0.x, _parseFloat(current[1]) + p0.y)
-        ret.push({ command: 'v', segment: [p0, p1] })
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'Q': {
-        const p0 = currentP
-        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        const p2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        ret.push({
-          command: 'Q',
-          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-          curve: true,
-        })
-        currentControlP = p1
-        currentP = p2
-        break
-      }
-      case 'q': {
-        const p0 = currentP
-        const p1 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        )
-        const p2 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        )
-        ret.push({
-          command: 'q',
-          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-          curve: true,
-        })
-        currentControlP = p1
-        currentP = p2
-        break
-      }
-      case 'T': {
-        const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
-        const p2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        ret.push({
-          command: 'T',
-          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-          curve: true,
-        })
-        currentControlP = p1
-        currentP = p2
-        break
-      }
-      case 't': {
-        const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
-        const p2 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        )
-        ret.push({
-          command: 't',
-          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-          curve: true,
-        })
-        currentControlP = p1
-        currentP = p2
-        break
-      }
-      case 'C': {
-        const p0 = currentP
-        const p1 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        const p2 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        const p3 = geo.vec(_parseFloat(current[5]), _parseFloat(current[6]))
-        ret.push({
-          command: 'C',
-          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-          curve: true,
-        })
-        currentControlP = p2
-        currentP = p3
-        break
-      }
-      case 'c': {
-        const p0 = currentP
-        const p1 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        )
-        const p2 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        )
-        const p3 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[5]), _parseFloat(current[6]))
-        )
-        ret.push({
-          command: 'c',
-          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-          curve: true,
-        })
-        currentControlP = p2
-        currentP = p3
-        break
-      }
-      case 'S': {
-        const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
-        const p2 = geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        const p3 = geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        ret.push({
-          command: 'S',
-          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-          curve: true,
-        })
-        currentControlP = p2
-        currentP = p3
-        break
-      }
-      case 's': {
-        const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
-        const p2 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[1]), _parseFloat(current[2]))
-        )
-        const p3 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[3]), _parseFloat(current[4]))
-        )
-        ret.push({
-          command: 's',
-          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-          curve: true,
-        })
-        currentControlP = p2
-        currentP = p3
-        break
-      }
-      case 'A': {
-        const p0 = currentP
-        const rx = _parseFloat(current[1])
-        const ry = _parseFloat(current[2])
-        const large = current[4] !== '0'
-        const sweep = current[5] !== '0'
-        const radian = (_parseFloat(current[3]) / 180) * Math.PI
-        const p1 = geo.vec(_parseFloat(current[6]), _parseFloat(current[7]))
-        ret.push({
-          command: 'A',
-          lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
-          curve: true,
-        })
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'a': {
-        const p0 = currentP
-        const rx = _parseFloat(current[1])
-        const ry = _parseFloat(current[2])
-        const large = current[4] !== '0'
-        const sweep = current[5] !== '0'
-        const radian = (_parseFloat(current[3]) / 180) * Math.PI
-        const p1 = geo.add(
-          p0,
-          geo.vec(_parseFloat(current[6]), _parseFloat(current[7]))
-        )
-        ret.push({
-          command: 'a',
-          lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
-          curve: true,
-        })
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-      case 'Z':
-      case 'z': {
-        const p0 = currentP
-        const p1 = startP
-        ret.push({
-          command: current[0],
-          segment: [p0, p1],
-        })
-        currentControlP = p1
-        currentP = p1
-        break
-      }
-    }
-  })
+    })
 
   return ret
 }
@@ -605,6 +603,13 @@ export function getPathPointAtLength(
     getPathLengthStructs(dStr, split),
     distance
   )
+}
+
+/**
+ *
+ */
+export function reversePath(dStr: string): string {
+  return dStr
 }
 
 /**
@@ -862,7 +867,7 @@ export function splitD(dString: string): string[][] {
         i += 7
         break
       default:
-        throw new Error(`Unexpected error`)
+        throw getUnknownError()
     }
 
     ret.push(info)
@@ -1377,4 +1382,8 @@ export function parseMatrix(str: string): AffineMatrix {
   if (numbers.length < 5) return [...geo.IDENTITY_AFFINE]
 
   return numbers.slice(0, 6) as AffineMatrix
+}
+
+function getUnknownError(): Error {
+  return new Error(`Unexpected error`)
 }
