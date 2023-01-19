@@ -987,6 +987,9 @@ export function scalePath(
       case 'a':
         slided[1] *= Math.abs(scale.x)
         slided[2] *= Math.abs(scale.y)
+        if (scale.x * scale.y < 0) {
+          slided[5] = !slided[5]
+        }
         slided[6] *= scale.x
         slided[7] *= scale.y
         break

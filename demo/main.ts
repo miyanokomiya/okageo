@@ -32,7 +32,6 @@ fileInput.onchange = (e) => {
 document.getElementById('run-reverse')!.addEventListener('click', () => {
   const text = (document.getElementById('input-path') as HTMLInputElement)!
     .value
-  svg.splitD(text).map(svg.parsePathSegmentValue)
   ;(document.getElementById('reverse-result') as HTMLInputElement)!.value =
     svg.pathSegmentRawsToString(
       svg.reversePath(svg.splitD(text).map(svg.parsePathSegmentValue))
@@ -46,5 +45,37 @@ document.getElementById('run-reverse')!.addEventListener('click', () => {
       svg.pathSegmentRawsToString(
         svg.reversePath(svg.splitD(text).map(svg.parsePathSegmentValue))
       )
+    )
+})
+
+document.getElementById('run-modify')!.addEventListener('click', () => {
+  const text = (document.getElementById('input-path2') as HTMLInputElement)!
+    .value
+
+  document.getElementById('path-src2')!.setAttribute('d', text)
+  const segs = svg.splitD(text).map(svg.parsePathSegmentValue)
+  document
+    .getElementById('path-dist2')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.slidePath(segs, { x: 30, y: 30 }))
+    )
+  document
+    .getElementById('path-dist3')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.scalePath(segs, { x: -1, y: 1 }))
+    )
+  document
+    .getElementById('path-dist4')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.scalePath(segs, { x: 1, y: -1 }))
+    )
+  document
+    .getElementById('path-dist5')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.scalePath(segs, { x: -1, y: -1 }))
     )
 })

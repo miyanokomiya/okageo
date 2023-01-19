@@ -2114,6 +2114,45 @@ describe('scalePath', () => {
       ['z'],
     ])
   })
+
+  it('should reverse arc sweep if scale vector has negative inner product', () => {
+    expect(
+      svg.scalePath(
+        [
+          ['M', 1, 2],
+          ['A', 10, 20, 0, false, false, 1, 2],
+        ],
+        { x: -1, y: -1 }
+      )
+    ).toEqual([
+      ['M', -1, -2],
+      ['A', 10, 20, 0, false, false, -1, -2],
+    ])
+    expect(
+      svg.scalePath(
+        [
+          ['M', 1, 2],
+          ['A', 10, 20, 0, false, false, 1, 2],
+        ],
+        { x: -1, y: 1 }
+      )
+    ).toEqual([
+      ['M', -1, 2],
+      ['A', 10, 20, 0, false, true, -1, 2],
+    ])
+    expect(
+      svg.scalePath(
+        [
+          ['M', 1, 2],
+          ['A', 10, 20, 0, false, false, 1, 2],
+        ],
+        { x: 1, y: -1 }
+      )
+    ).toEqual([
+      ['M', 1, -2],
+      ['A', 10, 20, 0, false, true, 1, -2],
+    ])
+  })
 })
 
 describe('parsePathD', () => {
