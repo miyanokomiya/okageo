@@ -1005,6 +1005,47 @@ export function scalePath(
 }
 
 /**
+ * Rotate segments.
+ * Both abstract and relative segments will be rotated by this function.
+ * TODO: "H", "h", "V" and "v" cannot be rotated.
+ */
+export function rotatePath(
+  segments: PathSegmentRaw[],
+  radian: number
+): PathSegmentRaw[] {
+  const sin = Math.sin(radian)
+  const cos = Math.cos(radian)
+  return segments.map((current) => {
+    const slided: PathSegmentRaw = [...current]
+    switch (slided[0]) {
+      case 'H':
+      case 'h':
+      case 'V':
+      case 'v':
+        break
+      case 'A':
+      case 'a': {
+        slided[3] += (radian * 180) / Math.PI
+        const x = slided[6]
+        const y = slided[7]
+        slided[6] = cos * x - sin * y
+        slided[7] = sin * x + cos * y
+        break
+      }
+      default:
+        for (let i = 1; i < slided.length - 1; i += 2) {
+          const x = slided[i] as number
+          const y = slided[i + 1] as number
+          ;(slided[i] as number) = cos * x - sin * y
+          ;(slided[i + 1] as number) = sin * x + cos * y
+        }
+        break
+    }
+    return slided
+  })
+}
+
+/**
  * Parse path d string and approximate it as a polyline
  * Note:
  * - Jump information by M/m commands doesn't remain in a polyline

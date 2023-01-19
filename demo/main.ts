@@ -29,7 +29,7 @@ fileInput.onchange = (e) => {
   }
 }
 
-document.getElementById('run-reverse')!.addEventListener('click', () => {
+function runReverse() {
   const text = (document.getElementById('input-path') as HTMLInputElement)!
     .value
   ;(document.getElementById('reverse-result') as HTMLInputElement)!.value =
@@ -46,9 +46,11 @@ document.getElementById('run-reverse')!.addEventListener('click', () => {
         svg.reversePath(svg.splitD(text).map(svg.parsePathSegmentValue))
       )
     )
-})
+}
+runReverse()
+document.getElementById('run-reverse')!.addEventListener('click', runReverse)
 
-document.getElementById('run-modify')!.addEventListener('click', () => {
+function runModify() {
   const text = (document.getElementById('input-path2') as HTMLInputElement)!
     .value
 
@@ -78,4 +80,40 @@ document.getElementById('run-modify')!.addEventListener('click', () => {
       'd',
       svg.pathSegmentRawsToString(svg.scalePath(segs, { x: -1, y: -1 }))
     )
-})
+}
+runModify()
+document.getElementById('run-modify')!.addEventListener('click', runModify)
+
+function runRotate() {
+  const text = (document.getElementById('input-rotate') as HTMLInputElement)!
+    .value
+
+  document.getElementById('rotate-src2')!.setAttribute('d', text)
+  const segs = svg.splitD(text).map(svg.parsePathSegmentValue)
+  document
+    .getElementById('rotate-dist2')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.rotatePath(segs, (2 * Math.PI) / 5))
+    )
+  document
+    .getElementById('rotate-dist3')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.rotatePath(segs, (2 * (Math.PI * 2)) / 5))
+    )
+  document
+    .getElementById('rotate-dist4')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.rotatePath(segs, (2 * (Math.PI * 3)) / 5))
+    )
+  document
+    .getElementById('rotate-dist5')!
+    .setAttribute(
+      'd',
+      svg.pathSegmentRawsToString(svg.rotatePath(segs, (2 * (Math.PI * 4)) / 5))
+    )
+}
+runRotate()
+document.getElementById('run-rotate')!.addEventListener('click', runRotate)

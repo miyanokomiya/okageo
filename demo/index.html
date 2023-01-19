@@ -63,6 +63,25 @@
         </g>
       </svg>
     </div>
+    <h2>Rotate path</h2>
+    <div><input id="input-rotate" type="text" value="M -30 -30 A 100 100 0 0 0 50 -200 l -30 30 l 20 20" /></div>
+    <div>
+      <button id="run-rotate">Modify</button>
+    </div>
+    <div>
+      <svg width="400" height="400" viewBox="-300 -300 600 600">
+        <circle fill="green" r="3" />
+        <g stroke="black" fill="none" stroke-width="10">
+          <path id="rotate-src2"></path>
+        </g>
+        <g stroke="red" fill="none" stroke-width="2">
+          <path id="rotate-dist2"></path>
+          <path id="rotate-dist3"></path>
+          <path id="rotate-dist4"></path>
+          <path id="rotate-dist5"></path>
+        </g>
+      </svg>
+    </div>
     <script type="text/javascript" src="./main.ts"></script>
   </body>
 </html>

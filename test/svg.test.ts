@@ -2155,6 +2155,60 @@ describe('scalePath', () => {
   })
 })
 
+describe('rotatePath', () => {
+  it('should rotate segments', () => {
+    const ret0 = svg.rotatePath(
+      [
+        ['M', -30, -30],
+        ['L', 0, -100],
+        ['L', 30, -30],
+      ],
+      Math.PI
+    )
+    expect(ret0[0][0]).toBe('M')
+    expect(ret0[0][1]).toBeCloseTo(30)
+    expect(ret0[0][2]).toBeCloseTo(30)
+    expect(ret0[1][0]).toBe('L')
+    expect(ret0[1][1]).toBeCloseTo(0)
+    expect(ret0[1][2]).toBeCloseTo(100)
+    expect(ret0[2][0]).toBe('L')
+    expect(ret0[2][1]).toBeCloseTo(-30)
+    expect(ret0[2][2]).toBeCloseTo(30)
+
+    const ret1 = svg.rotatePath(
+      [
+        ['M', -30, -30],
+        ['L', 0, -100],
+        ['L', 30, -30],
+      ],
+      Math.PI / 2
+    )
+    expect(ret1[0][1]).toBeCloseTo(30)
+    expect(ret1[0][2]).toBeCloseTo(-30)
+    expect(ret1[1][1]).toBeCloseTo(100)
+    expect(ret1[1][2]).toBeCloseTo(0)
+    expect(ret1[2][1]).toBeCloseTo(30)
+    expect(ret1[2][2]).toBeCloseTo(30)
+
+    const ret2 = svg.rotatePath(
+      [
+        ['M', -30, -30],
+        ['A', 10, 20, 0, false, false, 100, 200],
+      ],
+      Math.PI / 2
+    )
+    expect(ret2[0][1]).toBeCloseTo(30)
+    expect(ret2[0][2]).toBeCloseTo(-30)
+    expect(ret2[1][1]).toBeCloseTo(10)
+    expect(ret2[1][2]).toBeCloseTo(20)
+    expect(ret2[1][3]).toBeCloseTo(90)
+    expect(ret2[1][4]).toBe(false)
+    expect(ret2[1][5]).toBe(false)
+    expect(ret2[1][6]).toBeCloseTo(-200)
+    expect(ret2[1][7]).toBeCloseTo(100)
+  })
+})
+
 describe('parsePathD', () => {
   it('should approximate curves via "split" option', () => {
     const d = 'M0 0 Q 10 0 10 10'
