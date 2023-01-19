@@ -323,6 +323,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
   let startP = geo.vec(0, 0)
   let currentP = geo.vec(0, 0)
   let currentControlP = geo.vec(0, 0)
+  let currentBezier: 1 | 2 | 3 = 1
   segments.forEach((current) => {
     switch (current[0]) {
       case 'M': {
@@ -330,6 +331,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         ret.push({ command: 'M', segment: [p1, p1] })
         startP = p1
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -339,6 +341,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         startP = p1
         currentP = p1
         currentControlP = p1
+        currentBezier = 1
         break
       }
       case 'L': {
@@ -347,6 +350,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         ret.push({ command: 'L', segment: [p0, p1] })
         startP ??= p1
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -356,6 +360,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         ret.push({ command: 'l', segment: [p0, p1] })
         startP ??= p1
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -364,6 +369,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         const p1 = geo.vec(current[1], p0.y)
         ret.push({ command: 'H', segment: [p0, p1] })
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -372,6 +378,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         const p1 = geo.vec(current[1] + p0.x, p0.y)
         ret.push({ command: 'h', segment: [p0, p1] })
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -380,6 +387,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         const p1 = geo.vec(p0.x, current[1])
         ret.push({ command: 'V', segment: [p0, p1] })
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -388,6 +396,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
         const p1 = geo.vec(p0.x, current[1] + p0.y)
         ret.push({ command: 'v', segment: [p0, p1] })
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -401,6 +410,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p1
+        currentBezier = 2
         currentP = p2
         break
       }
@@ -414,12 +424,14 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p1
+        currentBezier = 2
         currentP = p2
         break
       }
       case 'T': {
         const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p1 =
+          currentBezier === 2 ? geo.getSymmetry(currentControlP, p0) : p0
         const p2 = geo.vec(current[1], current[2])
         ret.push({
           command: 'T',
@@ -427,12 +439,14 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p1
+        currentBezier = 2
         currentP = p2
         break
       }
       case 't': {
         const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p1 =
+          currentBezier === 2 ? geo.getSymmetry(currentControlP, p0) : p0
         const p2 = geo.add(p0, geo.vec(current[1], current[2]))
         ret.push({
           command: 't',
@@ -440,6 +454,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p1
+        currentBezier = 2
         currentP = p2
         break
       }
@@ -454,6 +469,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p2
+        currentBezier = 3
         currentP = p3
         break
       }
@@ -468,12 +484,14 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p2
+        currentBezier = 3
         currentP = p3
         break
       }
       case 'S': {
         const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p1 =
+          currentBezier === 3 ? geo.getSymmetry(currentControlP, p0) : p0
         const p2 = geo.vec(current[1], current[2])
         const p3 = geo.vec(current[3], current[4])
         ret.push({
@@ -482,12 +500,14 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p2
+        currentBezier = 3
         currentP = p3
         break
       }
       case 's': {
         const p0 = currentP
-        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p1 =
+          currentBezier === 3 ? geo.getSymmetry(currentControlP, p0) : p0
         const p2 = geo.add(p0, geo.vec(current[1], current[2]))
         const p3 = geo.add(p0, geo.vec(current[3], current[4]))
         ret.push({
@@ -496,6 +516,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p2
+        currentBezier = 3
         currentP = p3
         break
       }
@@ -513,6 +534,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -530,6 +552,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           curve: true,
         })
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -542,6 +565,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
           segment: [p0, p1],
         })
         currentControlP = p1
+        currentBezier = 1
         currentP = p1
         break
       }
@@ -640,6 +664,7 @@ function getPathAbsControlPoints(
   let seg: PathSegmentRaw
   let absP: IVec2
   let preC = geo.vec(0, 0)
+  let preCType: 1 | 2 | 3 = 1
   for (let i = 0; i < segments.length; i++) {
     seg = segments[i]
     absP = i === 0 ? geo.vec(0, 0) : absPoints[i - 1]
@@ -648,39 +673,51 @@ function getPathAbsControlPoints(
         const p = geo.vec(seg[1], seg[2])
         ret.push(p)
         preC = p
+        preCType = 2
         break
       }
       case 'q': {
         const p = geo.vec(seg[1] + absP.x, seg[2] + absP.y)
         ret.push(p)
         preC = p
+        preCType = 2
+        break
+      }
+      case 'T':
+      case 't': {
+        const p = preCType === 2 ? geo.lerpPoint(preC, absP, 2) : absP
+        ret.push(p)
+        preC = p
+        preCType = 2
         break
       }
       case 'C': {
         const p = geo.vec(seg[3], seg[4])
         ret.push(p)
         preC = p
+        preCType = 3
         break
       }
       case 'c': {
         const p = geo.vec(seg[3] + absP.x, seg[4] + absP.y)
         ret.push(p)
         preC = p
+        preCType = 3
         break
       }
-      case 'T':
-      case 't':
       case 'S':
       case 's': {
-        const p = geo.lerpPoint(preC, absP, 2)
+        const p = preCType === 3 ? geo.lerpPoint(preC, absP, 2) : absP
         ret.push(p)
         preC = p
+        preCType = 3
         break
       }
       default: {
         const p = absPoints[i]
         ret.push(p)
         preC = p
+        preCType = 1
       }
     }
   }

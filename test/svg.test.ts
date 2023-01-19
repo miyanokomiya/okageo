@@ -388,8 +388,8 @@ describe('parsePath path解析', () => {
       })
     })
   })
-  describe('T解析', () => {
-    it('結果が正しいこと', () => {
+  describe('parse "T"', () => {
+    it('should return splited points', () => {
       const str = '<path d="M-10,-10 Q1,2 0,0 T 5,6" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
@@ -416,9 +416,37 @@ describe('parsePath path解析', () => {
         expect(p.y).toBeCloseTo(res[i].y)
       })
     })
+    it('should not refer Bezier3 control point', () => {
+      const str = '<path d="M-10,-10 C-1,-2 1,2 0,0 T 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const cPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: -1, y: -2 },
+          { x: 1, y: 2 },
+          { x: 0, y: 0 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...tPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 5, y: 6 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...cPoints, ...tPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
   })
-  describe('t解析', () => {
-    it('結果が正しいこと', () => {
+  describe('parse "t"', () => {
+    it('should return splited points', () => {
       const str = '<path d="M-10,-10 Q3,4 1,1 t 4,5" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
@@ -439,6 +467,34 @@ describe('parsePath path解析', () => {
         svg.configs.bezierSplitSize
       )
       const pList = [...qPoints, ...tPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+    it('should not refer Bezier3 control point', () => {
+      const str = '<path d="M-10,-10 C1,2 3,4 1,1 t 4,5" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const cPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: 1, y: 2 },
+          { x: 3, y: 4 },
+          { x: 1, y: 1 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...tPoints] = geo.approximateBezier(
+        [
+          { x: 1, y: 1 },
+          { x: 1, y: 1 },
+          { x: 5, y: 6 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...cPoints, ...tPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
         expect(p.x).toBeCloseTo(res[i].x)
@@ -488,14 +544,15 @@ describe('parsePath path解析', () => {
       })
     })
   })
-  describe('S解析', () => {
-    it('結果が正しいこと', () => {
-      const str = '<path d="M-10,-10 Q1,2 0,0 S 5,6 7,8" />'
+  describe('parse "S"', () => {
+    it('should return splited points', () => {
+      const str = '<path d="M-10,-10 C2,3 1,2 0,0 S 5,6 7,8" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const qPoints = geo.approximateBezier(
+      const cPoints = geo.approximateBezier(
         [
           { x: -10, y: -10 },
+          { x: 2, y: 3 },
           { x: 1, y: 2 },
           { x: 0, y: 0 },
         ],
@@ -510,6 +567,34 @@ describe('parsePath path解析', () => {
         ],
         svg.configs.bezierSplitSize
       )
+      const pList = [...cPoints, ...sPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+    it('should not refer Bezeir2 control point', () => {
+      const str = '<path d="M-10,-10 Q1,2 0,0 S 5,6 7,8" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const qPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: 1, y: 2 },
+          { x: 0, y: 0 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...sPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 5, y: 6 },
+          { x: 7, y: 8 },
+        ],
+        svg.configs.bezierSplitSize
+      )
       const pList = [...qPoints, ...sPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
@@ -518,14 +603,15 @@ describe('parsePath path解析', () => {
       })
     })
   })
-  describe('s解析', () => {
-    it('結果が正しいこと', () => {
-      const str = '<path d="M-10,-10 Q3,4 1,1 s 4,5 6,7" />'
+  describe('parse "s"', () => {
+    it('should return splited points', () => {
+      const str = '<path d="M-10,-10 C1,2 3,4 1,1 s 4,5 6,7" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const qPoints = geo.approximateBezier(
+      const cPoints = geo.approximateBezier(
         [
           { x: -10, y: -10 },
+          { x: 1, y: 2 },
           { x: 3, y: 4 },
           { x: 1, y: 1 },
         ],
@@ -535,6 +621,34 @@ describe('parsePath path解析', () => {
         [
           { x: 1, y: 1 },
           { x: -1, y: -2 },
+          { x: 5, y: 6 },
+          { x: 7, y: 8 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...cPoints, ...sPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+    it('should not refer Bezeir2 control point', () => {
+      const str = '<path d="M-10,-10 Q1,2 0,0 s 5,6 7,8" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const qPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: 1, y: 2 },
+          { x: 0, y: 0 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...sPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
           { x: 5, y: 6 },
           { x: 7, y: 8 },
         ],
@@ -1798,6 +1912,7 @@ describe('reversePath', () => {
   })
 
   it('should convert "S" to "C"', () => {
+    // "S" shouldn't refer Bezier2 control point
     expect(
       svg.reversePath([
         ['M', 2, 3],
@@ -1806,20 +1921,32 @@ describe('reversePath', () => {
       ])
     ).toEqual([
       ['M', 20, 20],
-      ['C', 14, 15, 8, 17, 10, 10],
+      ['C', 14, 15, 10, 10, 10, 10],
       ['Q', 12, 3, 2, 3],
     ])
 
     expect(
       svg.reversePath([
         ['M', 2, 3],
-        ['Q', 12, 3, 10, 10],
+        ['C', 5, 7, 12, 3, 10, 10],
+        ['S', 14, 15, 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['C', 14, 15, 8, 17, 10, 10],
+      ['C', 12, 3, 5, 7, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['C', 5, 7, 12, 3, 10, 10],
         ['s', 4, 5, 10, 10],
       ])
     ).toEqual([
       ['M', 20, 20],
       ['c', -6, -5, -12, -3, -10, -10],
-      ['Q', 12, 3, 2, 3],
+      ['C', 12, 3, 5, 7, 2, 3],
     ])
   })
 
