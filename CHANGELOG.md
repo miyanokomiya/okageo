@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.5] - 2023-01-19
+### Added
+- Add new functions to modify SVG path: reverse, slide, scale, rotate
+
 ## [3.0.4] - 2023-01-15
 ### Fixed
 - Fix `getArcLerpFn` not to deal with complex number

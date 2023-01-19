@@ -282,7 +282,7 @@ export function pathSegmentRawsToString(segs: PathSegmentRaw[]): string {
   return segs.map(pathSegmentRawToString).join(' ')
 }
 
-function pathSegmentRawToString(seg: PathSegmentRaw): string {
+export function pathSegmentRawToString(seg: PathSegmentRaw): string {
   return seg
     .map((v) => {
       if (v === true) {
