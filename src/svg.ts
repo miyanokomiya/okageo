@@ -965,6 +965,43 @@ export function slidePath(
 }
 
 /**
+ * Scale segments.
+ * Both abstract and relative segments will be scaled by this function.
+ */
+export function scalePath(
+  segments: PathSegmentRaw[],
+  scale: IVec2
+): PathSegmentRaw[] {
+  return segments.map((current) => {
+    const slided: PathSegmentRaw = [...current]
+    switch (slided[0]) {
+      case 'H':
+      case 'h':
+        slided[1] *= scale.x
+        break
+      case 'V':
+      case 'v':
+        slided[1] *= scale.y
+        break
+      case 'A':
+      case 'a':
+        slided[1] *= Math.abs(scale.x)
+        slided[2] *= Math.abs(scale.y)
+        slided[6] *= scale.x
+        slided[7] *= scale.y
+        break
+      default:
+        for (let i = 1; i < slided.length - 1; i += 2) {
+          ;(slided[i] as number) *= scale.x
+          ;(slided[i + 1] as number) *= scale.y
+        }
+        break
+    }
+    return slided
+  })
+}
+
+/**
  * Parse path d string and approximate it as a polyline
  * Note:
  * - Jump information by M/m commands doesn't remain in a polyline
