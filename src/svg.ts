@@ -1078,10 +1078,31 @@ export function scalePath(
   })
 }
 
+function convertHVToL(segments: PathSegmentRaw[]): PathSegmentRaw[] {
+  // If neither "H" nor "V" exists, abstract points doesn't have to be computed.
+  const absVHExisted = segments.some((s) => /H|V/.test(s[0]))
+  const { points } = getPathAbsPoints(absVHExisted ? segments : [])
+
+  return segments.map((s, i) => {
+    switch (s[0]) {
+      case 'H':
+        return ['L', s[1], points[i].y]
+      case 'h':
+        return ['l', s[1], 0]
+      case 'V':
+        return ['L', points[i].x, s[1]]
+      case 'v':
+        return ['l', 0, s[1]]
+      default:
+        return s
+    }
+  })
+}
+
 /**
  * Rotate segments.
  * Both abstract and relative segments will be rotated by this function.
- * TODO: "H", "h", "V" and "v" cannot be rotated.
+ * "H", "h", "V" and "v" will be converted to "L" or "l"
  */
 export function rotatePath(
   segments: PathSegmentRaw[],
@@ -1089,14 +1110,9 @@ export function rotatePath(
 ): PathSegmentRaw[] {
   const sin = Math.sin(radian)
   const cos = Math.cos(radian)
-  return segments.map((current) => {
+  return convertHVToL(segments).map((current) => {
     const slided: PathSegmentRaw = [...current]
     switch (slided[0]) {
-      case 'H':
-      case 'h':
-      case 'V':
-      case 'v':
-        break
       case 'A':
       case 'a': {
         slided[3] += (radian * 180) / Math.PI

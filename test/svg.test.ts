@@ -2207,6 +2207,40 @@ describe('rotatePath', () => {
     expect(ret2[1][6]).toBeCloseTo(-200)
     expect(ret2[1][7]).toBeCloseTo(100)
   })
+
+  it('should convert "H", "h" to "L", "l"', () => {
+    const ret0 = svg.rotatePath(
+      [
+        ['M', 10, 20],
+        ['H', 100],
+        ['h', 30],
+      ],
+      Math.PI / 2
+    )
+    expect(ret0[1][0]).toBe('L')
+    expect(ret0[1][1]).toBeCloseTo(-20)
+    expect(ret0[1][2]).toBeCloseTo(100)
+    expect(ret0[2][0]).toBe('l')
+    expect(ret0[2][1]).toBeCloseTo(0)
+    expect(ret0[2][2]).toBeCloseTo(30)
+  })
+
+  it('should convert "V", "v" to "L", "l"', () => {
+    const ret0 = svg.rotatePath(
+      [
+        ['M', 10, 20],
+        ['V', 100],
+        ['v', 30],
+      ],
+      Math.PI / 2
+    )
+    expect(ret0[1][0]).toBe('L')
+    expect(ret0[1][1]).toBeCloseTo(-100)
+    expect(ret0[1][2]).toBeCloseTo(10)
+    expect(ret0[2][0]).toBe('l')
+    expect(ret0[2][1]).toBeCloseTo(-30)
+    expect(ret0[2][2]).toBeCloseTo(0)
+  })
 })
 
 describe('parsePathD', () => {
