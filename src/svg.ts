@@ -260,7 +260,7 @@ export type PathSegmentRaw =
   | ['C' | 'c', number, number, number, number, number, number]
   | ['A' | 'a', number, number, number, boolean, boolean, number, number]
 
-export function parsePathSegmentValue(segment: string[]): PathSegmentRaw {
+function parsePathSegmentRaw(segment: string[]): PathSegmentRaw {
   if (segment.length === 8) {
     return [
       segment[0],
@@ -276,6 +276,10 @@ export function parsePathSegmentValue(segment: string[]): PathSegmentRaw {
     const [c, ...values] = segment
     return [c, ...values.map(_parseFloat)] as PathSegmentRaw
   }
+}
+
+export function parsePathSegmentRaws(dStr: string): PathSegmentRaw[] {
+  return splitD(dStr).map((c) => parsePathSegmentRaw(c))
 }
 
 export function pathSegmentRawsToString(segs: PathSegmentRaw[]): string {
@@ -309,7 +313,7 @@ type PathSegment =
     }
 
 export function parsePathSegments(dStr: string): PathSegment[] {
-  return _parsePathSegments(splitD(dStr).map((c) => parsePathSegmentValue(c)))
+  return _parsePathSegments(parsePathSegmentRaws(dStr))
 }
 
 function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {

@@ -33,9 +33,7 @@ function runReverse() {
   const text = (document.getElementById('input-path') as HTMLInputElement)!
     .value
   ;(document.getElementById('reverse-result') as HTMLInputElement)!.value =
-    svg.pathSegmentRawsToString(
-      svg.reversePath(svg.splitD(text).map(svg.parsePathSegmentValue))
-    )
+    svg.pathSegmentRawsToString(svg.reversePath(svg.parsePathSegmentRaws(text)))
 
   document.getElementById('path-src')!.setAttribute('d', text)
   document
@@ -43,7 +41,7 @@ function runReverse() {
     .setAttribute(
       'd',
       svg.pathSegmentRawsToString(
-        svg.reversePath(svg.splitD(text).map(svg.parsePathSegmentValue))
+        svg.reversePath(svg.parsePathSegmentRaws(text))
       )
     )
 }
@@ -55,7 +53,7 @@ function runModify() {
     .value
 
   document.getElementById('path-src2')!.setAttribute('d', text)
-  const segs = svg.splitD(text).map(svg.parsePathSegmentValue)
+  const segs = svg.parsePathSegmentRaws(text)
   document
     .getElementById('path-dist2')!
     .setAttribute(
@@ -89,7 +87,7 @@ function runRotate() {
     .value
 
   document.getElementById('rotate-src2')!.setAttribute('d', text)
-  const segs = svg.splitD(text).map(svg.parsePathSegmentValue)
+  const segs = svg.parsePathSegmentRaws(text)
   document
     .getElementById('rotate-dist2')!
     .setAttribute(
