@@ -1,12 +1,47 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>okageo demo</title>
+    <style>
+      input[type="text"] {
+        width: 100%;
+      }
+      input[readonly] {
+        background-color: #eee;
+      }
+      svg,
+      canvas {
+        border: 1px solid gray
+      }
+    </style>
   </head>
   <body>
+    <h2>Split SVG</h2>
     <div><input id="input" type="file" accept="image/svg" /></div>
-    <canvas id="canvas" width="400" height="400" style="border: 1px solid gray;" />
+    <canvas
+      id="canvas"
+      width="400"
+      height="400"
+    ></canvas>
+    <h2>Reverse path</h2>
+    <div><input id="input-path" type="text" value="M 25 175 Q 25 25 175 25 t 50 50 t 20 20 c 20 0 0 20 20 20 s 20 20 20 20z M 75,100 A 1,4 0 0,0 125,100" /></div>
+    <div>
+      <button id="run-reverse">Reverse</button>
+    </div>
+    <div>
+      <input readonly id="reverse-result" type="text"></input>
+    </div>
+    <div>
+      <svg width="400" height="400" viewBox="0 0 400 400">
+        <g stroke="black" fill="none" stroke-width="10">
+          <path id="path-src"></path>
+        </g>
+        <g stroke="red" fill="none" stroke-width="2">
+          <path id="path-dist"></path>
+        </g>
+      </svg>
+    </div>
     <script type="text/javascript" src="./main.ts"></script>
   </body>
 </html>

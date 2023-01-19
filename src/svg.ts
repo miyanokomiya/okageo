@@ -260,7 +260,7 @@ export type PathSegmentRaw =
   | ['C' | 'c', number, number, number, number, number, number]
   | ['A' | 'a', number, number, number, boolean, boolean, number, number]
 
-function parsePathSegmentValue(segment: string[]): PathSegmentRaw {
+export function parsePathSegmentValue(segment: string[]): PathSegmentRaw {
   if (segment.length === 8) {
     return [
       segment[0],
@@ -276,6 +276,24 @@ function parsePathSegmentValue(segment: string[]): PathSegmentRaw {
     const [c, ...values] = segment
     return [c, ...values.map(_parseFloat)] as PathSegmentRaw
   }
+}
+
+export function pathSegmentRawsToString(segs: PathSegmentRaw[]): string {
+  return segs.map(pathSegmentRawToString).join(' ')
+}
+
+function pathSegmentRawToString(seg: PathSegmentRaw): string {
+  return seg
+    .map((v) => {
+      if (v === true) {
+        return '1'
+      } else if (v === false) {
+        return '0'
+      } else {
+        return v.toString()
+      }
+    })
+    .join(' ')
 }
 
 function getPathAbsPoints(segments: PathSegmentRaw[]): IVec2[] {
