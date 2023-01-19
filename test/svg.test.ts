@@ -1849,13 +1849,17 @@ describe('reversePath', () => {
     ])
   })
 
-  it('should use "Z" and "z" as much as possible', () => {
+  it('should use "Z" and "z" if target segment is not a curve', () => {
     expect(
       svg.reversePath([['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['Z']])
     ).toEqual([['M', 0, 0], ['L', 10, 10], ['L', 10, 0], ['Z']])
     expect(
       svg.reversePath([['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['z']])
     ).toEqual([['M', 0, 0], ['l', 10, 10], ['L', 10, 0], ['Z']])
+
+    expect(
+      svg.reversePath([['M', 25, 175], ['Q', 25, 25, 175, 2], ['Z']])
+    ).toEqual([['M', 25, 175], ['L', 175, 2], ['Q', 25, 25, 25, 175], ['Z']])
   })
 })
 

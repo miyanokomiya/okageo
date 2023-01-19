@@ -688,6 +688,10 @@ function getPathAbsControlPoints(
   return ret
 }
 
+function isCurveCommand(c: string) {
+  return /Q|q|T|t|C|c|S|s|A|a/.test(c)
+}
+
 /**
  * The first segment has to be either "M", "m", "L" or "l".
  *
@@ -715,14 +719,22 @@ export function reversePath(segments: PathSegmentRaw[]): PathSegmentRaw[] {
     switch (current[0]) {
       case 'M':
         if (closeCount) {
-          ret[ret.length - 1] = ['Z']
+          if (isCurveCommand(ret[ret.length - 1][0])) {
+            ret.push(['Z'])
+          } else {
+            ret[ret.length - 1] = ['Z']
+          }
           closeCount = false
         }
         ret.push([current[0], absP.x, absP.y])
         break
       case 'm':
         if (closeCount) {
-          ret[ret.length - 1] = ['z']
+          if (isCurveCommand(ret[ret.length - 1][0])) {
+            ret.push(['z'])
+          } else {
+            ret[ret.length - 1] = ['z']
+          }
           closeCount = false
         }
         if (i === 0) {
@@ -733,14 +745,22 @@ export function reversePath(segments: PathSegmentRaw[]): PathSegmentRaw[] {
         break
       case 'L':
         if (closeCount && i === 0) {
-          ret[ret.length - 1] = ['Z']
+          if (isCurveCommand(ret[ret.length - 1][0])) {
+            ret.push(['Z'])
+          } else {
+            ret[ret.length - 1] = ['Z']
+          }
           closeCount = false
         }
         ret.push([current[0], absP.x, absP.y])
         break
       case 'l':
         if (closeCount && i === 0) {
-          ret[ret.length - 1] = ['z']
+          if (isCurveCommand(ret[ret.length - 1][0])) {
+            ret.push(['z'])
+          } else {
+            ret[ret.length - 1] = ['z']
+          }
           closeCount = false
         }
         if (i === 0) {
