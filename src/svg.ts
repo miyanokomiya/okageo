@@ -278,6 +278,12 @@ function parsePathSegmentValue(segment: string[]): PathSegmentRaw {
   }
 }
 
+function getPathAbsPoints(segments: PathSegmentRaw[]): IVec2[] {
+  return _parsePathSegments(segments).map((s) =>
+    s.curve ? s.lerpFn(1) : s.segment[1]
+  )
+}
+
 type PathSegment =
   | {
       command: string
@@ -291,236 +297,238 @@ type PathSegment =
     }
 
 export function parsePathSegments(dStr: string): PathSegment[] {
+  return _parsePathSegments(splitD(dStr).map((c) => parsePathSegmentValue(c)))
+}
+
+function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
   const ret: PathSegment[] = []
   let startP = geo.vec(0, 0)
   let currentP = geo.vec(0, 0)
   let currentControlP = geo.vec(0, 0)
-  splitD(dStr)
-    .map((c) => parsePathSegmentValue(c))
-    .forEach((current) => {
-      switch (current[0]) {
-        case 'M': {
-          const p1 = geo.vec(current[1], current[2])
-          ret.push({ command: 'M', segment: [p1, p1] })
-          startP = p1
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'm': {
-          const p1 = geo.vec(current[1], current[2])
-          ret.push({ command: 'm', segment: [p1, p1] })
-          startP = p1
-          currentP = p1
-          currentControlP = p1
-          break
-        }
-        case 'L': {
-          const p0 = currentP
-          const p1 = geo.vec(current[1], current[2])
-          ret.push({ command: 'L', segment: [p0, p1] })
-          startP ??= p1
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'l': {
-          const p0 = currentP
-          const p1 = geo.add(currentP, geo.vec(current[1], current[2]))
-          ret.push({ command: 'l', segment: [p0, p1] })
-          startP ??= p1
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'H': {
-          const p0 = currentP
-          const p1 = geo.vec(current[1], p0.y)
-          ret.push({ command: 'H', segment: [p0, p1] })
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'h': {
-          const p0 = currentP
-          const p1 = geo.vec(current[1] + p0.x, p0.y)
-          ret.push({ command: 'h', segment: [p0, p1] })
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'V': {
-          const p0 = currentP
-          const p1 = geo.vec(p0.x, current[1])
-          ret.push({ command: 'V', segment: [p0, p1] })
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'v': {
-          const p0 = currentP
-          const p1 = geo.vec(p0.x, current[1] + p0.y)
-          ret.push({ command: 'v', segment: [p0, p1] })
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'Q': {
-          const p0 = currentP
-          const p1 = geo.vec(current[1], current[2])
-          const p2 = geo.vec(current[3], current[4])
-          ret.push({
-            command: 'Q',
-            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-            curve: true,
-          })
-          currentControlP = p1
-          currentP = p2
-          break
-        }
-        case 'q': {
-          const p0 = currentP
-          const p1 = geo.add(p0, geo.vec(current[1], current[2]))
-          const p2 = geo.add(p0, geo.vec(current[3], current[4]))
-          ret.push({
-            command: 'q',
-            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-            curve: true,
-          })
-          currentControlP = p1
-          currentP = p2
-          break
-        }
-        case 'T': {
-          const p0 = currentP
-          const p1 = geo.getSymmetry(currentControlP, p0)
-          const p2 = geo.vec(current[1], current[2])
-          ret.push({
-            command: 'T',
-            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-            curve: true,
-          })
-          currentControlP = p1
-          currentP = p2
-          break
-        }
-        case 't': {
-          const p0 = currentP
-          const p1 = geo.getSymmetry(currentControlP, p0)
-          const p2 = geo.add(p0, geo.vec(current[1], current[2]))
-          ret.push({
-            command: 't',
-            lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
-            curve: true,
-          })
-          currentControlP = p1
-          currentP = p2
-          break
-        }
-        case 'C': {
-          const p0 = currentP
-          const p1 = geo.vec(current[1], current[2])
-          const p2 = geo.vec(current[3], current[4])
-          const p3 = geo.vec(current[5], current[6])
-          ret.push({
-            command: 'C',
-            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-            curve: true,
-          })
-          currentControlP = p2
-          currentP = p3
-          break
-        }
-        case 'c': {
-          const p0 = currentP
-          const p1 = geo.add(p0, geo.vec(current[1], current[2]))
-          const p2 = geo.add(p0, geo.vec(current[3], current[4]))
-          const p3 = geo.add(p0, geo.vec(current[5], current[6]))
-          ret.push({
-            command: 'c',
-            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-            curve: true,
-          })
-          currentControlP = p2
-          currentP = p3
-          break
-        }
-        case 'S': {
-          const p0 = currentP
-          const p1 = geo.getSymmetry(currentControlP, p0)
-          const p2 = geo.vec(current[1], current[2])
-          const p3 = geo.vec(current[3], current[4])
-          ret.push({
-            command: 'S',
-            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-            curve: true,
-          })
-          currentControlP = p2
-          currentP = p3
-          break
-        }
-        case 's': {
-          const p0 = currentP
-          const p1 = geo.getSymmetry(currentControlP, p0)
-          const p2 = geo.add(p0, geo.vec(current[1], current[2]))
-          const p3 = geo.add(p0, geo.vec(current[3], current[4]))
-          ret.push({
-            command: 's',
-            lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
-            curve: true,
-          })
-          currentControlP = p2
-          currentP = p3
-          break
-        }
-        case 'A': {
-          const p0 = currentP
-          const rx = current[1]
-          const ry = current[2]
-          const large = current[4]
-          const sweep = current[5]
-          const radian = (current[3] / 180) * Math.PI
-          const p1 = geo.vec(current[6], current[7])
-          ret.push({
-            command: 'A',
-            lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
-            curve: true,
-          })
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'a': {
-          const p0 = currentP
-          const rx = current[1]
-          const ry = current[2]
-          const large = current[4]
-          const sweep = current[5]
-          const radian = (current[3] / 180) * Math.PI
-          const p1 = geo.add(p0, geo.vec(current[6], current[7]))
-          ret.push({
-            command: 'a',
-            lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
-            curve: true,
-          })
-          currentControlP = p1
-          currentP = p1
-          break
-        }
-        case 'Z':
-        case 'z': {
-          const p0 = currentP
-          const p1 = startP
-          ret.push({
-            command: current[0],
-            segment: [p0, p1],
-          })
-          currentControlP = p1
-          currentP = p1
-          break
-        }
+  segments.forEach((current) => {
+    switch (current[0]) {
+      case 'M': {
+        const p1 = geo.vec(current[1], current[2])
+        ret.push({ command: 'M', segment: [p1, p1] })
+        startP = p1
+        currentControlP = p1
+        currentP = p1
+        break
       }
-    })
+      case 'm': {
+        const p1 = geo.vec(current[1], current[2])
+        ret.push({ command: 'm', segment: [p1, p1] })
+        startP = p1
+        currentP = p1
+        currentControlP = p1
+        break
+      }
+      case 'L': {
+        const p0 = currentP
+        const p1 = geo.vec(current[1], current[2])
+        ret.push({ command: 'L', segment: [p0, p1] })
+        startP ??= p1
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'l': {
+        const p0 = currentP
+        const p1 = geo.add(currentP, geo.vec(current[1], current[2]))
+        ret.push({ command: 'l', segment: [p0, p1] })
+        startP ??= p1
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'H': {
+        const p0 = currentP
+        const p1 = geo.vec(current[1], p0.y)
+        ret.push({ command: 'H', segment: [p0, p1] })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'h': {
+        const p0 = currentP
+        const p1 = geo.vec(current[1] + p0.x, p0.y)
+        ret.push({ command: 'h', segment: [p0, p1] })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'V': {
+        const p0 = currentP
+        const p1 = geo.vec(p0.x, current[1])
+        ret.push({ command: 'V', segment: [p0, p1] })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'v': {
+        const p0 = currentP
+        const p1 = geo.vec(p0.x, current[1] + p0.y)
+        ret.push({ command: 'v', segment: [p0, p1] })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'Q': {
+        const p0 = currentP
+        const p1 = geo.vec(current[1], current[2])
+        const p2 = geo.vec(current[3], current[4])
+        ret.push({
+          command: 'Q',
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 'q': {
+        const p0 = currentP
+        const p1 = geo.add(p0, geo.vec(current[1], current[2]))
+        const p2 = geo.add(p0, geo.vec(current[3], current[4]))
+        ret.push({
+          command: 'q',
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 'T': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.vec(current[1], current[2])
+        ret.push({
+          command: 'T',
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 't': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.add(p0, geo.vec(current[1], current[2]))
+        ret.push({
+          command: 't',
+          lerpFn: geo.getBezier2LerpFn([p0, p1, p2]),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p2
+        break
+      }
+      case 'C': {
+        const p0 = currentP
+        const p1 = geo.vec(current[1], current[2])
+        const p2 = geo.vec(current[3], current[4])
+        const p3 = geo.vec(current[5], current[6])
+        ret.push({
+          command: 'C',
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 'c': {
+        const p0 = currentP
+        const p1 = geo.add(p0, geo.vec(current[1], current[2]))
+        const p2 = geo.add(p0, geo.vec(current[3], current[4]))
+        const p3 = geo.add(p0, geo.vec(current[5], current[6]))
+        ret.push({
+          command: 'c',
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 'S': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.vec(current[1], current[2])
+        const p3 = geo.vec(current[3], current[4])
+        ret.push({
+          command: 'S',
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 's': {
+        const p0 = currentP
+        const p1 = geo.getSymmetry(currentControlP, p0)
+        const p2 = geo.add(p0, geo.vec(current[1], current[2]))
+        const p3 = geo.add(p0, geo.vec(current[3], current[4]))
+        ret.push({
+          command: 's',
+          lerpFn: geo.getBezier3LerpFn([p0, p1, p2, p3]),
+          curve: true,
+        })
+        currentControlP = p2
+        currentP = p3
+        break
+      }
+      case 'A': {
+        const p0 = currentP
+        const rx = current[1]
+        const ry = current[2]
+        const large = current[4]
+        const sweep = current[5]
+        const radian = (current[3] / 180) * Math.PI
+        const p1 = geo.vec(current[6], current[7])
+        ret.push({
+          command: 'A',
+          lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'a': {
+        const p0 = currentP
+        const rx = current[1]
+        const ry = current[2]
+        const large = current[4]
+        const sweep = current[5]
+        const radian = (current[3] / 180) * Math.PI
+        const p1 = geo.add(p0, geo.vec(current[6], current[7]))
+        ret.push({
+          command: 'a',
+          lerpFn: geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
+          curve: true,
+        })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+      case 'Z':
+      case 'z': {
+        const p0 = currentP
+        const p1 = startP
+        ret.push({
+          command: current[0],
+          segment: [p0, p1],
+        })
+        currentControlP = p1
+        currentP = p1
+        break
+      }
+    }
+  })
 
   return ret
 }
@@ -605,11 +613,246 @@ export function getPathPointAtLength(
   )
 }
 
+function getPathAbsControlPoints(
+  segments: PathSegmentRaw[],
+  absPoints: IVec2[]
+): IVec2[] {
+  const ret: IVec2[] = []
+
+  let seg: PathSegmentRaw
+  let absP: IVec2
+  let preC = geo.vec(0, 0)
+  for (let i = 0; i < segments.length; i++) {
+    seg = segments[i]
+    absP = i === 0 ? geo.vec(0, 0) : absPoints[i - 1]
+    switch (seg[0]) {
+      case 'Q': {
+        const p = geo.vec(seg[1], seg[2])
+        ret.push(p)
+        preC = p
+        break
+      }
+      case 'q': {
+        const p = geo.vec(seg[1] + absP.x, seg[2] + absP.y)
+        ret.push(p)
+        preC = p
+        break
+      }
+      case 'C': {
+        const p = geo.vec(seg[3], seg[4])
+        ret.push(p)
+        preC = p
+        break
+      }
+      case 'c': {
+        const p = geo.vec(seg[3] + absP.x, seg[4] + absP.y)
+        ret.push(p)
+        preC = p
+        break
+      }
+      case 'T':
+      case 't':
+      case 'S':
+      case 's': {
+        const p = geo.lerpPoint(preC, absP, 2)
+        ret.push(p)
+        preC = p
+        break
+      }
+      default: {
+        const p = absPoints[i]
+        ret.push(p)
+        preC = p
+      }
+    }
+  }
+
+  return ret
+}
+
 /**
+ * The first segment has to be either "M", "m", "L" or "l".
  *
+ * The last segment will be converted to normalized value.
+ * e.g. [m, l, v, z] => [M, v, l, z]
+ *
+ * "T", "t", "S" or "s" will be converted to "Q", "q", "C" or "c"
  */
-export function reversePath(dStr: string): string {
-  return dStr
+export function reversePath(segments: PathSegmentRaw[]): PathSegmentRaw[] {
+  if (segments.length < 2) return segments
+
+  const ret: PathSegmentRaw[] = []
+
+  const absPoints = getPathAbsPoints(segments)
+  const absContolPoints = getPathAbsControlPoints(segments, absPoints)
+
+  const length = segments.length
+  let current: PathSegmentRaw
+  let absP: IVec2
+  let closeCount = false
+  for (let i = length - 1; 0 <= i; i--) {
+    current = segments[i]
+    absP = absPoints[i === 0 ? length - 1 : i - 1]
+
+    switch (current[0]) {
+      case 'M':
+        if (closeCount) {
+          ret[ret.length - 1] = ['Z']
+          closeCount = false
+        }
+        ret.push([current[0], absP.x, absP.y])
+        break
+      case 'm':
+        if (closeCount) {
+          ret[ret.length - 1] = ['z']
+          closeCount = false
+        }
+        if (i === 0) {
+          ret.push(['M', absP.x, absP.y])
+        } else {
+          ret.push([current[0], -current[1], -current[2]])
+        }
+        break
+      case 'L':
+        if (closeCount && i === 0) {
+          ret[ret.length - 1] = ['Z']
+          closeCount = false
+        }
+        ret.push([current[0], absP.x, absP.y])
+        break
+      case 'l':
+        if (closeCount && i === 0) {
+          ret[ret.length - 1] = ['z']
+          closeCount = false
+        }
+        if (i === 0) {
+          ret.push(['L', absP.x, absP.y])
+        } else {
+          ret.push([current[0], -current[1], -current[2]])
+        }
+        break
+      case 'H':
+        ret.push([current[0], absP.x])
+        break
+      case 'h':
+        ret.push([current[0], -current[1]])
+        break
+      case 'V':
+        ret.push([current[0], absP.y])
+        break
+      case 'v':
+        ret.push([current[0], -current[1]])
+        break
+      case 'Q': {
+        ret.push([current[0], current[1], current[2], absP.x, absP.y])
+        break
+      }
+      case 'q': {
+        ret.push([
+          current[0],
+          current[1] - current[3],
+          current[2] - current[4],
+          -current[3],
+          -current[4],
+        ])
+        break
+      }
+      case 'T': {
+        const c = absContolPoints[i]
+        ret.push(['Q', c.x, c.y, absP.x, absP.y])
+        break
+      }
+      case 't': {
+        const b = absPoints[i]
+        const c = absContolPoints[i]
+        ret.push(['q', c.x - b.x, c.y - b.y, -current[1], -current[2]])
+        break
+      }
+      case 'C': {
+        ret.push([
+          current[0],
+          current[3],
+          current[4],
+          current[1],
+          current[2],
+          absP.x,
+          absP.y,
+        ])
+        break
+      }
+      case 'c': {
+        ret.push([
+          current[0],
+          current[3] - current[5],
+          current[4] - current[6],
+          current[1] - current[5],
+          current[2] - current[6],
+          -current[5],
+          -current[6],
+        ])
+        break
+      }
+      case 'S': {
+        const c = absContolPoints[i]
+        ret.push(['C', current[1], current[2], c.x, c.y, absP.x, absP.y])
+        break
+      }
+      case 's': {
+        const b = absPoints[i]
+        const c = absContolPoints[i]
+        ret.push([
+          'c',
+          current[1] - current[3],
+          current[2] - current[4],
+          c.x - b.x,
+          c.y - b.y,
+          -current[3],
+          -current[4],
+        ])
+        break
+      }
+      case 'A': {
+        ret.push([
+          current[0],
+          current[1],
+          current[2],
+          current[3],
+          current[4],
+          !current[5],
+          absP.x,
+          absP.y,
+        ])
+        break
+      }
+      case 'a': {
+        ret.push([
+          current[0],
+          current[1],
+          current[2],
+          current[3],
+          current[4],
+          !current[5],
+          -current[6],
+          -current[7],
+        ])
+        break
+      }
+      case 'Z':
+        closeCount = true
+        ret.push(['L', absP.x, absP.y])
+        break
+      case 'z': {
+        closeCount = true
+        const absPP = absPoints[i]
+        ret.push(['l', absP.x - absPP.x, absP.y - absPP.y])
+        break
+      }
+    }
+  }
+
+  ret.unshift(ret.pop()!)
+
+  return ret
 }
 
 /**

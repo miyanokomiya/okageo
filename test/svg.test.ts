@@ -1660,6 +1660,205 @@ describe('getPathPointAtLength', () => {
   })
 })
 
+describe('reversePath', () => {
+  it('should reverse the path', () => {
+    expect(
+      svg.reversePath([
+        ['M', 0, 0],
+        ['L', 10, 0],
+        ['L', 10, 10],
+      ])
+    ).toEqual([
+      ['M', 10, 10],
+      ['L', 10, 0],
+      ['L', 0, 0],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['H', 10],
+        ['V', 20],
+      ])
+    ).toEqual([
+      ['M', 10, 20],
+      ['V', 3],
+      ['H', 2],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['h', 10],
+        ['v', 20],
+      ])
+    ).toEqual([
+      ['M', 12, 23],
+      ['v', -20],
+      ['h', -10],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 10],
+      ['Q', 12, 3, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['q', 14, 6, 10, 10],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 12, 13],
+      ['q', 4, -4, -10, -10],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['C', 4, 5, 12, 3, 10, 10],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 10],
+      ['C', 12, 3, 4, 5, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['c', 2, 2, 10, 0, 8, 7],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 10],
+      ['c', 2, -7, -6, -5, -8, -7],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['A', 4, 5, 0, false, false, 10, 15],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 15],
+      ['A', 4, 5, 0, false, true, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['a', 4, 5, 0, false, true, 8, 12],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 15],
+      ['a', 4, 5, 0, false, false, -8, -12],
+    ])
+  })
+
+  it('should convert "T" to "Q"', () => {
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['T', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['Q', 8, 17, 10, 10],
+      ['Q', 12, 3, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['t', 10, 10],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['q', -12, -3, -10, -10],
+      ['Q', 12, 3, 2, 3],
+    ])
+  })
+
+  it('should convert "S" to "C"', () => {
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['S', 14, 15, 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['C', 14, 15, 8, 17, 10, 10],
+      ['Q', 12, 3, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['s', 4, 5, 10, 10],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['c', -6, -5, -12, -3, -10, -10],
+      ['Q', 12, 3, 2, 3],
+    ])
+  })
+
+  it('should convert head "m" or "l" to capital one', () => {
+    expect(
+      svg.reversePath([
+        ['m', 2, 3],
+        ['l', 10, 5],
+        ['l', 10, 10],
+      ])
+    ).toEqual([
+      ['M', 22, 18],
+      ['l', -10, -10],
+      ['l', -10, -5],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['l', 2, 3],
+        ['l', 10, 5],
+        ['l', 10, 10],
+      ])
+    ).toEqual([
+      ['L', 22, 18],
+      ['l', -10, -10],
+      ['l', -10, -5],
+    ])
+  })
+
+  it('should use "Z" and "z" as much as possible', () => {
+    expect(
+      svg.reversePath([['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['Z']])
+    ).toEqual([['M', 0, 0], ['L', 10, 10], ['L', 10, 0], ['Z']])
+    expect(
+      svg.reversePath([['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['z']])
+    ).toEqual([['M', 0, 0], ['l', 10, 10], ['L', 10, 0], ['Z']])
+  })
+})
+
 describe('parsePathD', () => {
   it('should approximate curves via "split" option', () => {
     const d = 'M0 0 Q 10 0 10 10'
