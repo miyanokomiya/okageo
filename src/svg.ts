@@ -931,6 +931,40 @@ export function reversePath(segments: PathSegmentRaw[]): PathSegmentRaw[] {
 }
 
 /**
+ * Slide segments.
+ * Relative segments will not be slided by this function.
+ */
+export function slidePath(
+  segments: PathSegmentRaw[],
+  diff: IVec2
+): PathSegmentRaw[] {
+  return segments.map((current) => {
+    const slided: PathSegmentRaw = [...current]
+    switch (slided[0]) {
+      case 'H':
+        slided[1] += diff.x
+        break
+      case 'V':
+        slided[1] += diff.y
+        break
+      case 'A':
+        slided[6] += diff.x
+        slided[7] += diff.y
+        break
+      default:
+        if (slided[0] === slided[0].toUpperCase()) {
+          for (let i = 1; i < slided.length - 1; i += 2) {
+            ;(slided[i] as number) += diff.x
+            ;(slided[i + 1] as number) += diff.y
+          }
+        }
+        break
+    }
+    return slided
+  })
+}
+
+/**
  * Parse path d string and approximate it as a polyline
  * Note:
  * - Jump information by M/m commands doesn't remain in a polyline

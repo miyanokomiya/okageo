@@ -1990,6 +1990,70 @@ describe('reversePath', () => {
   })
 })
 
+describe('slidePath', () => {
+  it('should slide abstract segments', () => {
+    expect(
+      svg.slidePath(
+        [
+          ['M', 0, 0],
+          ['L', 5, 6],
+          ['H', 2],
+          ['V', 3],
+          ['Q', 0, 0, 1, 2],
+          ['T', 0, 0],
+          ['C', 0, 0, 1, 2, 3, 4],
+          ['S', 0, 0, 1, 2],
+          ['A', 0, 0, 0, false, false, 1, 2],
+          ['Z'],
+        ],
+        { x: 100, y: 200 }
+      )
+    ).toEqual([
+      ['M', 100, 200],
+      ['L', 105, 206],
+      ['H', 102],
+      ['V', 203],
+      ['Q', 100, 200, 101, 202],
+      ['T', 100, 200],
+      ['C', 100, 200, 101, 202, 103, 204],
+      ['S', 100, 200, 101, 202],
+      ['A', 0, 0, 0, false, false, 101, 202],
+      ['Z'],
+    ])
+  })
+
+  it('should not slide relative segments', () => {
+    expect(
+      svg.slidePath(
+        [
+          ['m', 0, 0],
+          ['l', 5, 6],
+          ['h', 2],
+          ['v', 3],
+          ['q', 0, 0, 1, 2],
+          ['t', 0, 0],
+          ['c', 0, 0, 1, 2, 3, 4],
+          ['s', 0, 0, 1, 2],
+          ['a', 0, 0, 0, false, false, 1, 2],
+          ['z'],
+        ],
+        { x: 100, y: 200 }
+      )
+    ).toEqual([
+      ['m', 0, 0],
+      ['l', 5, 6],
+      ['h', 2],
+      ['v', 3],
+      ['q', 0, 0, 1, 2],
+      ['t', 0, 0],
+      ['c', 0, 0, 1, 2, 3, 4],
+      ['s', 0, 0, 1, 2],
+      ['a', 0, 0, 0, false, false, 1, 2],
+      ['z'],
+    ])
+  })
+})
+
 describe('parsePathD', () => {
   it('should approximate curves via "split" option', () => {
     const d = 'M0 0 Q 10 0 10 10'
