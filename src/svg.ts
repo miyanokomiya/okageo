@@ -296,12 +296,6 @@ export function pathSegmentRawToString(seg: PathSegmentRaw): string {
     .join(' ')
 }
 
-function getPathAbsPoints(segments: PathSegmentRaw[]): IVec2[] {
-  return _parsePathSegments(segments).map((s) =>
-    s.curve ? s.lerpFn(1) : s.segment[1]
-  )
-}
-
 type PathSegment =
   | {
       command: string
@@ -321,8 +315,8 @@ export function parsePathSegments(dStr: string): PathSegment[] {
 function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
   const ret: PathSegment[] = []
   let startP = geo.vec(0, 0)
-  let currentP = geo.vec(0, 0)
-  let currentControlP = geo.vec(0, 0)
+  let currentP = startP
+  let currentControlP = startP
   let currentBezier: 1 | 2 | 3 = 1
   segments.forEach((current) => {
     switch (current[0]) {
@@ -655,74 +649,154 @@ export function getPathPointAtLength(
   )
 }
 
-function getPathAbsControlPoints(
-  segments: PathSegmentRaw[],
-  absPoints: IVec2[]
-): IVec2[] {
-  const ret: IVec2[] = []
+function getPathAbsPoints(segments: PathSegmentRaw[]): {
+  controls: IVec2[]
+  points: IVec2[]
+} {
+  const points: IVec2[] = []
+  const controls: IVec2[] = []
 
   let seg: PathSegmentRaw
-  let absP: IVec2
-  let preC = geo.vec(0, 0)
+  let startP = geo.vec(0, 0)
+  let absP = startP
+  let preC = startP
   let preCType: 1 | 2 | 3 = 1
   for (let i = 0; i < segments.length; i++) {
     seg = segments[i]
-    absP = i === 0 ? geo.vec(0, 0) : absPoints[i - 1]
     switch (seg[0]) {
+      case 'M': {
+        const p = geo.vec(seg[1], seg[2])
+        startP = absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'm': {
+        const p = geo.add(geo.vec(seg[1], seg[2]), absP)
+        startP = absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'L': {
+        const p = geo.vec(seg[1], seg[2])
+        startP ??= p
+        absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'l': {
+        const p = geo.add(geo.vec(seg[1], seg[2]), absP)
+        startP ??= p
+        absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'H': {
+        const p = geo.vec(seg[1], absP.y)
+        absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'h': {
+        const p = geo.vec(seg[1] + absP.x, absP.y)
+        absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'V': {
+        const p = geo.vec(absP.x, seg[1])
+        absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'v': {
+        const p = geo.vec(absP.x, seg[1] + absP.y)
+        absP = preC = p
+        preCType = 1
+        break
+      }
       case 'Q': {
         const p = geo.vec(seg[1], seg[2])
-        ret.push(p)
         preC = p
+        absP = geo.vec(seg[3], seg[4])
         preCType = 2
         break
       }
       case 'q': {
         const p = geo.vec(seg[1] + absP.x, seg[2] + absP.y)
-        ret.push(p)
         preC = p
+        absP = geo.vec(seg[3] + absP.x, seg[4] + absP.y)
         preCType = 2
         break
       }
-      case 'T':
+      case 'T': {
+        const p = preCType === 2 ? geo.lerpPoint(preC, absP, 2) : absP
+        preC = p
+        absP = geo.vec(seg[1], seg[2])
+        preCType = 2
+        break
+      }
       case 't': {
         const p = preCType === 2 ? geo.lerpPoint(preC, absP, 2) : absP
-        ret.push(p)
         preC = p
+        absP = geo.vec(seg[1] + absP.x, seg[2] + absP.y)
         preCType = 2
         break
       }
       case 'C': {
         const p = geo.vec(seg[3], seg[4])
-        ret.push(p)
         preC = p
+        absP = geo.vec(seg[5], seg[6])
         preCType = 3
         break
       }
       case 'c': {
         const p = geo.vec(seg[3] + absP.x, seg[4] + absP.y)
-        ret.push(p)
         preC = p
+        absP = geo.vec(seg[5] + absP.x, seg[6] + absP.y)
         preCType = 3
         break
       }
-      case 'S':
+      case 'S': {
+        const p = preCType === 3 ? geo.lerpPoint(preC, absP, 2) : absP
+        preC = p
+        absP = geo.vec(seg[3], seg[4])
+        preCType = 3
+        break
+      }
       case 's': {
         const p = preCType === 3 ? geo.lerpPoint(preC, absP, 2) : absP
-        ret.push(p)
         preC = p
+        absP = geo.vec(seg[3] + absP.x, seg[4] + absP.y)
         preCType = 3
         break
       }
-      default: {
-        const p = absPoints[i]
-        ret.push(p)
-        preC = p
+      case 'A': {
+        const p = geo.vec(seg[6], seg[7])
+        absP = preC = p
         preCType = 1
+        break
       }
+      case 'a': {
+        const p = geo.vec(seg[6] + absP.x, seg[7] + absP.y)
+        absP = preC = p
+        preCType = 1
+        break
+      }
+      case 'Z':
+      case 'z': {
+        absP = preC = startP
+        preCType = 1
+        break
+      }
+      default:
+        throw getUnknownError()
     }
+
+    controls.push(preC)
+    points.push(absP)
   }
 
-  return ret
+  return { points, controls }
 }
 
 function isCurveCommand(c: string) {
@@ -742,8 +816,8 @@ export function reversePath(segments: PathSegmentRaw[]): PathSegmentRaw[] {
 
   const ret: PathSegmentRaw[] = []
 
-  const absPoints = getPathAbsPoints(segments)
-  const absContolPoints = getPathAbsControlPoints(segments, absPoints)
+  const { points: absPoints, controls: absContolPoints } =
+    getPathAbsPoints(segments)
 
   const length = segments.length
   let current: PathSegmentRaw
