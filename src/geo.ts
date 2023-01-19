@@ -974,8 +974,14 @@ export function getArcLerpFn(
       : dtheta_tmp
 
   return (t) => {
-    const dr = theta + dtheta * t
-    return add(rotateFn(vec(rxa * Math.cos(dr), rya * Math.sin(dr))), c)
+    if (t === 0) {
+      return startPoint
+    } else if (t === 1) {
+      return endPoint
+    } else {
+      const dr = theta + dtheta * t
+      return add(rotateFn(vec(rxa * Math.cos(dr), rya * Math.sin(dr))), c)
+    }
   }
 }
 
