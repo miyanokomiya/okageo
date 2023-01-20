@@ -388,8 +388,8 @@ describe('parsePath path解析', () => {
       })
     })
   })
-  describe('T解析', () => {
-    it('結果が正しいこと', () => {
+  describe('parse "T"', () => {
+    it('should return splited points', () => {
       const str = '<path d="M-10,-10 Q1,2 0,0 T 5,6" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
@@ -416,9 +416,37 @@ describe('parsePath path解析', () => {
         expect(p.y).toBeCloseTo(res[i].y)
       })
     })
+    it('should not refer Bezier3 control point', () => {
+      const str = '<path d="M-10,-10 C-1,-2 1,2 0,0 T 5,6" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const cPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: -1, y: -2 },
+          { x: 1, y: 2 },
+          { x: 0, y: 0 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...tPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 5, y: 6 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...cPoints, ...tPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
   })
-  describe('t解析', () => {
-    it('結果が正しいこと', () => {
+  describe('parse "t"', () => {
+    it('should return splited points', () => {
       const str = '<path d="M-10,-10 Q3,4 1,1 t 4,5" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
@@ -439,6 +467,34 @@ describe('parsePath path解析', () => {
         svg.configs.bezierSplitSize
       )
       const pList = [...qPoints, ...tPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+    it('should not refer Bezier3 control point', () => {
+      const str = '<path d="M-10,-10 C1,2 3,4 1,1 t 4,5" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const cPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: 1, y: 2 },
+          { x: 3, y: 4 },
+          { x: 1, y: 1 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...tPoints] = geo.approximateBezier(
+        [
+          { x: 1, y: 1 },
+          { x: 1, y: 1 },
+          { x: 5, y: 6 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...cPoints, ...tPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
         expect(p.x).toBeCloseTo(res[i].x)
@@ -488,14 +544,15 @@ describe('parsePath path解析', () => {
       })
     })
   })
-  describe('S解析', () => {
-    it('結果が正しいこと', () => {
-      const str = '<path d="M-10,-10 Q1,2 0,0 S 5,6 7,8" />'
+  describe('parse "S"', () => {
+    it('should return splited points', () => {
+      const str = '<path d="M-10,-10 C2,3 1,2 0,0 S 5,6 7,8" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const qPoints = geo.approximateBezier(
+      const cPoints = geo.approximateBezier(
         [
           { x: -10, y: -10 },
+          { x: 2, y: 3 },
           { x: 1, y: 2 },
           { x: 0, y: 0 },
         ],
@@ -510,6 +567,34 @@ describe('parsePath path解析', () => {
         ],
         svg.configs.bezierSplitSize
       )
+      const pList = [...cPoints, ...sPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+    it('should not refer Bezeir2 control point', () => {
+      const str = '<path d="M-10,-10 Q1,2 0,0 S 5,6 7,8" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const qPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: 1, y: 2 },
+          { x: 0, y: 0 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...sPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 5, y: 6 },
+          { x: 7, y: 8 },
+        ],
+        svg.configs.bezierSplitSize
+      )
       const pList = [...qPoints, ...sPoints]
       expect(pList).toHaveLength(res.length)
       pList.forEach((p, i) => {
@@ -518,14 +603,15 @@ describe('parsePath path解析', () => {
       })
     })
   })
-  describe('s解析', () => {
-    it('結果が正しいこと', () => {
-      const str = '<path d="M-10,-10 Q3,4 1,1 s 4,5 6,7" />'
+  describe('parse "s"', () => {
+    it('should return splited points', () => {
+      const str = '<path d="M-10,-10 C1,2 3,4 1,1 s 4,5 6,7" />'
       const elm = parseSvgElement(str) as SVGPathElement
       const res = svg.parsePath(elm)
-      const qPoints = geo.approximateBezier(
+      const cPoints = geo.approximateBezier(
         [
           { x: -10, y: -10 },
+          { x: 1, y: 2 },
           { x: 3, y: 4 },
           { x: 1, y: 1 },
         ],
@@ -535,6 +621,34 @@ describe('parsePath path解析', () => {
         [
           { x: 1, y: 1 },
           { x: -1, y: -2 },
+          { x: 5, y: 6 },
+          { x: 7, y: 8 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const pList = [...cPoints, ...sPoints]
+      expect(pList).toHaveLength(res.length)
+      pList.forEach((p, i) => {
+        expect(p.x).toBeCloseTo(res[i].x)
+        expect(p.y).toBeCloseTo(res[i].y)
+      })
+    })
+    it('should not refer Bezeir2 control point', () => {
+      const str = '<path d="M-10,-10 Q1,2 0,0 s 5,6 7,8" />'
+      const elm = parseSvgElement(str) as SVGPathElement
+      const res = svg.parsePath(elm)
+      const qPoints = geo.approximateBezier(
+        [
+          { x: -10, y: -10 },
+          { x: 1, y: 2 },
+          { x: 0, y: 0 },
+        ],
+        svg.configs.bezierSplitSize
+      )
+      const [, ...sPoints] = geo.approximateBezier(
+        [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
           { x: 5, y: 6 },
           { x: 7, y: 8 },
         ],
@@ -1657,6 +1771,475 @@ describe('getPathPointAtLength', () => {
     const res1 = svg.getPathPointAtLength(d, length)
     expect(res1.x).toBeCloseTo(125)
     expect(res1.y).toBeCloseTo(100)
+  })
+})
+
+describe('reversePath', () => {
+  it('should reverse the path', () => {
+    expect(
+      svg.reversePath([
+        ['M', 0, 0],
+        ['L', 10, 0],
+        ['L', 10, 10],
+      ])
+    ).toEqual([
+      ['M', 10, 10],
+      ['L', 10, 0],
+      ['L', 0, 0],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['H', 10],
+        ['V', 20],
+      ])
+    ).toEqual([
+      ['M', 10, 20],
+      ['V', 3],
+      ['H', 2],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['h', 10],
+        ['v', 20],
+      ])
+    ).toEqual([
+      ['M', 12, 23],
+      ['v', -20],
+      ['h', -10],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 10],
+      ['Q', 12, 3, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['q', 14, 6, 10, 10],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 12, 13],
+      ['q', 4, -4, -10, -10],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['C', 4, 5, 12, 3, 10, 10],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 10],
+      ['C', 12, 3, 4, 5, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['c', 2, 2, 10, 0, 8, 7],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 10],
+      ['c', 2, -7, -6, -5, -8, -7],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['A', 4, 5, 0, false, false, 10, 15],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 15],
+      ['A', 4, 5, 0, false, true, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['a', 4, 5, 0, false, true, 8, 12],
+        ['L', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['L', 10, 15],
+      ['a', 4, 5, 0, false, false, -8, -12],
+    ])
+  })
+
+  it('should convert "T" to "Q"', () => {
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['T', 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['Q', 8, 17, 10, 10],
+      ['Q', 12, 3, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['t', 10, 10],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['q', -12, -3, -10, -10],
+      ['Q', 12, 3, 2, 3],
+    ])
+  })
+
+  it('should convert "S" to "C"', () => {
+    // "S" shouldn't refer Bezier2 control point
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['Q', 12, 3, 10, 10],
+        ['S', 14, 15, 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['C', 14, 15, 10, 10, 10, 10],
+      ['Q', 12, 3, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['C', 5, 7, 12, 3, 10, 10],
+        ['S', 14, 15, 20, 20],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['C', 14, 15, 8, 17, 10, 10],
+      ['C', 12, 3, 5, 7, 2, 3],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['M', 2, 3],
+        ['C', 5, 7, 12, 3, 10, 10],
+        ['s', 4, 5, 10, 10],
+      ])
+    ).toEqual([
+      ['M', 20, 20],
+      ['c', -6, -5, -12, -3, -10, -10],
+      ['C', 12, 3, 5, 7, 2, 3],
+    ])
+  })
+
+  it('should convert head "m" or "l" to capital one', () => {
+    expect(
+      svg.reversePath([
+        ['m', 2, 3],
+        ['l', 10, 5],
+        ['l', 10, 10],
+      ])
+    ).toEqual([
+      ['M', 22, 18],
+      ['l', -10, -10],
+      ['l', -10, -5],
+    ])
+
+    expect(
+      svg.reversePath([
+        ['l', 2, 3],
+        ['l', 10, 5],
+        ['l', 10, 10],
+      ])
+    ).toEqual([
+      ['L', 22, 18],
+      ['l', -10, -10],
+      ['l', -10, -5],
+    ])
+  })
+
+  it('should use "Z" and "z" if target segment is not a curve', () => {
+    expect(
+      svg.reversePath([['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['Z']])
+    ).toEqual([['M', 0, 0], ['L', 10, 10], ['L', 10, 0], ['Z']])
+    expect(
+      svg.reversePath([['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['z']])
+    ).toEqual([['M', 0, 0], ['l', 10, 10], ['L', 10, 0], ['Z']])
+
+    expect(
+      svg.reversePath([['M', 25, 175], ['Q', 25, 25, 175, 2], ['Z']])
+    ).toEqual([['M', 25, 175], ['L', 175, 2], ['Q', 25, 25, 25, 175], ['Z']])
+  })
+})
+
+describe('slidePath', () => {
+  it('should slide abstract segments', () => {
+    expect(
+      svg.slidePath(
+        [
+          ['M', 0, 0],
+          ['L', 5, 6],
+          ['H', 2],
+          ['V', 3],
+          ['Q', 0, 0, 1, 2],
+          ['T', 0, 0],
+          ['C', 0, 0, 1, 2, 3, 4],
+          ['S', 0, 0, 1, 2],
+          ['A', 0, 0, 0, false, false, 1, 2],
+          ['Z'],
+        ],
+        { x: 100, y: 200 }
+      )
+    ).toEqual([
+      ['M', 100, 200],
+      ['L', 105, 206],
+      ['H', 102],
+      ['V', 203],
+      ['Q', 100, 200, 101, 202],
+      ['T', 100, 200],
+      ['C', 100, 200, 101, 202, 103, 204],
+      ['S', 100, 200, 101, 202],
+      ['A', 0, 0, 0, false, false, 101, 202],
+      ['Z'],
+    ])
+  })
+
+  it('should not slide relative segments', () => {
+    expect(
+      svg.slidePath(
+        [
+          ['m', 0, 0],
+          ['l', 5, 6],
+          ['h', 2],
+          ['v', 3],
+          ['q', 0, 0, 1, 2],
+          ['t', 0, 0],
+          ['c', 0, 0, 1, 2, 3, 4],
+          ['s', 0, 0, 1, 2],
+          ['a', 0, 0, 0, false, false, 1, 2],
+          ['z'],
+        ],
+        { x: 100, y: 200 }
+      )
+    ).toEqual([
+      ['m', 0, 0],
+      ['l', 5, 6],
+      ['h', 2],
+      ['v', 3],
+      ['q', 0, 0, 1, 2],
+      ['t', 0, 0],
+      ['c', 0, 0, 1, 2, 3, 4],
+      ['s', 0, 0, 1, 2],
+      ['a', 0, 0, 0, false, false, 1, 2],
+      ['z'],
+    ])
+  })
+})
+
+describe('scalePath', () => {
+  it('should scale segments', () => {
+    expect(
+      svg.scalePath(
+        [
+          ['M', 10, 20],
+          ['L', 5, 6],
+          ['H', 2],
+          ['V', 3],
+          ['Q', 10, 20, 1, 2],
+          ['T', 10, 20],
+          ['C', 10, 20, 1, 2, 3, 4],
+          ['S', 10, 20, 1, 2],
+          ['A', 10, 20, 0, false, false, 1, 2],
+          ['Z'],
+        ],
+        { x: -1, y: -2 }
+      )
+    ).toEqual([
+      ['M', -10, -40],
+      ['L', -5, -12],
+      ['H', -2],
+      ['V', -6],
+      ['Q', -10, -40, -1, -4],
+      ['T', -10, -40],
+      ['C', -10, -40, -1, -4, -3, -8],
+      ['S', -10, -40, -1, -4],
+      ['A', 10, 40, 0, false, false, -1, -4],
+      ['Z'],
+    ])
+
+    expect(
+      svg.scalePath(
+        [
+          ['m', 10, 20],
+          ['l', 5, 6],
+          ['h', 2],
+          ['v', 3],
+          ['q', 10, 20, 1, 2],
+          ['t', 10, 20],
+          ['c', 10, 20, 1, 2, 3, 4],
+          ['s', 10, 20, 1, 2],
+          ['a', 10, 20, 0, false, false, 1, 2],
+          ['z'],
+        ],
+        { x: -1, y: -2 }
+      )
+    ).toEqual([
+      ['m', -10, -40],
+      ['l', -5, -12],
+      ['h', -2],
+      ['v', -6],
+      ['q', -10, -40, -1, -4],
+      ['t', -10, -40],
+      ['c', -10, -40, -1, -4, -3, -8],
+      ['s', -10, -40, -1, -4],
+      ['a', 10, 40, 0, false, false, -1, -4],
+      ['z'],
+    ])
+  })
+
+  it('should reverse arc sweep if scale vector has negative inner product', () => {
+    expect(
+      svg.scalePath(
+        [
+          ['M', 1, 2],
+          ['A', 10, 20, 0, false, false, 1, 2],
+        ],
+        { x: -1, y: -1 }
+      )
+    ).toEqual([
+      ['M', -1, -2],
+      ['A', 10, 20, 0, false, false, -1, -2],
+    ])
+    expect(
+      svg.scalePath(
+        [
+          ['M', 1, 2],
+          ['A', 10, 20, 0, false, false, 1, 2],
+        ],
+        { x: -1, y: 1 }
+      )
+    ).toEqual([
+      ['M', -1, 2],
+      ['A', 10, 20, 0, false, true, -1, 2],
+    ])
+    expect(
+      svg.scalePath(
+        [
+          ['M', 1, 2],
+          ['A', 10, 20, 0, false, false, 1, 2],
+        ],
+        { x: 1, y: -1 }
+      )
+    ).toEqual([
+      ['M', 1, -2],
+      ['A', 10, 20, 0, false, true, 1, -2],
+    ])
+  })
+})
+
+describe('rotatePath', () => {
+  it('should rotate segments', () => {
+    const ret0 = svg.rotatePath(
+      [
+        ['M', -30, -30],
+        ['L', 0, -100],
+        ['L', 30, -30],
+      ],
+      Math.PI
+    )
+    expect(ret0[0][0]).toBe('M')
+    expect(ret0[0][1]).toBeCloseTo(30)
+    expect(ret0[0][2]).toBeCloseTo(30)
+    expect(ret0[1][0]).toBe('L')
+    expect(ret0[1][1]).toBeCloseTo(0)
+    expect(ret0[1][2]).toBeCloseTo(100)
+    expect(ret0[2][0]).toBe('L')
+    expect(ret0[2][1]).toBeCloseTo(-30)
+    expect(ret0[2][2]).toBeCloseTo(30)
+
+    const ret1 = svg.rotatePath(
+      [
+        ['M', -30, -30],
+        ['L', 0, -100],
+        ['L', 30, -30],
+      ],
+      Math.PI / 2
+    )
+    expect(ret1[0][1]).toBeCloseTo(30)
+    expect(ret1[0][2]).toBeCloseTo(-30)
+    expect(ret1[1][1]).toBeCloseTo(100)
+    expect(ret1[1][2]).toBeCloseTo(0)
+    expect(ret1[2][1]).toBeCloseTo(30)
+    expect(ret1[2][2]).toBeCloseTo(30)
+
+    const ret2 = svg.rotatePath(
+      [
+        ['M', -30, -30],
+        ['A', 10, 20, 0, false, false, 100, 200],
+      ],
+      Math.PI / 2
+    )
+    expect(ret2[0][1]).toBeCloseTo(30)
+    expect(ret2[0][2]).toBeCloseTo(-30)
+    expect(ret2[1][1]).toBeCloseTo(10)
+    expect(ret2[1][2]).toBeCloseTo(20)
+    expect(ret2[1][3]).toBeCloseTo(90)
+    expect(ret2[1][4]).toBe(false)
+    expect(ret2[1][5]).toBe(false)
+    expect(ret2[1][6]).toBeCloseTo(-200)
+    expect(ret2[1][7]).toBeCloseTo(100)
+  })
+
+  it('should convert "H", "h" to "L", "l"', () => {
+    const ret0 = svg.rotatePath(
+      [
+        ['M', 10, 20],
+        ['H', 100],
+        ['h', 30],
+      ],
+      Math.PI / 2
+    )
+    expect(ret0[1][0]).toBe('L')
+    expect(ret0[1][1]).toBeCloseTo(-20)
+    expect(ret0[1][2]).toBeCloseTo(100)
+    expect(ret0[2][0]).toBe('l')
+    expect(ret0[2][1]).toBeCloseTo(0)
+    expect(ret0[2][2]).toBeCloseTo(30)
+  })
+
+  it('should convert "V", "v" to "L", "l"', () => {
+    const ret0 = svg.rotatePath(
+      [
+        ['M', 10, 20],
+        ['V', 100],
+        ['v', 30],
+      ],
+      Math.PI / 2
+    )
+    expect(ret0[1][0]).toBe('L')
+    expect(ret0[1][1]).toBeCloseTo(-100)
+    expect(ret0[1][2]).toBeCloseTo(10)
+    expect(ret0[2][0]).toBe('l')
+    expect(ret0[2][1]).toBeCloseTo(-30)
+    expect(ret0[2][2]).toBeCloseTo(0)
   })
 })
 
