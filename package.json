@@ -23,7 +23,7 @@
     "test": "jest --coverage",
     "demo": "parcel demo/index.html",
     "build": "rm -rf ./dist && yarn rollup -c",
-    "build:demo": "rm -rf ./dist-demo && parcel build demo/index.html -d ./dist-demo --public-url .",
+    "build:demo": "rm -rf ./dist-demo && parcel build demo/index.html -d ./dist-demo --public-url . --no-minify",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
