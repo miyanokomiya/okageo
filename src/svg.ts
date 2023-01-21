@@ -1331,7 +1331,8 @@ export function splitD(dString: string): string[][] {
   // 要素分割
   const strList = dString
     .replace(allCommand, ' $& ')
-    .replace(/([^e])(-\d(\d*\.?)\d*)/g, '$1 $2 ')
+    // Insert space before each signature, but don't destruct exponent exporession such as 2.2e-10.
+    .replace(/([^e])(-|\+)/g, '$1 $2')
     .split(/,| /)
     .filter((str) => str)
   // 直前のコマンド
