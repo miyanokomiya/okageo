@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.7] - 2023-01-21
+### Fixed
+- Fix unexpected error for parsing arc segment when its radius is close to 0
+
 ## [3.0.6] - 2023-01-21
 ### Fixed
 - Fix invalid path parsing for exponent number like `-2.2e-14`

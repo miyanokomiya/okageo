@@ -16,8 +16,8 @@ export const configs: ISvgConfigs = {
  * @param pathInfo 図形情報
  */
 export function draw(ctx: CanvasRenderingContext2D, pathInfo: ISvgPath): void {
-  ctx.lineCap = pathInfo.style.lineCap as CanvasLineCap
-  ctx.lineJoin = pathInfo.style.lineJoin as CanvasLineJoin
+  ctx.lineCap = pathInfo.style.lineCap as any
+  ctx.lineJoin = pathInfo.style.lineJoin as any
 
   ctx.beginPath()
   pathInfo.d.forEach((p, i) => {
