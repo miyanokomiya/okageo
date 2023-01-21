@@ -3302,7 +3302,8 @@ var allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g;
 
 function splitD(dString) {
   // 要素分割
-  var strList = dString.replace(allCommand, ' $& ').replace(/([^e])(-\d(\d*\.?)\d*)/g, '$1 $2 ').split(/,| /).filter(function (str) {
+  var strList = dString.replace(allCommand, ' $& ') // Insert space before each signature, but don't destruct exponent exporession such as 2.2e-10.
+  .replace(/([^e])(-|\+)/g, '$1 $2').split(/,| /).filter(function (str) {
     return str;
   }); // 直前のコマンド
 
@@ -4006,4 +4007,4 @@ function runRotate() {
 runRotate();
 document.getElementById('run-rotate').addEventListener('click', runRotate);
 },{"../src/geo":"WBaa","../src/svg":"tzhc"}]},{},["ZCfc"], null)
-//# sourceMappingURL=main.70934147.js.map
+//# sourceMappingURL=main.1760ae9b.js.map
