@@ -933,7 +933,7 @@ export function getArcLerpFn(
   radian: number
 ): (t: number) => IVec2 {
   if (Math.abs(rx * ry) < MINVALUE) {
-    return (t) => lerpPoint(p0, p1, t)
+    return (t) => lerpPoint(startPoint, endPoint, t)
   }
 
   const r = radian

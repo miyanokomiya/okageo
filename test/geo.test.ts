@@ -1302,6 +1302,42 @@ describe('getArcLerpFn', () => {
     expect(res(1).x).toBeCloseTo(Math.sqrt(3) / 2)
     expect(res(1).y).toBeCloseTo(-1 / 2)
   })
+
+  it('should use abstract radius', () => {
+    const res = geo.getArcLerpFn(
+      -1,
+      -1,
+      { x: Math.sqrt(3) / 2, y: 1 / 2 },
+      { x: Math.sqrt(3) / 2, y: -1 / 2 },
+      false,
+      true,
+      Math.PI / 2
+    )
+    expect(res(0).x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res(0).y).toBeCloseTo(1 / 2)
+    expect(res(0.5).x).toBeCloseTo(Math.sqrt(3) - 1)
+    expect(res(0.5).y).toBeCloseTo(0)
+    expect(res(1).x).toBeCloseTo(Math.sqrt(3) / 2)
+    expect(res(1).y).toBeCloseTo(-1 / 2)
+  })
+
+  it('should return lerp function for the segment if radius is close to 0', () => {
+    const res = geo.getArcLerpFn(
+      0,
+      1,
+      { x: 10, y: 20 },
+      { x: 110, y: 120 },
+      false,
+      true,
+      Math.PI / 2
+    )
+    expect(res(0).x).toBeCloseTo(10)
+    expect(res(0).y).toBeCloseTo(20)
+    expect(res(0.5).x).toBeCloseTo(60)
+    expect(res(0.5).y).toBeCloseTo(70)
+    expect(res(1).x).toBeCloseTo(110)
+    expect(res(1).y).toBeCloseTo(120)
+  })
 })
 
 describe('lerpPoint', () => {
