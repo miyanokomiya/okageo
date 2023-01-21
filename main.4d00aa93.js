@@ -1100,7 +1100,7 @@ function approximateArcWithPoint(rx, ry, startPoint, endPoint, largeArcFlag, swe
 function getArcLerpFn(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian) {
   if (Math.abs(rx * ry) < MINVALUE) {
     return function (t) {
-      return lerpPoint(p0, p1, t);
+      return lerpPoint(startPoint, endPoint, t);
     };
   }
 
@@ -4007,4 +4007,4 @@ function runRotate() {
 runRotate();
 document.getElementById('run-rotate').addEventListener('click', runRotate);
 },{"../src/geo":"WBaa","../src/svg":"tzhc"}]},{},["ZCfc"], null)
-//# sourceMappingURL=main.1760ae9b.js.map
+//# sourceMappingURL=main.4d00aa93.js.map
