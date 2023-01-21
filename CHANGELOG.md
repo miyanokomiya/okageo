@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.6] - 2023-01-21
+### Fixed
+- Fix invalid path parsing for exponent number like `-2.2e-14`
+
 ## [3.0.5] - 2023-01-19
 ### Added
 - Add new functions to modify SVG path: reverse, slide, scale, rotate

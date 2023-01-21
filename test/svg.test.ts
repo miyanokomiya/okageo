@@ -982,6 +982,36 @@ describe('splitD pathのd要素分解', () => {
       expect(res[2]).toEqual(['L', '-11', '-2'])
     })
   })
+
+  describe('exponent and signature', () => {
+    it('should treat them as number format', () => {
+      const res0 = svg.splitD('M0 0L-4.5e-20-10')
+      expect(res0).toHaveLength(2)
+      expect(res0[0]).toEqual(['M', '0', '0'])
+      expect(res0[1]).toEqual(['L', '-4.5e-20', '-10'])
+
+      const res1 = svg.splitD('M0 0L+4.5e+20+10')
+      expect(res1).toHaveLength(2)
+      expect(res1[0]).toEqual(['M', '0', '0'])
+      expect(res1[1]).toEqual(['L', '+4.5e+20', '+10'])
+
+      // Reported case
+      const res2 = svg.splitD(
+        'M0,0 l50,0 l 4.5e-15 75 l -75 75 l -100 1.2e-14 l -100 -99 l -2.2e-14 -125 l 124 -125'
+      )
+      expect(res2).toHaveLength(8)
+      expect(res2).toEqual([
+        ['M', '0', '0'],
+        ['l', '50', '0'],
+        ['l', '4.5e-15', '75'],
+        ['l', '-75', '75'],
+        ['l', '-100', '1.2e-14'],
+        ['l', '-100', '-99'],
+        ['l', '-2.2e-14', '-125'],
+        ['l', '124', '-125'],
+      ])
+    })
+  })
 })
 
 describe.skip('serializeSvgString svg文字列生成(XMLSerializerがテスト環境で未定義なためskip)', () => {
