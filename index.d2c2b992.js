@@ -1,5 +1,567 @@
-const $42a19166d05576d2$export$e1764cb99718e49f = 0.000001;
-const $42a19166d05576d2$export$6b37290cfd5aead9 = [
+// modules are defined as an array
+// [ module function, map of requires ]
+//
+// map of requires is short require name -> numeric require
+//
+// anything defined in a previous bundle is accessed via the
+// orig method which is the require for previous bundles
+
+(function (modules, entry, mainEntry, parcelRequireName, globalName) {
+  /* eslint-disable no-undef */
+  var globalObject =
+    typeof globalThis !== 'undefined'
+      ? globalThis
+      : typeof self !== 'undefined'
+      ? self
+      : typeof window !== 'undefined'
+      ? window
+      : typeof global !== 'undefined'
+      ? global
+      : {};
+  /* eslint-enable no-undef */
+
+  // Save the require from previous bundle to this closure if any
+  var previousRequire =
+    typeof globalObject[parcelRequireName] === 'function' &&
+    globalObject[parcelRequireName];
+
+  var cache = previousRequire.cache || {};
+  // Do not use `require` to prevent Webpack from trying to bundle this call
+  var nodeRequire =
+    typeof module !== 'undefined' &&
+    typeof module.require === 'function' &&
+    module.require.bind(module);
+
+  function newRequire(name, jumped) {
+    if (!cache[name]) {
+      if (!modules[name]) {
+        // if we cannot find the module within our internal map or
+        // cache jump to the current global require ie. the last bundle
+        // that was added to the page.
+        var currentRequire =
+          typeof globalObject[parcelRequireName] === 'function' &&
+          globalObject[parcelRequireName];
+        if (!jumped && currentRequire) {
+          return currentRequire(name, true);
+        }
+
+        // If there are other bundles on this page the require from the
+        // previous one is saved to 'previousRequire'. Repeat this as
+        // many times as there are bundles until the module is found or
+        // we exhaust the require chain.
+        if (previousRequire) {
+          return previousRequire(name, true);
+        }
+
+        // Try the node require function if it exists.
+        if (nodeRequire && typeof name === 'string') {
+          return nodeRequire(name);
+        }
+
+        var err = new Error("Cannot find module '" + name + "'");
+        err.code = 'MODULE_NOT_FOUND';
+        throw err;
+      }
+
+      localRequire.resolve = resolve;
+      localRequire.cache = {};
+
+      var module = (cache[name] = new newRequire.Module(name));
+
+      modules[name][0].call(
+        module.exports,
+        localRequire,
+        module,
+        module.exports,
+        this
+      );
+    }
+
+    return cache[name].exports;
+
+    function localRequire(x) {
+      var res = localRequire.resolve(x);
+      return res === false ? {} : newRequire(res);
+    }
+
+    function resolve(x) {
+      var id = modules[name][1][x];
+      return id != null ? id : x;
+    }
+  }
+
+  function Module(moduleName) {
+    this.id = moduleName;
+    this.bundle = newRequire;
+    this.exports = {};
+  }
+
+  newRequire.isParcelRequire = true;
+  newRequire.Module = Module;
+  newRequire.modules = modules;
+  newRequire.cache = cache;
+  newRequire.parent = previousRequire;
+  newRequire.register = function (id, exports) {
+    modules[id] = [
+      function (require, module) {
+        module.exports = exports;
+      },
+      {},
+    ];
+  };
+
+  Object.defineProperty(newRequire, 'root', {
+    get: function () {
+      return globalObject[parcelRequireName];
+    },
+  });
+
+  globalObject[parcelRequireName] = newRequire;
+
+  for (var i = 0; i < entry.length; i++) {
+    newRequire(entry[i]);
+  }
+
+  if (mainEntry) {
+    // Expose entry point to Node, AMD or browser globals
+    // Based on https://github.com/ForbesLindesay/umd/blob/master/template.js
+    var mainExports = newRequire(mainEntry);
+
+    // CommonJS
+    if (typeof exports === 'object' && typeof module !== 'undefined') {
+      module.exports = mainExports;
+
+      // RequireJS
+    } else if (typeof define === 'function' && define.amd) {
+      define(function () {
+        return mainExports;
+      });
+
+      // <script>
+    } else if (globalName) {
+      this[globalName] = mainExports;
+    }
+  }
+})({"38PNf":[function(require,module,exports) {
+var _geo = require("../src/geo");
+var _svg = require("../src/svg");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const fileInput = document.getElementById("input");
+fileInput.onchange = (e)=>{
+    const file = e.target.files;
+    if (!file || file.length === 0) return;
+    const reader = new FileReader();
+    reader.readAsText(file[0]);
+    reader.onload = ()=>{
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const pathInfoList = _svg.parseSvgGraphicsStr(reader.result);
+        const inRectList = _svg.fitRect(pathInfoList, 0, 0, canvas.width, canvas.height);
+        inRectList.forEach((info)=>{
+            _geo.triangleSplit(info.d).forEach((points)=>{
+                _svg.draw(ctx, {
+                    d: points,
+                    style: info.style
+                });
+            });
+        });
+    };
+};
+function runReverse() {
+    const text = document.getElementById("input-path").value;
+    document.getElementById("reverse-result").value = _svg.pathSegmentRawsToString(_svg.reversePath(_svg.parsePathSegmentRaws(text)));
+    document.getElementById("path-src").setAttribute("d", text);
+    document.getElementById("path-dist").setAttribute("d", _svg.pathSegmentRawsToString(_svg.reversePath(_svg.parsePathSegmentRaws(text))));
+}
+runReverse();
+document.getElementById("run-reverse").addEventListener("click", runReverse);
+function runModify() {
+    const text = document.getElementById("input-path2").value;
+    document.getElementById("path-src2").setAttribute("d", text);
+    const segs = _svg.parsePathSegmentRaws(text);
+    document.getElementById("path-dist2").setAttribute("d", _svg.pathSegmentRawsToString(_svg.slidePath(segs, {
+        x: 30,
+        y: 30
+    })));
+    document.getElementById("path-dist3").setAttribute("d", _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
+        x: -1,
+        y: 1
+    })));
+    document.getElementById("path-dist4").setAttribute("d", _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
+        x: 1,
+        y: -1
+    })));
+    document.getElementById("path-dist5").setAttribute("d", _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
+        x: -1,
+        y: -1
+    })));
+}
+runModify();
+document.getElementById("run-modify").addEventListener("click", runModify);
+function runRotate() {
+    const text = document.getElementById("input-rotate").value;
+    document.getElementById("rotate-src2").setAttribute("d", text);
+    const segs = _svg.parsePathSegmentRaws(text);
+    document.getElementById("rotate-dist2").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * Math.PI / 5)));
+    document.getElementById("rotate-dist3").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 2) / 5)));
+    document.getElementById("rotate-dist4").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 3) / 5)));
+    document.getElementById("rotate-dist5").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 4) / 5)));
+}
+runRotate();
+document.getElementById("run-rotate").addEventListener("click", runRotate);
+
+},{"../src/geo":"8ubUB","../src/svg":"hNdpk"}],"8ubUB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "MINVALUE", ()=>MINVALUE);
+parcelHelpers.export(exports, "IDENTITY_AFFINE", ()=>IDENTITY_AFFINE);
+parcelHelpers.export(exports, "vec", ()=>vec);
+parcelHelpers.export(exports, "add", ()=>add);
+parcelHelpers.export(exports, "sub", ()=>sub);
+parcelHelpers.export(exports, "multi", ()=>multi);
+parcelHelpers.export(exports, "isSame", ()=>isSame);
+parcelHelpers.export(exports, "getDistance", ()=>getDistance);
+parcelHelpers.export(exports, "getPolylineLength", ()=>getPolylineLength);
+parcelHelpers.export(exports, "getNorm", ()=>getNorm);
+parcelHelpers.export(exports, "isZero", ()=>isZero);
+parcelHelpers.export(exports, "getUnit", ()=>getUnit);
+parcelHelpers.export(exports, "getCross", ()=>getCross);
+parcelHelpers.export(exports, "getInner", ()=>getInner);
+parcelHelpers.export(exports, "cloneVectors", ()=>cloneVectors);
+parcelHelpers.export(exports, "getCenter", ()=>getCenter);
+parcelHelpers.export(exports, "getRectCenter", ()=>getRectCenter);
+parcelHelpers.export(exports, "getPolygonCenter", ()=>getPolygonCenter);
+parcelHelpers.export(exports, "getRadian", ()=>getRadian);
+/**
+ * fromに対して、aと点対称なベクトル取得
+ * @param a 対象ベクトル
+ * @param from 基点
+ * @param 点対称ベクトル
+ */ parcelHelpers.export(exports, "getSymmetry", ()=>getSymmetry);
+/**
+ * fromに対して、aからradian回転したベクトル取得
+ * @param a 対象ベクトル
+ * @param radian 回転ラジアン
+ * @param from 基点
+ * @param 回転後のベクトル
+ */ parcelHelpers.export(exports, "rotate", ()=>rotate);
+/**
+ * 2次方程式の解の公式
+ * a * x^2 + b * x + c = 0
+ * 解に虚数が含まれる場合は解なし扱い
+ * @param a x^2の係数
+ * @param b xの係数
+ * @param c 定数
+ * @return 解の配列
+ */ parcelHelpers.export(exports, "solveEquationOrder2", ()=>solveEquationOrder2);
+/**
+ * 点から直線への垂線の足
+ * @param p 対象の点
+ * @param line 直線
+ * @return 垂線の足
+ */ parcelHelpers.export(exports, "getPedal", ()=>getPedal);
+/**
+ * 2次ベジェ曲「線分」と「直線」の交点を取得する
+ * @method crossLineAndBezier
+ * @param p0 ベジェ曲線始点
+ * @param p1 ベジェ曲線制御点
+ * @param p2 ベジェ曲線終点
+ * @param p 直線始点
+ * @param q 直線終点
+ * @return 交点リスト
+ */ parcelHelpers.export(exports, "getCrossLineAndBezier", ()=>getCrossLineAndBezier);
+/**
+ * 線分と線分の交差判定（端点での接触は含まない）
+ * @param seg1 線分1
+ * @param seg2 線分2
+ * @return 交差しているフラグ
+ */ parcelHelpers.export(exports, "isCrossSegAndSeg", ()=>isCrossSegAndSeg);
+/**
+ * 線分と線分の接触判定（端点での接触含む）
+ * @param seg1 線分1
+ * @param seg2 線分2
+ * @return 接触しているフラグ
+ */ parcelHelpers.export(exports, "isTouchSegAndSeg", ()=>isTouchSegAndSeg);
+/**
+ * 平行判定
+ * @param a ベクトル or 2点の配列
+ * @param b 同上
+ * @return 平行であるフラグ
+ */ parcelHelpers.export(exports, "isParallel", ()=>isParallel);
+/**
+ * 点が直線上にあるか判定
+ * @param p 点
+ * @param line 直線
+ * @return 直線上にあるフラグ
+ */ parcelHelpers.export(exports, "isOnLine", ()=>isOnLine);
+/**
+ * 点が線分上にあるか判定
+ * @param p 点
+ * @param seg 線分
+ * @return 線分上にあるフラグ
+ */ parcelHelpers.export(exports, "isOnSeg", ()=>isOnSeg);
+/**
+ * 点が面上にあるか判定（境界線上を含む）
+ * @param p 点
+ * @param polygon 面
+ * @return 面上にあるフラグ
+ */ parcelHelpers.export(exports, "isOnPolygon", ()=>isOnPolygon);
+/**
+ * 線分と直線の交点取得
+ * @param seg 線分
+ * @param line 直線
+ * @return 交点
+ */ parcelHelpers.export(exports, "getCrossSegAndLine", ()=>getCrossSegAndLine);
+/**
+ * 同一線分かを判定する
+ * @param ab 線分ab
+ * @param cd 線分cd
+ * @return 同一であるフラグ
+ */ parcelHelpers.export(exports, "isSameSeg", ()=>isSameSeg);
+/**
+ * ポリゴンを直線で分割する
+ * @param pol 面
+ * @param line 直線
+ * @return 分割された点配列の配列
+ */ parcelHelpers.export(exports, "splitPolyByLine", ()=>splitPolyByLine);
+/**
+ * 三角分割
+ * @param polygon 面
+ * @return 分割面リスト
+ */ parcelHelpers.export(exports, "triangleSplit", ()=>triangleSplit);
+/**
+ * 点が三角形内にあるかを判定する
+ * 境界も含む
+ * @param tri 三角形
+ * @param p 点
+ * @return 内部にあるフラグ
+ */ parcelHelpers.export(exports, "isPointOnTriangle", ()=>isPointOnTriangle);
+/**
+ * 面を時計回りに変換する
+ * @param {vector[]} 面
+ * @return 時計回りにした面(引数とは別配列にする)
+ */ parcelHelpers.export(exports, "convertLoopwise", ()=>convertLoopwise);
+/**
+ * 面の座標が時計回りかを判定する
+ * @param polygon 面
+ * @return -1:反時計 0:不定 1:時計
+ */ parcelHelpers.export(exports, "getLoopwise", ()=>getLoopwise);
+/**
+ * 面積取得
+ * @param polygon 面
+ * @param allowNegative 負値を許すフラグ
+ * @return 面積
+ */ parcelHelpers.export(exports, "getArea", ()=>getArea);
+/**
+ * ベジェ曲線を直線で近似する(３次まで対応)
+ * @param pointList 制御点リスト
+ * @param size 分割数(1なら制御点両端のみ)
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "approximateBezier", ()=>approximateBezier);
+/**
+ * get point with the rate on bezier2
+ * @param pointList controller points
+ * @param rate rate between start point and end point
+ * @return calced point
+ */ parcelHelpers.export(exports, "getPointOnBezier2", ()=>getPointOnBezier2);
+parcelHelpers.export(exports, "getBezier2LerpFn", ()=>getBezier2LerpFn);
+/**
+ * get point with the rate on bezier3
+ * @param pointList controller points
+ * @param rate rate between start point and end point
+ * @return calced point
+ */ parcelHelpers.export(exports, "getPointOnBezier3", ()=>getPointOnBezier3);
+parcelHelpers.export(exports, "getBezier3LerpFn", ()=>getBezier3LerpFn);
+/**
+ * get point with the rate on bezier3
+ * need these conditions to get unique value
+ * p0.x <= p1.x <= p3.x
+ * p0.x <= p2.x <= p3.x
+ * or may cause unexpected NaN
+ * @param pointList controller points [p0, p1, p2, p3]
+ * @param rate rate between start point and end point
+ * @return calced point
+ */ parcelHelpers.export(exports, "getYOnBezier3AtX", ()=>getYOnBezier3AtX);
+/**
+ * 円弧を直線で近似する
+ * @param rx x軸半径
+ * @param ry y軸半径
+ * @param startRadian 開始ラジアン
+ * @param endRadian 終了ラジアン
+ * @param center 中心座標
+ * @param radian 傾き
+ * @param size 分割数
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "approximateArc", ()=>approximateArc);
+/**
+ * Approximate arc path as a polyline
+ * https://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
+ * @method approximateArcWithPoint
+ * @param rx x軸半径
+ * @param ry y軸半径
+ * @param startPoint 開始点
+ * @param endPoint 終了点
+ * @param largeArcFlag 円弧の大きい側を使うフラグ
+ * @param sweepFlag 時計回り円弧を使うフラグ
+ * @param radian 傾き
+ * @param size 分割数
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "approximateArcWithPoint", ()=>approximateArcWithPoint);
+parcelHelpers.export(exports, "getArcLerpFn", ()=>getArcLerpFn);
+parcelHelpers.export(exports, "lerpPoint", ()=>lerpPoint);
+parcelHelpers.export(exports, "getApproPoints", ()=>getApproPoints);
+/**
+ * ２点を通る楕円の中心を求める
+ * @param a 点a
+ * @param b 点b
+ * @param rx x軸半径
+ * @param ry y軸半径
+ * @param radian 傾き
+ * @return 解となる２点
+ * @return { centers: 解となる２点, radiusRate: 半径補正係数 }
+ */ parcelHelpers.export(exports, "getEllipseCenter", ()=>getEllipseCenter);
+/**
+ * ２点を通る円の中心を求める
+ * @param a 点a
+ * @param b 点b
+ * @param radius 半径
+ * @return { centers: 解となる２点, radiusRate: 半径補正係数 }
+ */ parcelHelpers.export(exports, "getCircleCenter", ()=>getCircleCenter);
+/**
+ * 2次元アフィン変換を行う
+ * paramsには以下の行列をa b c d e fの順で指定する
+ * a c e
+ * b d f
+ * @param points 変換前の座標リスト
+ * @param params 行列成分
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "transform", ()=>transform);
+/**
+ * invert affine transfomation matrix
+ * a c e
+ * b d f
+ * @param params [a, b, c, d, e, f]
+ * @return inverted matrix params
+ */ parcelHelpers.export(exports, "invertTransform", ()=>invertTransform);
+/**
+ * multi affine transfomation matrixes
+ * @param a affine matrix
+ * @param b affine matrix
+ * @return a * b
+ */ parcelHelpers.export(exports, "multiAffine", ()=>multiAffine);
+/**
+ * multi affines
+ * @param affines affine matrix list
+ * @return affines[0] * affines[1] * ...
+ */ parcelHelpers.export(exports, "multiAffines", ()=>multiAffines);
+/**
+ * apply affine
+ * @param affine affine matrix
+ * @param v vector2
+ * @return affine x v
+ */ parcelHelpers.export(exports, "applyAffine", ()=>applyAffine);
+/**
+ * 隣り合う同一点をオミットする
+ * @method omitSamePoint
+ * @param polygon ポリゴン
+ * @return オミット後のポリゴン
+ */ parcelHelpers.export(exports, "omitSamePoint", ()=>omitSamePoint);
+/**
+ * 正多角形の面積を内接円の半径から求める
+ * @param radius 半径
+ * @param n 角数
+ * @return 面積
+ */ parcelHelpers.export(exports, "getRegularPolygonArea", ()=>getRegularPolygonArea);
+/**
+ * 正多角形の面積から内接円の半径を求める
+ * @param area 面積
+ * @param n 角数
+ * @return 半径
+ */ parcelHelpers.export(exports, "getRegularPolygonRadius", ()=>getRegularPolygonRadius);
+/**
+ * 包含関係にあるポリゴンをグループ化する
+ * @param polygons ポリゴン一覧
+ * @return グループ化したポリゴン一覧、グループ内は面積降順
+ */ parcelHelpers.export(exports, "getIncludedPolygonGroups", ()=>getIncludedPolygonGroups);
+/**
+ * ポリゴンブーリアン演算差
+ * 突き抜けは非対応
+ * targetは1辺のみでpolyと交差する前提
+ * targetとpolyは観点方向が逆である前提
+ * @param target ポリゴン
+ * @param poly 切り取り範囲ポリゴン
+ * @return 切り取った後のポリゴン
+ */ parcelHelpers.export(exports, "getPolygonNotPolygon", ()=>getPolygonNotPolygon);
+/**
+ * ポリゴン全てを包含する矩形を取得
+ * @param polygons ポリゴン一覧
+ * @return 外接矩形
+ */ parcelHelpers.export(exports, "getOuterRectangle", ()=>getOuterRectangle);
+/**
+ * 矩形範囲のグリッド取得
+ * @param range 矩形範囲
+ * @param gridSize グリッド幅
+ * @param dX x軸のずらし幅
+ * @param dY y軸のずらし幅
+ * @return グリッド線リスト
+ */ parcelHelpers.export(exports, "getGrid", ()=>getGrid);
+/**
+ * 矩形を中心基準でサイズ変更する
+ * @param org 元の矩形
+ * @param dW 幅変更差分
+ * @param dH 高さ変更差分
+ * @return サイズ変更後の矩形
+ */ parcelHelpers.export(exports, "expandRecntagle", ()=>expandRecntagle);
+/**
+ * 矩形を中心基準の倍率でサイズ変更する
+ * @param org 元の矩形
+ * @param scaleW 幅変更倍率
+ * @param scaleH 高さ軸変更倍率
+ * @return サイズ変更後の矩形
+ */ parcelHelpers.export(exports, "expandRecntagleScale", ()=>expandRecntagleScale);
+/**
+ * interpolate scaler
+ * @param from
+ * @param to
+ * @param rate 0 => from, 1 => to
+ * @return interpolated value
+ */ parcelHelpers.export(exports, "interpolateScaler", ()=>interpolateScaler);
+/**
+ * interpolate scaler
+ * @param from
+ * @param to
+ * @param rate 0 => from, 1 => to
+ * @return interpolated value
+ */ parcelHelpers.export(exports, "interpolateVector", ()=>interpolateVector);
+/**
+ * solve cubic equation in real space
+ * @param a t^3 param
+ * @param b t^2 param
+ * @param c t param
+ * @param d constant param
+ * @return solutions in no particular order
+ */ parcelHelpers.export(exports, "solveQubicFomula", ()=>solveQubicFomula);
+/**
+ * clamp number
+ * @param min min value
+ * @param max max value
+ * @return clamped value
+ */ parcelHelpers.export(exports, "clamp", ()=>clamp);
+/**
+ * clamp number circularly
+ * @param min min value
+ * @param max max value
+ * @return clamped value
+ */ parcelHelpers.export(exports, "circleClamp", ()=>circleClamp);
+/**
+ * round trip value
+ * @param min min value
+ * @param max max value
+ * @return round tripped value
+ */ parcelHelpers.export(exports, "roundTrip", ()=>roundTrip);
+const MINVALUE = 0.000001;
+const IDENTITY_AFFINE = [
     1,
     0,
     0,
@@ -7,94 +569,94 @@ const $42a19166d05576d2$export$6b37290cfd5aead9 = [
     0,
     0
 ];
-function $42a19166d05576d2$export$202e0172ed3c7be0(x, y) {
+function vec(x, y) {
     return {
-        x: x,
-        y: y
+        x,
+        y
     };
 }
-function $42a19166d05576d2$export$e16d8520af44a096(a, b) {
-    return $42a19166d05576d2$export$202e0172ed3c7be0(a.x + b.x, a.y + b.y);
+function add(a, b) {
+    return vec(a.x + b.x, a.y + b.y);
 }
-function $42a19166d05576d2$export$f93b5905241a7cca(a, b) {
-    return $42a19166d05576d2$export$202e0172ed3c7be0(a.x - b.x, a.y - b.y);
+function sub(a, b) {
+    return vec(a.x - b.x, a.y - b.y);
 }
-function $42a19166d05576d2$export$13e2537ceeaf8a3a(a, b) {
-    return $42a19166d05576d2$export$202e0172ed3c7be0(a.x * b, a.y * b);
+function multi(a, b) {
+    return vec(a.x * b, a.y * b);
 }
-function $42a19166d05576d2$export$18ac18efd9e98d41(a, b) {
-    const dif = $42a19166d05576d2$export$f93b5905241a7cca(a, b);
-    return Math.abs(dif.x) < $42a19166d05576d2$export$e1764cb99718e49f && Math.abs(dif.y) < $42a19166d05576d2$export$e1764cb99718e49f;
+function isSame(a, b) {
+    const dif = sub(a, b);
+    return Math.abs(dif.x) < MINVALUE && Math.abs(dif.y) < MINVALUE;
 }
-function $42a19166d05576d2$export$79376507b09a66f(a, b) {
-    return $42a19166d05576d2$export$1972ae378e9b44ab($42a19166d05576d2$export$f93b5905241a7cca(a, b));
+function getDistance(a, b) {
+    return getNorm(sub(a, b));
 }
-function $42a19166d05576d2$export$e029b07aa8e85de4(polyline, closed = false) {
+function getPolylineLength(polyline, closed = false) {
     if (polyline.length < 2) return 0;
     let ret = 0;
-    for(let i = 0; i < polyline.length - 1; i++)ret += $42a19166d05576d2$export$79376507b09a66f(polyline[i], polyline[i + 1]);
-    if (closed) ret += $42a19166d05576d2$export$79376507b09a66f(polyline[polyline.length - 1], polyline[0]);
+    for(let i = 0; i < polyline.length - 1; i++)ret += getDistance(polyline[i], polyline[i + 1]);
+    if (closed) ret += getDistance(polyline[polyline.length - 1], polyline[0]);
     return ret;
 }
-function $42a19166d05576d2$export$1972ae378e9b44ab(a) {
+function getNorm(a) {
     return Math.sqrt(a.x * a.x + a.y * a.y);
 }
-function $42a19166d05576d2$export$c46ec7d82fb1f602(a) {
-    return $42a19166d05576d2$export$1972ae378e9b44ab(a) < $42a19166d05576d2$export$e1764cb99718e49f;
+function isZero(a) {
+    return getNorm(a) < MINVALUE;
 }
-function $42a19166d05576d2$export$65f2564e9a9b9222(a) {
-    const d = $42a19166d05576d2$export$1972ae378e9b44ab(a);
-    if (d < $42a19166d05576d2$export$e1764cb99718e49f) throw new Error("cannot get unit vector of zero vector");
-    return $42a19166d05576d2$export$13e2537ceeaf8a3a(a, 1 / d);
+function getUnit(a) {
+    const d = getNorm(a);
+    if (d < MINVALUE) throw new Error("cannot get unit vector of zero vector");
+    return multi(a, 1 / d);
 }
-function $42a19166d05576d2$export$6da5cfd0145f763d(a, b) {
+function getCross(a, b) {
     return a.x * b.y - a.y * b.x;
 }
-function $42a19166d05576d2$export$d262b423ef7122a5(a, b) {
+function getInner(a, b) {
     return a.x * b.x + a.y * b.y;
 }
-function $42a19166d05576d2$export$67b7da414b044aeb(vectors) {
+function cloneVectors(vectors) {
     return vectors.map((v)=>Object.assign({}, v));
 }
-function $42a19166d05576d2$export$c91255cadecfe081(a, b) {
-    return $42a19166d05576d2$export$13e2537ceeaf8a3a($42a19166d05576d2$export$e16d8520af44a096(a, b), 0.5);
+function getCenter(a, b) {
+    return multi(add(a, b), 0.5);
 }
-function $42a19166d05576d2$export$e2456a15fce484f1(rec) {
-    return $42a19166d05576d2$export$202e0172ed3c7be0(rec.x + rec.width / 2, rec.y + rec.height / 2);
+function getRectCenter(rec) {
+    return vec(rec.x + rec.width / 2, rec.y + rec.height / 2);
 }
-function $42a19166d05576d2$export$abeade588884fa4f(polygon) {
-    if (polygon.length === 0) return $42a19166d05576d2$export$202e0172ed3c7be0(0, 0);
-    return $42a19166d05576d2$export$13e2537ceeaf8a3a(polygon.reduce((p, c)=>$42a19166d05576d2$export$e16d8520af44a096(p, c), $42a19166d05576d2$export$202e0172ed3c7be0(0, 0)), 1 / polygon.length);
+function getPolygonCenter(polygon) {
+    if (polygon.length === 0) return vec(0, 0);
+    return multi(polygon.reduce((p, c)=>add(p, c), vec(0, 0)), 1 / polygon.length);
 }
-function $42a19166d05576d2$export$5f24487807f871fb(a, from = $42a19166d05576d2$export$202e0172ed3c7be0(0, 0)) {
-    const dif = $42a19166d05576d2$export$f93b5905241a7cca(a, from);
+function getRadian(a, from = vec(0, 0)) {
+    const dif = sub(a, from);
     return Math.atan2(dif.y, dif.x);
 }
-function $42a19166d05576d2$export$d5201b68c60913ce(a, from = $42a19166d05576d2$export$202e0172ed3c7be0(0, 0)) {
-    return $42a19166d05576d2$export$e16d8520af44a096($42a19166d05576d2$export$13e2537ceeaf8a3a($42a19166d05576d2$export$f93b5905241a7cca(from, a), 2), a);
+function getSymmetry(a, from = vec(0, 0)) {
+    return add(multi(sub(from, a), 2), a);
 }
-function $42a19166d05576d2$export$bb628a54ab399bc9(a, radian, from = $42a19166d05576d2$export$202e0172ed3c7be0(0, 0)) {
-    const fromBase = $42a19166d05576d2$export$f93b5905241a7cca(a, from);
+function rotate(a, radian, from = vec(0, 0)) {
+    const fromBase = sub(a, from);
     const s = Math.sin(radian);
     const c = Math.cos(radian);
-    return $42a19166d05576d2$export$e16d8520af44a096($42a19166d05576d2$export$202e0172ed3c7be0(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y), from);
+    return add(vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y), from);
 }
-function $42a19166d05576d2$var$getRotateFn(radian, from = $42a19166d05576d2$export$202e0172ed3c7be0(0, 0)) {
+function getRotateFn(radian, from = vec(0, 0)) {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
     return (a, reverse)=>{
-        const fromBase = $42a19166d05576d2$export$f93b5905241a7cca(a, from);
-        return reverse ? $42a19166d05576d2$export$e16d8520af44a096($42a19166d05576d2$export$202e0172ed3c7be0(c * fromBase.x + s * fromBase.y, -s * fromBase.x + c * fromBase.y), from) : $42a19166d05576d2$export$e16d8520af44a096($42a19166d05576d2$export$202e0172ed3c7be0(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y), from);
+        const fromBase = sub(a, from);
+        return reverse ? add(vec(c * fromBase.x + s * fromBase.y, -s * fromBase.x + c * fromBase.y), from) : add(vec(c * fromBase.x - s * fromBase.y, s * fromBase.x + c * fromBase.y), from);
     };
 }
-function $42a19166d05576d2$export$b5a1995c4855c266(a, b, c) {
-    if ($42a19166d05576d2$var$isCloseToZero(a)) return $42a19166d05576d2$var$isCloseToZero(b) ? [] : [
+function solveEquationOrder2(a, b, c) {
+    if (isCloseToZero(a)) return isCloseToZero(b) ? [] : [
         -c / b
     ];
     const d = b * b - 4 * a * c;
     if (d < 0) return [];
     const ia = 0.5 / a;
-    if ($42a19166d05576d2$var$isCloseToZero(d)) return [
+    if (isCloseToZero(d)) return [
         -b * ia
     ];
     const sd = Math.sqrt(d);
@@ -103,15 +665,15 @@ function $42a19166d05576d2$export$b5a1995c4855c266(a, b, c) {
         (-b - sd) * ia
     ];
 }
-function $42a19166d05576d2$export$27896705feb2b5c9(p, line) {
+function getPedal(p, line) {
     if (line.length !== 2) throw new Error("line must be length = 2");
     const s = line[0];
     const t = line[1];
-    const vecST = $42a19166d05576d2$export$f93b5905241a7cca(t, s);
-    const vecSP = $42a19166d05576d2$export$f93b5905241a7cca(p, s);
-    const inner = $42a19166d05576d2$export$d262b423ef7122a5(vecST, vecSP);
-    const rate = inner / $42a19166d05576d2$export$d262b423ef7122a5(vecST, vecST);
-    return $42a19166d05576d2$export$e16d8520af44a096(s, $42a19166d05576d2$export$13e2537ceeaf8a3a(vecST, rate));
+    const vecST = sub(t, s);
+    const vecSP = sub(p, s);
+    const inner = getInner(vecST, vecSP);
+    const rate = inner / getInner(vecST, vecST);
+    return add(s, multi(vecST, rate));
 }
 /**
  * 2次ベジェ曲線と直線の当たり判定用パラメータを取得する
@@ -121,7 +683,7 @@ function $42a19166d05576d2$export$27896705feb2b5c9(p, line) {
  * @param p 直線始点
  * @param q 直線終点
  * @return ベジェ曲線パラメータ配列
- */ function $42a19166d05576d2$var$rayToBezier(p0, p1, p2, p, q) {
+ */ function rayToBezier(p0, p1, p2, p, q) {
     const vx = q.x - p.x;
     const vy = q.y - p.y;
     const a = p0.x - 2 * p1.x + p2.x;
@@ -130,20 +692,20 @@ function $42a19166d05576d2$export$27896705feb2b5c9(p, line) {
     const d = p0.y - 2 * p1.y + p2.y;
     const e = 2 * (p1.y - p0.y);
     const f = p0.y;
-    return $42a19166d05576d2$export$b5a1995c4855c266(a * vy - vx * d, b * vy - vx * e, vy * c - vy * p.x - vx * f + vx * p.y);
+    return solveEquationOrder2(a * vy - vx * d, b * vy - vx * e, vy * c - vy * p.x - vx * f + vx * p.y);
 }
-function $42a19166d05576d2$export$94845d9831d42b38(p0, p1, p2, p, q) {
-    return $42a19166d05576d2$var$rayToBezier(p0, p1, p2, p, q).filter((t)=>0 <= t && t <= 1).map((t)=>$42a19166d05576d2$export$202e0172ed3c7be0((p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x, (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y));
+function getCrossLineAndBezier(p0, p1, p2, p, q) {
+    return rayToBezier(p0, p1, p2, p, q).filter((t)=>0 <= t && t <= 1).map((t)=>vec((p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x, (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y));
 }
-function $42a19166d05576d2$export$60d04f6074c4a6a5(seg1, seg2) {
-    const { ta: ta , tb: tb , tc: tc , td: td  } = $42a19166d05576d2$var$getCrossSegAndSegParams(seg1, seg2);
+function isCrossSegAndSeg(seg1, seg2) {
+    const { ta , tb , tc , td  } = getCrossSegAndSegParams(seg1, seg2);
     return tc * td < 0 && ta * tb < 0;
 }
-function $42a19166d05576d2$export$d8f7925ac694ab7c(seg1, seg2) {
-    const { ta: ta , tb: tb , tc: tc , td: td  } = $42a19166d05576d2$var$getCrossSegAndSegParams(seg1, seg2);
+function isTouchSegAndSeg(seg1, seg2) {
+    const { ta , tb , tc , td  } = getCrossSegAndSegParams(seg1, seg2);
     return tc * td <= 0 && ta * tb <= 0;
 }
-function $42a19166d05576d2$var$getCrossSegAndSegParams(seg1, seg2) {
+function getCrossSegAndSegParams(seg1, seg2) {
     const ax = seg1[0].x;
     const ay = seg1[0].y;
     const bx = seg1[1].x;
@@ -157,25 +719,25 @@ function $42a19166d05576d2$var$getCrossSegAndSegParams(seg1, seg2) {
     const tc = (ax - bx) * (cy - ay) + (ay - by) * (ax - cx);
     const td = (ax - bx) * (dy - ay) + (ay - by) * (ax - dx);
     return {
-        ta: ta,
-        tb: tb,
-        tc: tc,
-        td: td
+        ta,
+        tb,
+        tc,
+        td
     };
 }
-function $42a19166d05576d2$export$8768f1dbbca5504b(a, b) {
-    const cross = $42a19166d05576d2$export$6da5cfd0145f763d(a, b);
-    return Math.abs(cross) < $42a19166d05576d2$export$e1764cb99718e49f;
+function isParallel(a, b) {
+    const cross = getCross(a, b);
+    return Math.abs(cross) < MINVALUE;
 }
-function $42a19166d05576d2$export$134ed2711bd43622(p, line) {
-    return $42a19166d05576d2$export$c46ec7d82fb1f602($42a19166d05576d2$export$f93b5905241a7cca(p, $42a19166d05576d2$export$27896705feb2b5c9(p, line)));
+function isOnLine(p, line) {
+    return isZero(sub(p, getPedal(p, line)));
 }
-function $42a19166d05576d2$export$f128eccdbbcf596(p, seg) {
-    if (!$42a19166d05576d2$export$c46ec7d82fb1f602($42a19166d05576d2$export$f93b5905241a7cca(p, $42a19166d05576d2$export$27896705feb2b5c9(p, seg)))) return false;
-    const v1 = $42a19166d05576d2$export$f93b5905241a7cca(seg[1], seg[0]);
-    const v2 = $42a19166d05576d2$export$f93b5905241a7cca(p, seg[0]);
-    if ($42a19166d05576d2$export$d262b423ef7122a5(v1, v2) < 0) return false;
-    if ($42a19166d05576d2$export$1972ae378e9b44ab(v1) < $42a19166d05576d2$export$1972ae378e9b44ab(v2)) return false;
+function isOnSeg(p, seg) {
+    if (!isZero(sub(p, getPedal(p, seg)))) return false;
+    const v1 = sub(seg[1], seg[0]);
+    const v2 = sub(p, seg[0]);
+    if (getInner(v1, v2) < 0) return false;
+    if (getNorm(v1) < getNorm(v2)) return false;
     return true;
 }
 /**
@@ -185,23 +747,23 @@ function $42a19166d05576d2$export$f128eccdbbcf596(p, seg) {
  * @param p 点
  * @param seg 線分
  * @return 交差するフラグ
- */ function $42a19166d05576d2$var$isCrossSegAndRightHorizon(p, seg) {
+ */ function isCrossSegAndRightHorizon(p, seg) {
     // 平行な場合はfalse
-    if (Math.abs(seg[0].y - seg[1].y) < $42a19166d05576d2$export$e1764cb99718e49f) return false;
+    if (Math.abs(seg[0].y - seg[1].y) < MINVALUE) return false;
     // 線分の上側端点との接触はfalse、下側端点との接触はtrueで統一
     let top, bottom;
     if (seg[0].y < seg[1].y) [bottom, top] = seg;
     else [top, bottom] = seg;
     if (p.y < bottom.y || top.y <= p.y) return false;
     // 交点は厳密にpの右側でなければいけない
-    const cross = $42a19166d05576d2$export$c2b04831d534c8e0(seg, [
+    const cross = getCrossSegAndLine(seg, [
         p,
-        $42a19166d05576d2$export$202e0172ed3c7be0(p.x + 1, p.y)
+        vec(p.x + 1, p.y)
     ]);
     if (!cross || cross.x <= p.x) return false;
     return true;
 }
-function $42a19166d05576d2$export$5fa2dd9499a076de(p, polygon) {
+function isOnPolygon(p, polygon) {
     // 頂点上判定
     if (polygon.find((point)=>p.x === point.x && p.y === point.y)) return true;
     const segs = polygon.map((point, i)=>{
@@ -210,31 +772,31 @@ function $42a19166d05576d2$export$5fa2dd9499a076de(p, polygon) {
             i < polygon.length - 1 ? polygon[i + 1] : polygon[0]
         ];
     })// 長さ0の辺は扱わない
-    .filter((seg)=>!$42a19166d05576d2$export$18ac18efd9e98d41(seg[0], seg[1]));
+    .filter((seg)=>!isSame(seg[0], seg[1]));
     // 辺上判定
     for(let i = 0; i < segs.length; i++){
         const seg = segs[i];
-        if ($42a19166d05576d2$export$f128eccdbbcf596(p, seg)) return true;
+        if (isOnSeg(p, seg)) return true;
     }
-    const hitSegs = segs.filter((seg)=>$42a19166d05576d2$var$isCrossSegAndRightHorizon(p, seg));
+    const hitSegs = segs.filter((seg)=>isCrossSegAndRightHorizon(p, seg));
     return hitSegs.length % 2 === 1;
 }
-function $42a19166d05576d2$export$c2b04831d534c8e0(seg, line) {
-    if ($42a19166d05576d2$export$8768f1dbbca5504b($42a19166d05576d2$export$f93b5905241a7cca(seg[0], seg[1]), $42a19166d05576d2$export$f93b5905241a7cca(line[0], line[1]))) return null;
-    if ($42a19166d05576d2$export$134ed2711bd43622(seg[0], line)) return Object.assign({}, seg[0]);
-    if ($42a19166d05576d2$export$134ed2711bd43622(seg[1], line)) return Object.assign({}, seg[1]);
+function getCrossSegAndLine(seg, line) {
+    if (isParallel(sub(seg[0], seg[1]), sub(line[0], line[1]))) return null;
+    if (isOnLine(seg[0], line)) return Object.assign({}, seg[0]);
+    if (isOnLine(seg[1], line)) return Object.assign({}, seg[1]);
     const s1 = ((line[1].x - line[0].x) * (seg[0].y - line[0].y) - (line[1].y - line[0].y) * (seg[0].x - line[0].x)) / 2;
     const s2 = ((line[1].x - line[0].x) * (line[0].y - seg[1].y) - (line[1].y - line[0].y) * (line[0].x - seg[1].x)) / 2;
     const rate = s1 / (s1 + s2);
     const isExistCorss = 0 < rate && rate < 1;
-    return isExistCorss ? $42a19166d05576d2$export$202e0172ed3c7be0(seg[0].x + (seg[1].x - seg[0].x) * rate, seg[0].y + (seg[1].y - seg[0].y) * rate) : null;
+    return isExistCorss ? vec(seg[0].x + (seg[1].x - seg[0].x) * rate, seg[0].y + (seg[1].y - seg[0].y) * rate) : null;
 }
-function $42a19166d05576d2$export$90290c36af70b73a(ab, cd) {
-    if ($42a19166d05576d2$export$18ac18efd9e98d41(ab[0], cd[0]) && $42a19166d05576d2$export$18ac18efd9e98d41(ab[1], cd[1])) return true;
-    if ($42a19166d05576d2$export$18ac18efd9e98d41(ab[0], cd[1]) && $42a19166d05576d2$export$18ac18efd9e98d41(ab[1], cd[0])) return true;
+function isSameSeg(ab, cd) {
+    if (isSame(ab[0], cd[0]) && isSame(ab[1], cd[1])) return true;
+    if (isSame(ab[0], cd[1]) && isSame(ab[1], cd[0])) return true;
     return false;
 }
-function $42a19166d05576d2$export$2757549f1e61727a(pol, line) {
+function splitPolyByLine(pol, line) {
     let points = [];
     let crossIndex = [];
     let crossList = [];
@@ -243,7 +805,7 @@ function $42a19166d05576d2$export$2757549f1e61727a(pol, line) {
             p,
             pol[(i + 1) % pol.length]
         ];
-        const cross = $42a19166d05576d2$export$c2b04831d534c8e0(targetLine, line);
+        const cross = getCrossSegAndLine(targetLine, line);
         points.push(p);
         if (cross) {
             points.push(cross);
@@ -253,8 +815,8 @@ function $42a19166d05576d2$export$2757549f1e61727a(pol, line) {
     });
     if (crossIndex.length % 2 !== 0) return [];
     // 近い順に並べる -> 直線をx軸と重なるよう回転してx座標で比較
-    const rad = $42a19166d05576d2$export$5f24487807f871fb(line[0], line[1]);
-    crossList.sort((a, b)=>$42a19166d05576d2$export$bb628a54ab399bc9(a, -rad).x - $42a19166d05576d2$export$bb628a54ab399bc9(b, -rad).x);
+    const rad = getRadian(line[0], line[1]);
+    crossList.sort((a, b)=>rotate(a, -rad).x - rotate(b, -rad).x);
     // 面の辺と同一ではないものを採用
     let targetSection = [];
     for(let k = 0; k < crossList.length - 1; k += 2){
@@ -263,7 +825,7 @@ function $42a19166d05576d2$export$2757549f1e61727a(pol, line) {
             crossList[k + 1]
         ];
         let sameSeg = false;
-        for(let l = 0; l < pol.length; l++)if ($42a19166d05576d2$export$90290c36af70b73a(section, [
+        for(let l = 0; l < pol.length; l++)if (isSameSeg(section, [
             pol[l],
             pol[(l + 1) % pol.length]
         ])) {
@@ -300,31 +862,31 @@ function $42a19166d05576d2$export$2757549f1e61727a(pol, line) {
     // 1つ目
     let splitPol = [];
     // 交点まで追加
-    for(let i = 0; i <= crossIndex[0]; i++)splitPol.push($42a19166d05576d2$export$202e0172ed3c7be0(points[i].x, points[i].y));
+    for(let i = 0; i <= crossIndex[0]; i++)splitPol.push(vec(points[i].x, points[i].y));
     // 交点から追加
-    for(let i = crossIndex[1]; i < points.length; i++)splitPol.push($42a19166d05576d2$export$202e0172ed3c7be0(points[i].x, points[i].y));
+    for(let i = crossIndex[1]; i < points.length; i++)splitPol.push(vec(points[i].x, points[i].y));
     // 確定
     splitedPolygons.push(splitPol);
     // 2つ目
     splitPol = [];
     // 交点から交点まで追加
-    for(let i = crossIndex[0]; i <= crossIndex[1]; i++)splitPol.push($42a19166d05576d2$export$202e0172ed3c7be0(points[i].x, points[i].y));
+    for(let i = crossIndex[0]; i <= crossIndex[1]; i++)splitPol.push(vec(points[i].x, points[i].y));
     // 確定
     splitedPolygons.push(splitPol);
     // 再帰的に分割
     const recursiveResult = [];
     splitedPolygons.forEach((polygon)=>{
-        const splited = $42a19166d05576d2$export$2757549f1e61727a(polygon, line);
+        const splited = splitPolyByLine(polygon, line);
         if (splited.length === 0) recursiveResult.push(polygon);
         else recursiveResult.push(...splited);
     });
     return recursiveResult;
 }
-function $42a19166d05576d2$export$a5bc0a37e5a5fe6d(polygon) {
+function triangleSplit(polygon) {
     // 時計周りに揃える
-    polygon = $42a19166d05576d2$export$11fb61ceb1a6f6d3(polygon);
+    polygon = convertLoopwise(polygon);
     // ポリゴン複製
-    const targetPoly = $42a19166d05576d2$export$4006bf3b02ff3c0e(polygon);
+    const targetPoly = omitSamePoint(polygon);
     // 最遠点のインデックス
     let farthestIndex = 0;
     // 現在の最遠点と前後点で作った三角形の外積
@@ -336,28 +898,28 @@ function $42a19166d05576d2$export$a5bc0a37e5a5fe6d(polygon) {
         // 最遠点インデックス取得
         const sorted = targetPoly.concat();
         sorted.sort((a, b)=>{
-            return $42a19166d05576d2$export$1972ae378e9b44ab(b) - $42a19166d05576d2$export$1972ae378e9b44ab(a);
+            return getNorm(b) - getNorm(a);
         });
         farthestIndex = targetPoly.indexOf(sorted[0]);
         // 分割実行
-        let tri = $42a19166d05576d2$var$getTriangle(targetPoly, farthestIndex);
+        let tri = getTriangle(targetPoly, farthestIndex);
         if (!tri) {
             // 最遠点では失敗
             const size = targetPoly.length;
             // 外積計算
-            const pa = $42a19166d05576d2$export$f93b5905241a7cca(targetPoly[(farthestIndex + 1) % size], targetPoly[farthestIndex]);
-            const pb = $42a19166d05576d2$export$f93b5905241a7cca(targetPoly[farthestIndex - 1 < 0 ? size - 1 : farthestIndex - 1], targetPoly[farthestIndex]);
-            currentCross = $42a19166d05576d2$export$6da5cfd0145f763d(pa, pb);
+            const pa = sub(targetPoly[(farthestIndex + 1) % size], targetPoly[farthestIndex]);
+            const pb = sub(targetPoly[farthestIndex - 1 < 0 ? size - 1 : farthestIndex - 1], targetPoly[farthestIndex]);
+            currentCross = getCross(pa, pb);
             let index = farthestIndex;
             // 最遠点以外で探す
             while(!tri){
                 index = (index + 1) % size;
                 // 最遠点の外積と同じ符号かを判定
-                const v1 = $42a19166d05576d2$export$f93b5905241a7cca(targetPoly[(index + 1) % size], targetPoly[index]);
-                const v2 = $42a19166d05576d2$export$f93b5905241a7cca(targetPoly[index - 1 < 0 ? size - 1 : index - 1], targetPoly[index]);
-                const tmpCross = $42a19166d05576d2$export$6da5cfd0145f763d(v1, v2);
+                const v1 = sub(targetPoly[(index + 1) % size], targetPoly[index]);
+                const v2 = sub(targetPoly[index - 1 < 0 ? size - 1 : index - 1], targetPoly[index]);
+                const tmpCross = getCross(v1, v2);
                 if (tmpCross * currentCross > 0) // 判定続行
-                tri = $42a19166d05576d2$var$getTriangle(targetPoly, index);
+                tri = getTriangle(targetPoly, index);
                 if (index === farthestIndex) throw new Error("failed to split triangles");
             }
             // 採用された点を削除
@@ -373,7 +935,7 @@ function $42a19166d05576d2$export$a5bc0a37e5a5fe6d(polygon) {
  * @param polygon 面
  * @param index このインデックスの点とその両側の点で三角形を作る
  * @return 三角形、内部に入り込む点がある場合はnull
- */ function $42a19166d05576d2$var$getTriangle(polygon, index) {
+ */ function getTriangle(polygon, index) {
     // indexとその前後点で三角形作成
     const size = polygon.length;
     const p0 = polygon[index];
@@ -388,43 +950,43 @@ function $42a19166d05576d2$export$a5bc0a37e5a5fe6d(polygon) {
     let invalid = false;
     polygon.some((p)=>{
         if (p !== p0 && p !== p1 && p !== p2) {
-            if ($42a19166d05576d2$export$1f7018e156a31fec(tri, p)) // 失敗
+            if (isPointOnTriangle(tri, p)) // 失敗
             invalid = true;
         }
         return invalid;
     });
     return invalid ? null : tri;
 }
-function $42a19166d05576d2$export$1f7018e156a31fec(tri, p) {
+function isPointOnTriangle(tri, p) {
     // 三角形の3つのベクトル
-    const ab = $42a19166d05576d2$export$f93b5905241a7cca(tri[1], tri[0]);
-    const bc = $42a19166d05576d2$export$f93b5905241a7cca(tri[2], tri[1]);
-    const ca = $42a19166d05576d2$export$f93b5905241a7cca(tri[0], tri[2]);
+    const ab = sub(tri[1], tri[0]);
+    const bc = sub(tri[2], tri[1]);
+    const ca = sub(tri[0], tri[2]);
     // 三角形の各点からpへのベクトル
-    const ap = $42a19166d05576d2$export$f93b5905241a7cca(p, tri[0]);
-    const bp = $42a19166d05576d2$export$f93b5905241a7cca(p, tri[1]);
-    const cp = $42a19166d05576d2$export$f93b5905241a7cca(p, tri[2]);
+    const ap = sub(p, tri[0]);
+    const bp = sub(p, tri[1]);
+    const cp = sub(p, tri[2]);
     // 外積を求める
-    const crossABP = $42a19166d05576d2$export$6da5cfd0145f763d(ab, bp);
-    const crossBCP = $42a19166d05576d2$export$6da5cfd0145f763d(bc, cp);
-    const crossCAP = $42a19166d05576d2$export$6da5cfd0145f763d(ca, ap);
+    const crossABP = getCross(ab, bp);
+    const crossBCP = getCross(bc, cp);
+    const crossCAP = getCross(ca, ap);
     // 外積の符号が全て同じなら内部にある
     // 0も含む→境界も含む
     if (crossABP >= 0 && crossBCP >= 0 && crossCAP >= 0 || crossABP <= 0 && crossBCP <= 0 && crossCAP <= 0) return true;
     return false;
 }
-function $42a19166d05576d2$export$11fb61ceb1a6f6d3(polygon) {
+function convertLoopwise(polygon) {
     const ret = polygon.concat();
-    if ($42a19166d05576d2$export$a818964288006665(polygon) === -1) ret.reverse();
+    if (getLoopwise(polygon) === -1) ret.reverse();
     return ret;
 }
-function $42a19166d05576d2$export$a818964288006665(polygon) {
-    const area = $42a19166d05576d2$export$520c40045967cb15(polygon, true);
+function getLoopwise(polygon) {
+    const area = getArea(polygon, true);
     if (area > 0) return 1;
     if (area < 0) return -1;
     return 0;
 }
-function $42a19166d05576d2$export$520c40045967cb15(polygon, allowNegative = false) {
+function getArea(polygon, allowNegative = false) {
     if (polygon.length < 3) return 0;
     let area = 0;
     const size = polygon.length;
@@ -436,46 +998,46 @@ function $42a19166d05576d2$export$520c40045967cb15(polygon, allowNegative = fals
     if (!allowNegative) area = Math.abs(area);
     return area;
 }
-function $42a19166d05576d2$export$ddaacf79debd9c9b(pointList, size) {
+function approximateBezier(pointList, size) {
     const ret = [];
     const unitT = 1 / size;
     if (pointList.length === 3) // ２次ベジェの場合
-    for(let i = 0; i <= size; i++)ret.push($42a19166d05576d2$export$807445714fa82091(pointList, unitT * i));
+    for(let i = 0; i <= size; i++)ret.push(getPointOnBezier2(pointList, unitT * i));
     else if (pointList.length === 4) // 3次ベジェの場合
-    for(let i = 0; i <= size; i++)ret.push($42a19166d05576d2$export$34ab0e500ce89bb4(pointList, unitT * i));
+    for(let i = 0; i <= size; i++)ret.push(getPointOnBezier3(pointList, unitT * i));
     else throw new Error("connot approximate");
     return ret;
 }
-function $42a19166d05576d2$export$807445714fa82091(pointList, rate) {
+function getPointOnBezier2(pointList, rate) {
     const t = rate;
     const nt = 1 - t;
-    const c0 = $42a19166d05576d2$export$13e2537ceeaf8a3a(pointList[0], nt * nt);
-    const c1 = $42a19166d05576d2$export$13e2537ceeaf8a3a(pointList[1], 2 * t * nt);
-    const c2 = $42a19166d05576d2$export$13e2537ceeaf8a3a(pointList[2], t * t);
-    return $42a19166d05576d2$export$202e0172ed3c7be0(c0.x + c1.x + c2.x, c0.y + c1.y + c2.y);
+    const c0 = multi(pointList[0], nt * nt);
+    const c1 = multi(pointList[1], 2 * t * nt);
+    const c2 = multi(pointList[2], t * t);
+    return vec(c0.x + c1.x + c2.x, c0.y + c1.y + c2.y);
 }
-function $42a19166d05576d2$export$64a6049d45cf5beb(pointList) {
-    return (t)=>$42a19166d05576d2$export$807445714fa82091(pointList, t);
+function getBezier2LerpFn(pointList) {
+    return (t)=>getPointOnBezier2(pointList, t);
 }
-function $42a19166d05576d2$export$34ab0e500ce89bb4(pointList, rate) {
+function getPointOnBezier3(pointList, rate) {
     const t = rate;
     const nt = 1 - t;
-    const c0 = $42a19166d05576d2$export$13e2537ceeaf8a3a(pointList[0], nt * nt * nt);
-    const c1 = $42a19166d05576d2$export$13e2537ceeaf8a3a(pointList[1], 3 * t * nt * nt);
-    const c2 = $42a19166d05576d2$export$13e2537ceeaf8a3a(pointList[2], 3 * t * t * nt);
-    const c3 = $42a19166d05576d2$export$13e2537ceeaf8a3a(pointList[3], t * t * t);
-    return $42a19166d05576d2$export$202e0172ed3c7be0(c0.x + c1.x + c2.x + c3.x, c0.y + c1.y + c2.y + c3.y);
+    const c0 = multi(pointList[0], nt * nt * nt);
+    const c1 = multi(pointList[1], 3 * t * nt * nt);
+    const c2 = multi(pointList[2], 3 * t * t * nt);
+    const c3 = multi(pointList[3], t * t * t);
+    return vec(c0.x + c1.x + c2.x + c3.x, c0.y + c1.y + c2.y + c3.y);
 }
-function $42a19166d05576d2$export$512a3af25faf9bbd(pointList) {
-    return (t)=>$42a19166d05576d2$export$34ab0e500ce89bb4(pointList, t);
+function getBezier3LerpFn(pointList) {
+    return (t)=>getPointOnBezier3(pointList, t);
 }
-function $42a19166d05576d2$export$794c52996a27d3f4(pointList, x) {
+function getYOnBezier3AtX(pointList, x) {
     const [p0, p1, p2, p3] = pointList;
     const a = -p0.x + 3 * p1.x - 3 * p2.x + p3.x;
     const b = 3 * p0.x - 6 * p1.x + 3 * p2.x;
     const c = -3 * p0.x + 3 * p1.x;
     const d = p0.x - x;
-    const t = $42a19166d05576d2$var$solveBezier3Fomula(a, b, c, d);
+    const t = solveBezier3Fomula(a, b, c, d);
     const tt = t * t;
     const ttt = tt * t;
     const tm = 1 - t;
@@ -483,58 +1045,58 @@ function $42a19166d05576d2$export$794c52996a27d3f4(pointList, x) {
     const tmtmtm = tmtm * tm;
     return tmtmtm * p0.y + 3 * t * tmtm * p1.y + 3 * tt * tm * p2.y + ttt * p3.y;
 }
-function $42a19166d05576d2$export$2d3e06704631d4b1(rx, ry, startRadian, endRadian, center, radian, size) {
+function approximateArc(rx, ry, startRadian, endRadian, center, radian, size) {
     const ret = [];
     const range = endRadian - startRadian;
     const unitT = range / size;
-    const rotateFn = $42a19166d05576d2$var$getRotateFn(radian);
+    const rotateFn = getRotateFn(radian);
     for(let i = 0; i <= size; i++){
         const t = unitT * i + startRadian - radian;
-        ret.push($42a19166d05576d2$export$e16d8520af44a096(rotateFn($42a19166d05576d2$export$202e0172ed3c7be0(rx * Math.cos(t), ry * Math.sin(t))), center));
+        ret.push(add(rotateFn(vec(rx * Math.cos(t), ry * Math.sin(t))), center));
     }
     return ret;
 }
-function $42a19166d05576d2$export$e3c4c7c70c07bd5d(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian, size) {
-    if (Math.abs(rx * ry) < $42a19166d05576d2$export$e1764cb99718e49f) return [
+function approximateArcWithPoint(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian, size) {
+    if (Math.abs(rx * ry) < MINVALUE) return [
         startPoint,
         endPoint
     ];
-    return $42a19166d05576d2$export$aef8effa323ac3b3($42a19166d05576d2$export$f0a1dd234d8c498c(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian), size);
+    return getApproPoints(getArcLerpFn(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian), size);
 }
-function $42a19166d05576d2$export$f0a1dd234d8c498c(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian) {
-    if (Math.abs(rx * ry) < $42a19166d05576d2$export$e1764cb99718e49f) return (t)=>$42a19166d05576d2$export$1bfe9e4b89f5e7d9(startPoint, endPoint, t);
+function getArcLerpFn(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, radian) {
+    if (Math.abs(rx * ry) < MINVALUE) return (t)=>lerpPoint(startPoint, endPoint, t);
     const r = radian;
-    const rotateFn = $42a19166d05576d2$var$getRotateFn(r);
+    const rotateFn = getRotateFn(r);
     const p0 = startPoint;
     const p1 = endPoint;
-    const a = rotateFn($42a19166d05576d2$export$202e0172ed3c7be0((p0.x - p1.x) / 2, (p0.y - p1.y) / 2), true);
+    const a = rotateFn(vec((p0.x - p1.x) / 2, (p0.y - p1.y) / 2), true);
     const ax2 = a.x * a.x;
     const ay2 = a.y * a.y;
     const l = ax2 / rx / rx + ay2 / ry / ry;
     const lsqrt = l > 1 ? Math.sqrt(l) : 1;
-    const { x: rxa , y: rya  } = $42a19166d05576d2$export$202e0172ed3c7be0(Math.abs(rx) * lsqrt, Math.abs(ry) * lsqrt);
+    const { x: rxa , y: rya  } = vec(Math.abs(rx) * lsqrt, Math.abs(ry) * lsqrt);
     const rx2 = rxa * rxa;
     const ry2 = rya * rya;
-    const b = $42a19166d05576d2$export$13e2537ceeaf8a3a($42a19166d05576d2$export$13e2537ceeaf8a3a($42a19166d05576d2$export$202e0172ed3c7be0(rxa * a.y / rya, -rya * a.x / rxa), Math.sqrt(Math.max(0, rx2 * ry2 - rx2 * ay2 - ry2 * ax2) / (rx2 * ay2 + ry2 * ax2))), largeArcFlag === sweepFlag ? -1 : 1);
-    const c = $42a19166d05576d2$export$e16d8520af44a096(rotateFn(b), $42a19166d05576d2$export$13e2537ceeaf8a3a($42a19166d05576d2$export$e16d8520af44a096(p0, p1), 0.5));
-    const u = $42a19166d05576d2$export$202e0172ed3c7be0((a.x - b.x) / rxa, (a.y - b.y) / rya);
-    const v = $42a19166d05576d2$export$202e0172ed3c7be0((-a.x - b.x) / rxa, (-a.y - b.y) / rya);
-    const theta = $42a19166d05576d2$export$5f24487807f871fb(u);
-    const dtheta_tmp = ($42a19166d05576d2$export$5f24487807f871fb(v) - $42a19166d05576d2$export$5f24487807f871fb(u)) % (2 * Math.PI);
+    const b = multi(multi(vec(rxa * a.y / rya, -rya * a.x / rxa), Math.sqrt(Math.max(0, rx2 * ry2 - rx2 * ay2 - ry2 * ax2) / (rx2 * ay2 + ry2 * ax2))), largeArcFlag === sweepFlag ? -1 : 1);
+    const c = add(rotateFn(b), multi(add(p0, p1), 0.5));
+    const u = vec((a.x - b.x) / rxa, (a.y - b.y) / rya);
+    const v = vec((-a.x - b.x) / rxa, (-a.y - b.y) / rya);
+    const theta = getRadian(u);
+    const dtheta_tmp = (getRadian(v) - getRadian(u)) % (2 * Math.PI);
     const dtheta = !sweepFlag && 0 < dtheta_tmp ? dtheta_tmp - 2 * Math.PI : sweepFlag && dtheta_tmp < 0 ? dtheta_tmp + 2 * Math.PI : dtheta_tmp;
     return (t)=>{
         if (t === 0) return startPoint;
         else if (t === 1) return endPoint;
         else {
             const dr = theta + dtheta * t;
-            return $42a19166d05576d2$export$e16d8520af44a096(rotateFn($42a19166d05576d2$export$202e0172ed3c7be0(rxa * Math.cos(dr), rya * Math.sin(dr))), c);
+            return add(rotateFn(vec(rxa * Math.cos(dr), rya * Math.sin(dr))), c);
         }
     };
 }
-function $42a19166d05576d2$export$1bfe9e4b89f5e7d9(a, b, t) {
-    return $42a19166d05576d2$export$e16d8520af44a096(a, $42a19166d05576d2$export$13e2537ceeaf8a3a($42a19166d05576d2$export$f93b5905241a7cca(b, a), t));
+function lerpPoint(a, b, t) {
+    return add(a, multi(sub(b, a), t));
 }
-function $42a19166d05576d2$export$aef8effa323ac3b3(lerpFn, split) {
+function getApproPoints(lerpFn, split) {
     if (split <= 1) return [
         lerpFn(0),
         lerpFn(1)
@@ -544,22 +1106,22 @@ function $42a19166d05576d2$export$aef8effa323ac3b3(lerpFn, split) {
     for(let i = 0; i <= split; i++)points.push(lerpFn(step * i));
     return points;
 }
-function $42a19166d05576d2$export$7b50b2f810f6ba6d(a, b, rx, ry, radian) {
+function getEllipseCenter(a, b, rx, ry, radian) {
     // 回転を打ち消す
-    a = $42a19166d05576d2$export$bb628a54ab399bc9(a, -radian);
-    b = $42a19166d05576d2$export$bb628a54ab399bc9(b, -radian);
+    a = rotate(a, -radian);
+    b = rotate(b, -radian);
     // 媒介変数を利用して円の中心問題にする
-    const A = $42a19166d05576d2$export$202e0172ed3c7be0(a.x / rx, a.y / ry);
-    const B = $42a19166d05576d2$export$202e0172ed3c7be0(b.x / rx, b.y / ry);
+    const A = vec(a.x / rx, a.y / ry);
+    const B = vec(b.x / rx, b.y / ry);
     // 円の中心取得
-    const centerInfo = $42a19166d05576d2$export$5758bd826bc20e64(A, B, 1);
+    const centerInfo = getCircleCenter(A, B, 1);
     const C = centerInfo.centers;
     // 楕円に戻す
-    let ans1 = $42a19166d05576d2$export$202e0172ed3c7be0(C[0].x * rx, C[0].y * ry);
-    let ans2 = $42a19166d05576d2$export$202e0172ed3c7be0(C[1].x * rx, C[1].y * ry);
+    let ans1 = vec(C[0].x * rx, C[0].y * ry);
+    let ans2 = vec(C[1].x * rx, C[1].y * ry);
     // 回転を戻す
-    ans1 = $42a19166d05576d2$export$bb628a54ab399bc9(ans1, radian);
-    ans2 = $42a19166d05576d2$export$bb628a54ab399bc9(ans2, radian);
+    ans1 = rotate(ans1, radian);
+    ans2 = rotate(ans2, radian);
     return {
         centers: [
             ans1,
@@ -568,7 +1130,7 @@ function $42a19166d05576d2$export$7b50b2f810f6ba6d(a, b, rx, ry, radian) {
         radiusRate: centerInfo.radiusRate
     };
 }
-function $42a19166d05576d2$export$5758bd826bc20e64(a, b, radius) {
+function getCircleCenter(a, b, radius) {
     const u1 = (a.x + b.x) / 2;
     const u2 = (a.x - b.x) / 2;
     const v1 = (a.y + b.y) / 2;
@@ -577,7 +1139,7 @@ function $42a19166d05576d2$export$5758bd826bc20e64(a, b, radius) {
     const t2 = Math.pow(radius / L, 2) - 1;
     // 2点が直径以上に離れている => 2点を直径とみなす
     if (t2 < 0) {
-        const center = $42a19166d05576d2$export$c91255cadecfe081(a, b);
+        const center = getCenter(a, b);
         return {
             centers: [
                 center,
@@ -587,8 +1149,8 @@ function $42a19166d05576d2$export$5758bd826bc20e64(a, b, radius) {
         };
     }
     const t = Math.sqrt(t2);
-    const ans1 = $42a19166d05576d2$export$202e0172ed3c7be0(u1 + v2 * t, v1 - u2 * t);
-    const ans2 = $42a19166d05576d2$export$202e0172ed3c7be0(u1 - v2 * t, v1 + u2 * t);
+    const ans1 = vec(u1 + v2 * t, v1 - u2 * t);
+    const ans2 = vec(u1 - v2 * t, v1 + u2 * t);
     return {
         centers: [
             ans1,
@@ -597,16 +1159,16 @@ function $42a19166d05576d2$export$5758bd826bc20e64(a, b, radius) {
         radiusRate: 1
     };
 }
-function $42a19166d05576d2$export$51186ad6e864892a(points, params) {
+function transform(points, params) {
     const a = params[0];
     const b = params[1];
     const c = params[2];
     const d = params[3];
     const e = params[4];
     const f = params[5];
-    return points.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(a * p.x + c * p.y + e, b * p.x + d * p.y + f));
+    return points.map((p)=>vec(a * p.x + c * p.y + e, b * p.x + d * p.y + f));
 }
-function $42a19166d05576d2$export$86904325d12790cd(params) {
+function invertTransform(params) {
     const [a, b, c, d, e, f] = params;
     const t = a * d - b * c;
     return [
@@ -618,7 +1180,7 @@ function $42a19166d05576d2$export$86904325d12790cd(params) {
         -(a * f - b * e) / t
     ];
 }
-function $42a19166d05576d2$export$defd75fdf417c537(a, b) {
+function multiAffine(a, b) {
     return [
         a[0] * b[0] + a[2] * b[1],
         a[1] * b[0] + a[3] * b[1],
@@ -628,15 +1190,15 @@ function $42a19166d05576d2$export$defd75fdf417c537(a, b) {
         a[1] * b[4] + a[3] * b[5] + a[5]
     ];
 }
-function $42a19166d05576d2$export$39e2946afec0625e(affines) {
+function multiAffines(affines) {
     return affines.reduce((p, c)=>{
-        return $42a19166d05576d2$export$defd75fdf417c537(p, c);
-    }, $42a19166d05576d2$export$6b37290cfd5aead9);
+        return multiAffine(p, c);
+    }, IDENTITY_AFFINE);
 }
-function $42a19166d05576d2$export$8cb23e22f8f81351(affine, v) {
-    return $42a19166d05576d2$export$202e0172ed3c7be0(affine[0] * v.x + affine[2] * v.y + affine[4], affine[1] * v.x + affine[3] * v.y + affine[5]);
+function applyAffine(affine, v) {
+    return vec(affine[0] * v.x + affine[2] * v.y + affine[4], affine[1] * v.x + affine[3] * v.y + affine[5]);
 }
-function $42a19166d05576d2$export$4006bf3b02ff3c0e(polygon) {
+function omitSamePoint(polygon) {
     let ret = polygon.concat();
     // サイズ
     const size = polygon.length;
@@ -644,30 +1206,30 @@ function $42a19166d05576d2$export$4006bf3b02ff3c0e(polygon) {
     for(let i = 0; i < size; i++){
         const p1 = ret[i];
         const p2 = ret[(i + 1) % size];
-        if ($42a19166d05576d2$export$18ac18efd9e98d41(p1, p2)) {
+        if (isSame(p1, p2)) {
             // 同一
             ret.splice(i, 1);
             // 再帰
-            ret = $42a19166d05576d2$export$4006bf3b02ff3c0e(ret);
+            ret = omitSamePoint(ret);
             break;
         }
     }
     return ret;
 }
-function $42a19166d05576d2$export$c3914593588f19db(radius, n) {
+function getRegularPolygonArea(radius, n) {
     const unitRad = Math.PI / n;
     const unitArea = Math.pow(radius, 2) * Math.sin(unitRad) * Math.cos(unitRad);
     return unitArea * n;
 }
-function $42a19166d05576d2$export$7444ed9d49806b92(area, n) {
+function getRegularPolygonRadius(area, n) {
     const unitRad = Math.PI / n;
     const unitArea = area / n;
     return Math.sqrt(unitArea / Math.sin(unitRad) / Math.cos(unitRad));
 }
-function $42a19166d05576d2$export$301d301794861250(polygons) {
+function getIncludedPolygonGroups(polygons) {
     const sorted = polygons.concat();
     sorted.sort((a, b)=>{
-        return $42a19166d05576d2$export$520c40045967cb15(b) - $42a19166d05576d2$export$520c40045967cb15(a);
+        return getArea(b) - getArea(a);
     });
     const hit = {};
     const ret = [];
@@ -678,7 +1240,7 @@ function $42a19166d05576d2$export$301d301794861250(polygons) {
             p
         ].concat(sorted.filter((c, j)=>{
             if (hit[j]) return false;
-            const pointsOnPolygon = c.filter((point)=>$42a19166d05576d2$export$5fa2dd9499a076de(point, p));
+            const pointsOnPolygon = c.filter((point)=>isOnPolygon(point, p));
             if (pointsOnPolygon.length !== c.length) return false;
             hit[j] = true;
             return true;
@@ -687,7 +1249,7 @@ function $42a19166d05576d2$export$301d301794861250(polygons) {
     });
     return ret;
 }
-function $42a19166d05576d2$export$a9718a9904071bdb(target, poly) {
+function getPolygonNotPolygon(target, poly) {
     const ret = [];
     // targetの辺と交差するpolyの辺インデックスを探索
     let targetCrossIndex = -1;
@@ -703,8 +1265,8 @@ function $42a19166d05576d2$export$a9718a9904071bdb(target, poly) {
                 poly[j],
                 poly[(j + 1) % poly.length]
             ];
-            if ($42a19166d05576d2$export$60d04f6074c4a6a5(currentSeg, seg)) {
-                const p = $42a19166d05576d2$export$c2b04831d534c8e0(currentSeg, seg);
+            if (isCrossSegAndSeg(currentSeg, seg)) {
+                const p = getCrossSegAndLine(currentSeg, seg);
                 if (p) {
                     targetCrossIndex = i;
                     polyCrossIndexList.push(j);
@@ -717,7 +1279,7 @@ function $42a19166d05576d2$export$a9718a9904071bdb(target, poly) {
     if (targetCrossIndex === -1) return target;
     if (polyCrossIndexList.length % 2 !== 0) return target;
     // target辺の始点に最も近い交点を探す
-    const distList = cross.map((p)=>$42a19166d05576d2$export$79376507b09a66f(p, target[targetCrossIndex]));
+    const distList = cross.map((p)=>getDistance(p, target[targetCrossIndex]));
     const sortedDistList = distList.concat().sort((a, b)=>a - b);
     const nearestCrossIndex = distList.indexOf(sortedDistList[0]);
     const nearestIndex = polyCrossIndexList[nearestCrossIndex];
@@ -745,7 +1307,7 @@ function $42a19166d05576d2$export$a9718a9904071bdb(target, poly) {
     }
     return ret;
 }
-function $42a19166d05576d2$export$93836cccefaa956d(polygons) {
+function getOuterRectangle(polygons) {
     if (polygons.length === 0) return {
         x: 0,
         y: 0,
@@ -773,7 +1335,7 @@ function $42a19166d05576d2$export$93836cccefaa956d(polygons) {
         height: maxY - minY
     };
 }
-function $42a19166d05576d2$export$85a47b3ccce199ed(range, gridSize, dX = 0, dY = 0) {
+function getGrid(range, gridSize, dX = 0, dY = 0) {
     const gridList = [];
     const minX = range.x;
     const maxX = range.x + range.width;
@@ -782,22 +1344,22 @@ function $42a19166d05576d2$export$85a47b3ccce199ed(range, gridSize, dX = 0, dY =
     let x = minX + dX;
     while(x < maxX){
         if (minX < x && x < maxX) gridList.push([
-            $42a19166d05576d2$export$202e0172ed3c7be0(x, minY),
-            $42a19166d05576d2$export$202e0172ed3c7be0(x, maxY)
+            vec(x, minY),
+            vec(x, maxY)
         ]);
         x += gridSize;
     }
     let y = minY + dY;
     while(y < maxY){
         if (minY < y && y < maxY) gridList.push([
-            $42a19166d05576d2$export$202e0172ed3c7be0(minX, y),
-            $42a19166d05576d2$export$202e0172ed3c7be0(maxX, y)
+            vec(minX, y),
+            vec(maxX, y)
         ]);
         y += gridSize;
     }
     return gridList;
 }
-function $42a19166d05576d2$export$bb83c32694619426(org, dW, dH) {
+function expandRecntagle(org, dW, dH) {
     return {
         x: org.x - dW / 2,
         y: org.y - dH / 2,
@@ -805,14 +1367,14 @@ function $42a19166d05576d2$export$bb83c32694619426(org, dW, dH) {
         height: org.height + dH
     };
 }
-function $42a19166d05576d2$export$dd4c8928dbf2da5d(org, scaleW, scaleH) {
-    return $42a19166d05576d2$export$bb83c32694619426(org, org.width * (scaleW - 1), org.height * (scaleH - 1));
+function expandRecntagleScale(org, scaleW, scaleH) {
+    return expandRecntagle(org, org.width * (scaleW - 1), org.height * (scaleH - 1));
 }
-function $42a19166d05576d2$export$22a203dd8a99d3d1(from, to, rate) {
+function interpolateScaler(from, to, rate) {
     return from * (1 - rate) + to * rate;
 }
-function $42a19166d05576d2$export$e59c1c31adf59555(from, to, rate) {
-    return $42a19166d05576d2$export$202e0172ed3c7be0($42a19166d05576d2$export$22a203dd8a99d3d1(from.x, to.x, rate), $42a19166d05576d2$export$22a203dd8a99d3d1(from.y, to.y, rate));
+function interpolateVector(from, to, rate) {
+    return vec(interpolateScaler(from.x, to.x, rate), interpolateScaler(from.y, to.y, rate));
 }
 /**
  * solve cubic equation for bezier3
@@ -822,24 +1384,24 @@ function $42a19166d05576d2$export$e59c1c31adf59555(from, to, rate) {
  * @param c t param
  * @param d constant param
  * @return unique solution
- */ function $42a19166d05576d2$var$solveBezier3Fomula(a, b, c, d) {
-    const list = $42a19166d05576d2$export$721a941b8db8dcde(a, b, c, d);
+ */ function solveBezier3Fomula(a, b, c, d) {
+    const list = solveQubicFomula(a, b, c, d);
     if (list.length === 0) return 0;
-    const ret = $42a19166d05576d2$var$getCloseInRangeValue(list, 0, 1);
+    const ret = getCloseInRangeValue(list, 0, 1);
     if (ret === undefined) throw new Error("Error: Cannot resolve uniquely in 0 <= t <= 1.");
     return Math.max(Math.min(ret, 1), 0);
 }
-function $42a19166d05576d2$export$721a941b8db8dcde(a, b, c, d) {
-    if ($42a19166d05576d2$var$isCloseToZero(a)) return $42a19166d05576d2$export$b5a1995c4855c266(b, c, d);
+function solveQubicFomula(a, b, c, d) {
+    if (isCloseToZero(a)) return solveEquationOrder2(b, c, d);
     const p = (3 * a * c - b * b) / (3 * a * a);
     const q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
     const Z = -b / (3 * a);
-    if ($42a19166d05576d2$var$isCloseToZero(p) && $42a19166d05576d2$var$isCloseToZero(q)) // triple real root
+    if (isCloseToZero(p) && isCloseToZero(q)) // triple real root
     return [
         Z
     ];
     const D = (27 * q * q + 4 * p * p * p) / 108;
-    if ($42a19166d05576d2$var$isCloseToZero(D)) {
+    if (isCloseToZero(D)) {
         // one distinct root and double real root
         const Q = Math.sign(q) * Math.pow(Math.abs(q) / 2, 1 / 3);
         return [
@@ -874,29 +1436,29 @@ function $42a19166d05576d2$export$721a941b8db8dcde(a, b, c, d) {
         ];
     }
 }
-function $42a19166d05576d2$var$getCloseInRangeValue(values, min, max) {
+function getCloseInRangeValue(values, min, max) {
     return values.find((val)=>{
         if (min <= val && val <= max) return true;
-        if ($42a19166d05576d2$var$isCloseTo(val, min) || $42a19166d05576d2$var$isCloseTo(val, max)) return true;
+        if (isCloseTo(val, min) || isCloseTo(val, max)) return true;
         return false;
     });
 }
-function $42a19166d05576d2$var$isCloseTo(val, target) {
-    return Math.abs(val - target) < $42a19166d05576d2$export$e1764cb99718e49f;
+function isCloseTo(val, target) {
+    return Math.abs(val - target) < MINVALUE;
 }
-function $42a19166d05576d2$var$isCloseToZero(val) {
-    return Math.abs(val) < $42a19166d05576d2$export$e1764cb99718e49f;
+function isCloseToZero(val) {
+    return Math.abs(val) < MINVALUE;
 }
-function $42a19166d05576d2$export$7d15b64cf5a3a4c4(min = -Infinity, max = Infinity, val) {
+function clamp(min = -Infinity, max = Infinity, val) {
     return Math.max(Math.min(val, max), min);
 }
-function $42a19166d05576d2$export$b38acdfe4c38b83(min, max, val) {
+function circleClamp(min, max, val) {
     if (min === max) return min;
     if (max < val) return (val - max) % (max - min) + min;
     else if (val < min) return max - (min - val) % (max - min);
     else return val;
 }
-function $42a19166d05576d2$export$c5c0749208795ef4(min, max, val) {
+function roundTrip(min, max, val) {
     const harf = max - min;
     const length = 2 * harf;
     if (length === 0) return min;
@@ -905,15 +1467,278 @@ function $42a19166d05576d2$export$c5c0749208795ef4(min, max, val) {
     else return length - d + min;
 }
 
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, "__esModule", {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
 
-const $4739f3f564343508$var$HTTP_SVG = "http://www.w3.org/2000/svg";
+},{}],"hNdpk":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "configs", ()=>configs);
+/**
+ * 描画
+ * @param ctx 描画要素
+ * @param pathInfo 図形情報
+ */ parcelHelpers.export(exports, "draw", ()=>draw);
+/**
+ * 矩形に収まるよう調整
+ * @param pathInfoList パス情報リスト
+ * @param x 矩形x座標
+ * @param y 矩形y座標
+ * @param width 矩形width
+ * @param height 矩形height
+ * @return 調整後パス情報リスト
+ */ parcelHelpers.export(exports, "fitRect", ()=>fitRect);
+/**
+ * SVG文字列から図形のパス情報を取得する
+ * 対応タグ: path,rect,ellipse,circle
+ * @param svgString SVGリソース文字列
+ * @return パス情報リスト
+ */ parcelHelpers.export(exports, "parseSvgGraphicsStr", ()=>parseSvgGraphicsStr);
+/**
+ * SVGタグから図形のパス情報を取得する
+ * 対応タグ: path,rect,ellipse,circle
+ * @param svgTag SVGタグ
+ * @return パス情報リスト
+ */ parcelHelpers.export(exports, "parseSvgGraphics", ()=>parseSvgGraphics);
+/**
+ * opentype.jsのpath.commandをd文字列に変換する
+ * @param fontPath opentype.jsのpath.command
+ * @return d文字列
+ */ parcelHelpers.export(exports, "openCommandToD", ()=>openCommandToD);
+/**
+ * opentype.jsのpathを解析する
+ * @param fontPath opentype.jsのpath
+ * @return パス情報リスト
+ */ parcelHelpers.export(exports, "parseOpenPath", ()=>parseOpenPath);
+parcelHelpers.export(exports, "parsePathSegmentRaws", ()=>parsePathSegmentRaws);
+parcelHelpers.export(exports, "pathSegmentRawsToString", ()=>pathSegmentRawsToString);
+parcelHelpers.export(exports, "pathSegmentRawToString", ()=>pathSegmentRawToString);
+parcelHelpers.export(exports, "parsePathSegments", ()=>parsePathSegments);
+parcelHelpers.export(exports, "getPathLengthStructs", ()=>getPathLengthStructs);
+/**
+ * Execute "getPathTotalLength" with cacheable structs generated by "getPathLengthStructs"
+ */ parcelHelpers.export(exports, "getPathTotalLengthFromStructs", ()=>getPathTotalLengthFromStructs);
+/**
+ * Alternative function of "SVGGeometryElement.getTotalLength"
+ * @param dStr d string of path element
+ * @param split the number of segments to approximate a curve
+ * @return total length of the path
+ */ parcelHelpers.export(exports, "getPathTotalLength", ()=>getPathTotalLength);
+/**
+ * Execute "getPathPointAtLength" with cacheable structs generated by "getPathLengthStructs"
+ */ parcelHelpers.export(exports, "getPathPointAtLengthFromStructs", ()=>getPathPointAtLengthFromStructs);
+/**
+ * Alternative function of "SVGGeometryElement.getPointAtLength"
+ * @param dStr d string of path element
+ * @param distance target length
+ * @param split the number of segments to approximate a curve
+ * @return the point at the target length
+ */ parcelHelpers.export(exports, "getPathPointAtLength", ()=>getPathPointAtLength);
+/**
+ * The first segment has to be either "M", "m", "L" or "l".
+ *
+ * The last segment will be converted to normalized value.
+ * e.g. [m, l, v, z] => [M, v, l, z]
+ *
+ * "T", "t", "S" or "s" will be converted to "Q", "q", "C" or "c"
+ */ parcelHelpers.export(exports, "reversePath", ()=>reversePath);
+/**
+ * Slide segments.
+ * Relative segments will not be slided by this function.
+ */ parcelHelpers.export(exports, "slidePath", ()=>slidePath);
+/**
+ * Scale segments.
+ * Both abstract and relative segments will be scaled by this function.
+ */ parcelHelpers.export(exports, "scalePath", ()=>scalePath);
+/**
+ * Rotate segments.
+ * Both abstract and relative segments will be rotated by this function.
+ * "H", "h", "V" and "v" will be converted to "L" or "l"
+ */ parcelHelpers.export(exports, "rotatePath", ()=>rotatePath);
+/**
+ * Parse path d string and approximate it as a polyline
+ * Note:
+ * - Jump information by M/m commands doesn't remain in a polyline
+ * - Z/z commands are ignored => The tail point doesn't become the same as the head one by these commands
+ * @param dStr d string of path element
+ * @return approximated polyline
+ */ parcelHelpers.export(exports, "parsePathD", ()=>parsePathD);
+/**
+ * pathタグを解析する
+ * @param svgPath SVGのpathタグDOM
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "parsePath", ()=>parsePath);
+/**
+ * rectタグを解析する
+ * @param SVGのrectタグDOM
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "parseRect", ()=>parseRect);
+/**
+ * ellipseタグを解析する
+ * @param svgEllipse SVGのellipseタグDOM
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "parseEllipse", ()=>parseEllipse);
+/**
+ * circleタグを解析する
+ * @param svgCircle  SVGのcircleタグDOM
+ * @return 座標リスト
+ */ parcelHelpers.export(exports, "parseCircle", ()=>parseCircle);
+/**
+ * transformを行う
+ * @param commandStr コマンド文字列
+ * @param points 変換前座標リスト
+ * @return 変形後座標リスト
+ */ parcelHelpers.export(exports, "adoptTransform", ()=>adoptTransform);
+/**
+ * pathタグd属性文字列を分割する
+ * @param dString pathのd要素文字列
+ * @return コマンド単位の情報配列の配列
+ */ parcelHelpers.export(exports, "splitD", ()=>splitD);
+/**
+ * svg文字列を生成する
+ * @param pathList path情報リスト
+ * @return xml文字列
+ */ parcelHelpers.export(exports, "serializeSvgString", ()=>serializeSvgString);
+/**
+ * svgタグを生成する
+ * @param pathList path情報リスト
+ * @return svgタグ
+ */ parcelHelpers.export(exports, "serializeSvg", ()=>serializeSvg);
+/**
+ * pathタグを生成する
+ * @param pointList 座標リスト
+ * @param style スタイル情報
+ * @return pathタグ
+ */ parcelHelpers.export(exports, "serializePath", ()=>serializePath);
+/**
+ * 座標リストをd属性文字列に変換する
+ * @param pointList 座標リスト
+ * @param open 閉じないフラグ
+ * @return d属性文字列
+ */ parcelHelpers.export(exports, "serializePointList", ()=>serializePointList);
+/**
+ * デフォルトstyle作成
+ * @return スタイルオブジェクト
+ */ parcelHelpers.export(exports, "createStyle", ()=>createStyle);
+/**
+ * pathタグのスタイルを取得する
+ * @param svgPath SVGのpathタグDOM
+ * @return スタイルオブジェクト
+ */ parcelHelpers.export(exports, "parseTagStyle", ()=>parseTagStyle);
+/**
+ * スタイル情報をstyle属性文字列に変換する
+ * @method serializeStyle
+ * @param style スタイル情報
+ * @return style属性文字列
+ */ parcelHelpers.export(exports, "serializeStyle", ()=>serializeStyle);
+/**
+ * パス分割
+ * @param path 対象パス
+ * @param line 分割線
+ * @return 分割後のパスリスト
+ */ parcelHelpers.export(exports, "splitPath", ()=>splitPath);
+/**
+ * ポリゴンリストをグルーピングしたパスリストに変換する
+ * @param polygons ポリゴンリスト
+ * @param style パススタイル
+ * @return パスリスト
+ */ parcelHelpers.export(exports, "getGroupedPathList", ()=>getGroupedPathList);
+/**
+ * convert affine matrix to transform attribute value
+ * @param matrix affine matrix
+ * @return transform attribute value
+ */ parcelHelpers.export(exports, "affineToTransform", ()=>affineToTransform);
+/**
+ * parse transform attribute value as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseTransform", ()=>parseTransform);
+/**
+ * parse transform attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseTranslate", ()=>parseTranslate);
+/**
+ * parse translateX attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseTranslateX", ()=>parseTranslateX);
+/**
+ * parse translateY attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseTranslateY", ()=>parseTranslateY);
+/**
+ * parse skewX attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseSkewX", ()=>parseSkewX);
+/**
+ * parse skewY attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseSkewY", ()=>parseSkewY);
+/**
+ * parse transform attribute value of scale as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseScale", ()=>parseScale);
+/**
+ * parse ScaleX attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseScaleX", ()=>parseScaleX);
+/**
+ * parse ScaleY attribute value of translate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseScaleY", ()=>parseScaleY);
+/**
+ * parse transform attribute value of rotate as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseRotate", ()=>parseRotate);
+/**
+ * parse transform attribute value of matrix as affine matrix
+ * @param transform attribute value
+ * @return transform value
+ */ parcelHelpers.export(exports, "parseMatrix", ()=>parseMatrix);
+var _geo = require("./geo");
+const HTTP_SVG = "http://www.w3.org/2000/svg";
 // Unary plus operator seems faster than native parseFloat
-const $4739f3f564343508$var$_parseFloat = (v)=>+v;
-const $4739f3f564343508$export$c884d9dcb329c3c = {
+const _parseFloat = (v)=>+v;
+const configs = {
     bezierSplitSize: 10,
     ellipseSplitSize: 20
 };
-function $4739f3f564343508$export$e529deb2bfd496dc(ctx, pathInfo) {
+function draw(ctx, pathInfo) {
     ctx.lineCap = pathInfo.style.lineCap;
     ctx.lineJoin = pathInfo.style.lineJoin;
     ctx.beginPath();
@@ -944,7 +1769,7 @@ function $4739f3f564343508$export$e529deb2bfd496dc(ctx, pathInfo) {
     }
     ctx.globalAlpha = 1;
 }
-function $4739f3f564343508$export$9167472d9dbc32b3(pathInfoList, x, y, width, height) {
+function fitRect(pathInfoList, x, y, width, height) {
     let minX = Infinity;
     let maxX = -Infinity;
     let minY = Infinity;
@@ -959,7 +1784,7 @@ function $4739f3f564343508$export$9167472d9dbc32b3(pathInfoList, x, y, width, he
     });
     // 原点基準に移動
     const fromBaseList = pathInfoList.map((info)=>Object.assign(Object.assign({}, info), {
-            d: info.d.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(p.x - minX, p.y - minY))
+            d: info.d.map((p)=>_geo.vec(p.x - minX, p.y - minY))
         }));
     // 伸縮
     const orgWidth = maxX - minX;
@@ -968,81 +1793,81 @@ function $4739f3f564343508$export$9167472d9dbc32b3(pathInfoList, x, y, width, he
     const rateY = height / orgHeight;
     const rate = Math.min(rateX, rateY);
     const scaledList = fromBaseList.map((info)=>Object.assign(Object.assign({}, info), {
-            d: info.d.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(p.x * rate, p.y * rate))
+            d: info.d.map((p)=>_geo.vec(p.x * rate, p.y * rate))
         }));
     // 矩形位置に移動
     const difX = x + (width - orgWidth * rate) / 2;
     const difY = y + (height - orgHeight * rate) / 2;
     const convertedList = scaledList.map((info)=>Object.assign(Object.assign({}, info), {
-            d: info.d.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(p.x + difX, p.y + difY)),
+            d: info.d.map((p)=>_geo.vec(p.x + difX, p.y + difY)),
             included: (info.included || []).map((poly)=>{
-                return poly.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0((p.x - minX) * rate + difX, (p.y - minY) * rate + difY));
+                return poly.map((p)=>_geo.vec((p.x - minX) * rate + difX, (p.y - minY) * rate + difY));
             })
         }));
     return convertedList;
 }
-function $4739f3f564343508$export$f24e17869322fd61(svgString) {
+function parseSvgGraphicsStr(svgString) {
     const domParser = new DOMParser();
     const svgDom = domParser.parseFromString(svgString, "image/svg+xml");
     const svgTags = svgDom.getElementsByTagName("svg");
     if (!svgTags || svgTags.length === 0) return [];
-    return $4739f3f564343508$export$ceb6fd9d476d0ad7(svgTags[0]);
+    return parseSvgGraphics(svgTags[0]);
 }
 /**
  * parse SVG tree
  * @param elm SVGElement
  * @return path informations
- */ function $4739f3f564343508$var$parseSvgTree(elm, parentInfo) {
+ */ function parseSvgTree(elm, parentInfo) {
     var _a, _b;
-    const style = Object.assign(Object.assign({}, (_a = parentInfo === null || parentInfo === void 0 ? void 0 : parentInfo.style) !== null && _a !== void 0 ? _a : {}), $4739f3f564343508$export$ea651f49739595b5(elm));
+    const style = Object.assign(Object.assign({}, (_a = parentInfo === null || parentInfo === void 0 ? void 0 : parentInfo.style) !== null && _a !== void 0 ? _a : {}), parseTagStyle(elm));
     const transformStr = elm.getAttribute("transform");
-    const parentTransform = (_b = parentInfo === null || parentInfo === void 0 ? void 0 : parentInfo.transform) !== null && _b !== void 0 ? _b : $42a19166d05576d2$export$6b37290cfd5aead9;
+    const parentTransform = (_b = parentInfo === null || parentInfo === void 0 ? void 0 : parentInfo.transform) !== null && _b !== void 0 ? _b : _geo.IDENTITY_AFFINE;
     let ret = [];
-    const svgPath = $4739f3f564343508$var$parseSVGShape(elm);
+    const svgPath = parseSVGShape(elm);
     if (svgPath) ret.push(Object.assign(Object.assign({}, svgPath), {
-        d: svgPath.d.map((v)=>$42a19166d05576d2$export$8cb23e22f8f81351(parentTransform, v))
+        d: svgPath.d.map((v)=>_geo.applyAffine(parentTransform, v))
     }));
     if (elm.children.length > 0) {
-        const transform = transformStr ? $42a19166d05576d2$export$defd75fdf417c537(parentTransform, $4739f3f564343508$export$99f660e5a014b917(transformStr)) : parentTransform;
+        const transform = transformStr ? _geo.multiAffine(parentTransform, parseTransform(transformStr)) : parentTransform;
         Array.from(elm.children).forEach((child)=>{
-            ret = ret.concat($4739f3f564343508$var$parseSvgTree(child, {
-                style: style,
-                transform: transform
+            ret = ret.concat(parseSvgTree(child, {
+                style,
+                transform
             }));
         });
     }
     return ret;
 }
-function $4739f3f564343508$var$parseSVGShape(elm) {
+function parseSVGShape(elm) {
     switch(elm.tagName.toLowerCase()){
         case "path":
             return {
-                d: $4739f3f564343508$export$8ccf933b0513f8d0(elm),
-                style: $4739f3f564343508$export$ea651f49739595b5(elm)
+                d: parsePath(elm),
+                style: parseTagStyle(elm)
             };
         case "rect":
             return {
-                d: $4739f3f564343508$export$b0107eabf4066626(elm),
-                style: $4739f3f564343508$export$ea651f49739595b5(elm)
+                d: parseRect(elm),
+                style: parseTagStyle(elm)
             };
         case "ellipse":
             return {
-                d: $4739f3f564343508$export$dc2e748a816b89ef(elm),
-                style: $4739f3f564343508$export$ea651f49739595b5(elm)
+                d: parseEllipse(elm),
+                style: parseTagStyle(elm)
             };
         case "circle":
             return {
-                d: $4739f3f564343508$export$347295f3a35d1b04(elm),
-                style: $4739f3f564343508$export$ea651f49739595b5(elm)
+                d: parseCircle(elm),
+                style: parseTagStyle(elm)
             };
         default:
             return undefined;
     }
 }
-function $4739f3f564343508$export$ceb6fd9d476d0ad7(svgTag) {
-    return $4739f3f564343508$var$parseSvgTree(svgTag);
+function parseSvgGraphics(svgTag) {
+    return parseSvgTree(svgTag);
 }
-function $4739f3f564343508$export$10b46c17039f4ee5(command) {
+function openCommandToD(command) {
     let d = command.type;
     if ("x1" in command) d += ` ${command.x1}`;
     if ("y1" in command) d += ` ${command.y1}`;
@@ -1054,16 +1879,16 @@ function $4739f3f564343508$export$10b46c17039f4ee5(command) {
     if ("y" in command) d += ` ${command.y}`;
     return d;
 }
-function $4739f3f564343508$export$566d17fc995038e9(fontPath) {
+function parseOpenPath(fontPath) {
     const pathInfoList = [];
     let current = "";
     fontPath.commands.forEach((c)=>{
-        current += $4739f3f564343508$export$10b46c17039f4ee5(c) + " ";
+        current += openCommandToD(c) + " ";
         if (current && c.type.toUpperCase() === "Z") {
-            const pathList = $4739f3f564343508$export$4d4f451a69577108(current);
+            const pathList = parsePathD(current);
             pathInfoList.push({
                 d: pathList,
-                style: Object.assign(Object.assign({}, $4739f3f564343508$export$712f75a7545ed530()), {
+                style: Object.assign(Object.assign({}, createStyle()), {
                     fill: true,
                     fillStyle: "black",
                     stroke: false
@@ -1074,44 +1899,44 @@ function $4739f3f564343508$export$566d17fc995038e9(fontPath) {
     });
     return pathInfoList;
 }
-function $4739f3f564343508$var$parsePathSegmentRaw(segment) {
+function parsePathSegmentRaw(segment) {
     if (segment.length === 8) return [
         segment[0],
-        $4739f3f564343508$var$_parseFloat(segment[1]),
-        $4739f3f564343508$var$_parseFloat(segment[2]),
-        $4739f3f564343508$var$_parseFloat(segment[3]),
+        _parseFloat(segment[1]),
+        _parseFloat(segment[2]),
+        _parseFloat(segment[3]),
         segment[4] !== "0",
         segment[5] !== "0",
-        $4739f3f564343508$var$_parseFloat(segment[6]),
-        $4739f3f564343508$var$_parseFloat(segment[7])
+        _parseFloat(segment[6]),
+        _parseFloat(segment[7])
     ];
     else {
         const [c, ...values] = segment;
         return [
             c,
-            ...values.map($4739f3f564343508$var$_parseFloat)
+            ...values.map(_parseFloat)
         ];
     }
 }
-function $4739f3f564343508$export$9a6f66774133b5ba(dStr) {
-    return $4739f3f564343508$export$2e40abba722fb6e(dStr).map((c)=>$4739f3f564343508$var$parsePathSegmentRaw(c));
+function parsePathSegmentRaws(dStr) {
+    return splitD(dStr).map((c)=>parsePathSegmentRaw(c));
 }
-function $4739f3f564343508$export$649ea7d53d441340(segs) {
-    return segs.map($4739f3f564343508$export$d801e79c7e79af9).join(" ");
+function pathSegmentRawsToString(segs) {
+    return segs.map(pathSegmentRawToString).join(" ");
 }
-function $4739f3f564343508$export$d801e79c7e79af9(seg) {
+function pathSegmentRawToString(seg) {
     return seg.map((v)=>{
         if (v === true) return "1";
         else if (v === false) return "0";
         else return v.toString();
     }).join(" ");
 }
-function $4739f3f564343508$export$4c18b684aa252af0(dStr) {
-    return $4739f3f564343508$var$_parsePathSegments($4739f3f564343508$export$9a6f66774133b5ba(dStr));
+function parsePathSegments(dStr) {
+    return _parsePathSegments(parsePathSegmentRaws(dStr));
 }
-function $4739f3f564343508$var$_parsePathSegments(segments) {
+function _parsePathSegments(segments) {
     const ret = [];
-    let startP = $42a19166d05576d2$export$202e0172ed3c7be0(0, 0);
+    let startP = _geo.vec(0, 0);
     let currentP = startP;
     let currentControlP = startP;
     let currentBezier = 1;
@@ -1119,7 +1944,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
         switch(current[0]){
             case "M":
                 {
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]);
+                    const p1 = _geo.vec(current[1], current[2]);
                     ret.push({
                         command: "M",
                         segment: [
@@ -1135,7 +1960,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
                 }
             case "m":
                 {
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]);
+                    const p1 = _geo.vec(current[1], current[2]);
                     ret.push({
                         command: "m",
                         segment: [
@@ -1152,7 +1977,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "L":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]);
+                    const p1 = _geo.vec(current[1], current[2]);
                     ret.push({
                         command: "L",
                         segment: [
@@ -1169,7 +1994,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "l":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$e16d8520af44a096(currentP, $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]));
+                    const p1 = _geo.add(currentP, _geo.vec(current[1], current[2]));
                     ret.push({
                         command: "l",
                         segment: [
@@ -1186,7 +2011,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "H":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], p0.y);
+                    const p1 = _geo.vec(current[1], p0.y);
                     ret.push({
                         command: "H",
                         segment: [
@@ -1202,7 +2027,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "h":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1] + p0.x, p0.y);
+                    const p1 = _geo.vec(current[1] + p0.x, p0.y);
                     ret.push({
                         command: "h",
                         segment: [
@@ -1218,7 +2043,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "V":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(p0.x, current[1]);
+                    const p1 = _geo.vec(p0.x, current[1]);
                     ret.push({
                         command: "V",
                         segment: [
@@ -1234,7 +2059,7 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "v":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(p0.x, current[1] + p0.y);
+                    const p1 = _geo.vec(p0.x, current[1] + p0.y);
                     ret.push({
                         command: "v",
                         segment: [
@@ -1250,11 +2075,11 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "Q":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]);
-                    const p2 = $42a19166d05576d2$export$202e0172ed3c7be0(current[3], current[4]);
+                    const p1 = _geo.vec(current[1], current[2]);
+                    const p2 = _geo.vec(current[3], current[4]);
                     ret.push({
                         command: "Q",
-                        lerpFn: $42a19166d05576d2$export$64a6049d45cf5beb([
+                        lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
                             p2
@@ -1269,11 +2094,11 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "q":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]));
-                    const p2 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[3], current[4]));
+                    const p1 = _geo.add(p0, _geo.vec(current[1], current[2]));
+                    const p2 = _geo.add(p0, _geo.vec(current[3], current[4]));
                     ret.push({
                         command: "q",
-                        lerpFn: $42a19166d05576d2$export$64a6049d45cf5beb([
+                        lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
                             p2
@@ -1288,11 +2113,11 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "T":
                 {
                     const p0 = currentP;
-                    const p1 = currentBezier === 2 ? $42a19166d05576d2$export$d5201b68c60913ce(currentControlP, p0) : p0;
-                    const p2 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]);
+                    const p1 = currentBezier === 2 ? _geo.getSymmetry(currentControlP, p0) : p0;
+                    const p2 = _geo.vec(current[1], current[2]);
                     ret.push({
                         command: "T",
-                        lerpFn: $42a19166d05576d2$export$64a6049d45cf5beb([
+                        lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
                             p2
@@ -1307,11 +2132,11 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "t":
                 {
                     const p0 = currentP;
-                    const p1 = currentBezier === 2 ? $42a19166d05576d2$export$d5201b68c60913ce(currentControlP, p0) : p0;
-                    const p2 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]));
+                    const p1 = currentBezier === 2 ? _geo.getSymmetry(currentControlP, p0) : p0;
+                    const p2 = _geo.add(p0, _geo.vec(current[1], current[2]));
                     ret.push({
                         command: "t",
-                        lerpFn: $42a19166d05576d2$export$64a6049d45cf5beb([
+                        lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
                             p2
@@ -1326,12 +2151,12 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "C":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]);
-                    const p2 = $42a19166d05576d2$export$202e0172ed3c7be0(current[3], current[4]);
-                    const p3 = $42a19166d05576d2$export$202e0172ed3c7be0(current[5], current[6]);
+                    const p1 = _geo.vec(current[1], current[2]);
+                    const p2 = _geo.vec(current[3], current[4]);
+                    const p3 = _geo.vec(current[5], current[6]);
                     ret.push({
                         command: "C",
-                        lerpFn: $42a19166d05576d2$export$512a3af25faf9bbd([
+                        lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
                             p2,
@@ -1347,12 +2172,12 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "c":
                 {
                     const p0 = currentP;
-                    const p1 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]));
-                    const p2 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[3], current[4]));
-                    const p3 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[5], current[6]));
+                    const p1 = _geo.add(p0, _geo.vec(current[1], current[2]));
+                    const p2 = _geo.add(p0, _geo.vec(current[3], current[4]));
+                    const p3 = _geo.add(p0, _geo.vec(current[5], current[6]));
                     ret.push({
                         command: "c",
-                        lerpFn: $42a19166d05576d2$export$512a3af25faf9bbd([
+                        lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
                             p2,
@@ -1368,12 +2193,12 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "S":
                 {
                     const p0 = currentP;
-                    const p1 = currentBezier === 3 ? $42a19166d05576d2$export$d5201b68c60913ce(currentControlP, p0) : p0;
-                    const p2 = $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]);
-                    const p3 = $42a19166d05576d2$export$202e0172ed3c7be0(current[3], current[4]);
+                    const p1 = currentBezier === 3 ? _geo.getSymmetry(currentControlP, p0) : p0;
+                    const p2 = _geo.vec(current[1], current[2]);
+                    const p3 = _geo.vec(current[3], current[4]);
                     ret.push({
                         command: "S",
-                        lerpFn: $42a19166d05576d2$export$512a3af25faf9bbd([
+                        lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
                             p2,
@@ -1389,12 +2214,12 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
             case "s":
                 {
                     const p0 = currentP;
-                    const p1 = currentBezier === 3 ? $42a19166d05576d2$export$d5201b68c60913ce(currentControlP, p0) : p0;
-                    const p2 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[1], current[2]));
-                    const p3 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[3], current[4]));
+                    const p1 = currentBezier === 3 ? _geo.getSymmetry(currentControlP, p0) : p0;
+                    const p2 = _geo.add(p0, _geo.vec(current[1], current[2]));
+                    const p3 = _geo.add(p0, _geo.vec(current[3], current[4]));
                     ret.push({
                         command: "s",
-                        lerpFn: $42a19166d05576d2$export$512a3af25faf9bbd([
+                        lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
                             p2,
@@ -1415,10 +2240,10 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
                     const large = current[4];
                     const sweep = current[5];
                     const radian = current[3] / 180 * Math.PI;
-                    const p1 = $42a19166d05576d2$export$202e0172ed3c7be0(current[6], current[7]);
+                    const p1 = _geo.vec(current[6], current[7]);
                     ret.push({
                         command: "A",
-                        lerpFn: $42a19166d05576d2$export$f0a1dd234d8c498c(rx, ry, p0, p1, large, sweep, radian),
+                        lerpFn: _geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
                         curve: true
                     });
                     currentControlP = p1;
@@ -1434,10 +2259,10 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
                     const large = current[4];
                     const sweep = current[5];
                     const radian = current[3] / 180 * Math.PI;
-                    const p1 = $42a19166d05576d2$export$e16d8520af44a096(p0, $42a19166d05576d2$export$202e0172ed3c7be0(current[6], current[7]));
+                    const p1 = _geo.add(p0, _geo.vec(current[6], current[7]));
                     ret.push({
                         command: "a",
-                        lerpFn: $42a19166d05576d2$export$f0a1dd234d8c498c(rx, ry, p0, p1, large, sweep, radian),
+                        lerpFn: _geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
                         curve: true
                     });
                     currentControlP = p1;
@@ -1466,35 +2291,35 @@ function $4739f3f564343508$var$_parsePathSegments(segments) {
     });
     return ret;
 }
-function $4739f3f564343508$export$80460385208b7854(dStr, split = $4739f3f564343508$export$c884d9dcb329c3c.bezierSplitSize) {
-    return $4739f3f564343508$export$4c18b684aa252af0(dStr).map((seg)=>({
-            lerpFn: seg.curve ? seg.lerpFn : (t)=>$42a19166d05576d2$export$1bfe9e4b89f5e7d9(seg.segment[0], seg.segment[1], t),
-            length: $42a19166d05576d2$export$e029b07aa8e85de4(seg.curve ? $42a19166d05576d2$export$aef8effa323ac3b3(seg.lerpFn, split) : seg.segment)
+function getPathLengthStructs(dStr, split = configs.bezierSplitSize) {
+    return parsePathSegments(dStr).map((seg)=>({
+            lerpFn: seg.curve ? seg.lerpFn : (t)=>_geo.lerpPoint(seg.segment[0], seg.segment[1], t),
+            length: _geo.getPolylineLength(seg.curve ? _geo.getApproPoints(seg.lerpFn, split) : seg.segment)
         }));
 }
-function $4739f3f564343508$export$7778653c861a18d7(structs) {
+function getPathTotalLengthFromStructs(structs) {
     return structs.reduce((p, s)=>p + s.length, 0);
 }
-function $4739f3f564343508$export$cf3eae7710f0aabd(dStr, split = $4739f3f564343508$export$c884d9dcb329c3c.bezierSplitSize) {
-    return $4739f3f564343508$export$7778653c861a18d7($4739f3f564343508$export$80460385208b7854(dStr, split));
+function getPathTotalLength(dStr, split = configs.bezierSplitSize) {
+    return getPathTotalLengthFromStructs(getPathLengthStructs(dStr, split));
 }
-function $4739f3f564343508$export$d60e24de5abc127f(structs, distance) {
+function getPathPointAtLengthFromStructs(structs, distance) {
     let l = Math.max(distance, 0);
     for(let i = 0; i < structs.length; i++){
         const s = structs[i];
         if (l < s.length) return s.lerpFn(l / s.length);
         else l -= s.length;
     }
-    return structs.length > 0 ? structs[structs.length - 1].lerpFn(1) : $42a19166d05576d2$export$202e0172ed3c7be0(0, 0);
+    return structs.length > 0 ? structs[structs.length - 1].lerpFn(1) : _geo.vec(0, 0);
 }
-function $4739f3f564343508$export$7d6b779419fb20e8(dStr, distance, split = $4739f3f564343508$export$c884d9dcb329c3c.bezierSplitSize) {
-    return $4739f3f564343508$export$d60e24de5abc127f($4739f3f564343508$export$80460385208b7854(dStr, split), distance);
+function getPathPointAtLength(dStr, distance, split = configs.bezierSplitSize) {
+    return getPathPointAtLengthFromStructs(getPathLengthStructs(dStr, split), distance);
 }
-function $4739f3f564343508$var$getPathAbsPoints(segments) {
+function getPathAbsPoints(segments) {
     const points = [];
     const controls = [];
     let seg;
-    let startP = $42a19166d05576d2$export$202e0172ed3c7be0(0, 0);
+    let startP = _geo.vec(0, 0);
     let absP = startP;
     let preC = startP;
     let preCType = 1;
@@ -1503,21 +2328,21 @@ function $4739f3f564343508$var$getPathAbsPoints(segments) {
         switch(seg[0]){
             case "M":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1], seg[2]);
+                    const p = _geo.vec(seg[1], seg[2]);
                     startP = absP = preC = p;
                     preCType = 1;
                     break;
                 }
             case "m":
                 {
-                    const p = $42a19166d05576d2$export$e16d8520af44a096($42a19166d05576d2$export$202e0172ed3c7be0(seg[1], seg[2]), absP);
+                    const p = _geo.add(_geo.vec(seg[1], seg[2]), absP);
                     startP = absP = preC = p;
                     preCType = 1;
                     break;
                 }
             case "L":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1], seg[2]);
+                    const p = _geo.vec(seg[1], seg[2]);
                     startP !== null && startP !== void 0 ? startP : startP = p;
                     absP = preC = p;
                     preCType = 1;
@@ -1525,7 +2350,7 @@ function $4739f3f564343508$var$getPathAbsPoints(segments) {
                 }
             case "l":
                 {
-                    const p = $42a19166d05576d2$export$e16d8520af44a096($42a19166d05576d2$export$202e0172ed3c7be0(seg[1], seg[2]), absP);
+                    const p = _geo.add(_geo.vec(seg[1], seg[2]), absP);
                     startP !== null && startP !== void 0 ? startP : startP = p;
                     absP = preC = p;
                     preCType = 1;
@@ -1533,106 +2358,106 @@ function $4739f3f564343508$var$getPathAbsPoints(segments) {
                 }
             case "H":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1], absP.y);
+                    const p = _geo.vec(seg[1], absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
             case "h":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1] + absP.x, absP.y);
+                    const p = _geo.vec(seg[1] + absP.x, absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
             case "V":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(absP.x, seg[1]);
+                    const p = _geo.vec(absP.x, seg[1]);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
             case "v":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(absP.x, seg[1] + absP.y);
+                    const p = _geo.vec(absP.x, seg[1] + absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
             case "Q":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1], seg[2]);
+                    const p = _geo.vec(seg[1], seg[2]);
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[3], seg[4]);
+                    absP = _geo.vec(seg[3], seg[4]);
                     preCType = 2;
                     break;
                 }
             case "q":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1] + absP.x, seg[2] + absP.y);
+                    const p = _geo.vec(seg[1] + absP.x, seg[2] + absP.y);
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[3] + absP.x, seg[4] + absP.y);
+                    absP = _geo.vec(seg[3] + absP.x, seg[4] + absP.y);
                     preCType = 2;
                     break;
                 }
             case "T":
                 {
-                    const p = preCType === 2 ? $42a19166d05576d2$export$1bfe9e4b89f5e7d9(preC, absP, 2) : absP;
+                    const p = preCType === 2 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1], seg[2]);
+                    absP = _geo.vec(seg[1], seg[2]);
                     preCType = 2;
                     break;
                 }
             case "t":
                 {
-                    const p = preCType === 2 ? $42a19166d05576d2$export$1bfe9e4b89f5e7d9(preC, absP, 2) : absP;
+                    const p = preCType === 2 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[1] + absP.x, seg[2] + absP.y);
+                    absP = _geo.vec(seg[1] + absP.x, seg[2] + absP.y);
                     preCType = 2;
                     break;
                 }
             case "C":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[3], seg[4]);
+                    const p = _geo.vec(seg[3], seg[4]);
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[5], seg[6]);
+                    absP = _geo.vec(seg[5], seg[6]);
                     preCType = 3;
                     break;
                 }
             case "c":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[3] + absP.x, seg[4] + absP.y);
+                    const p = _geo.vec(seg[3] + absP.x, seg[4] + absP.y);
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[5] + absP.x, seg[6] + absP.y);
+                    absP = _geo.vec(seg[5] + absP.x, seg[6] + absP.y);
                     preCType = 3;
                     break;
                 }
             case "S":
                 {
-                    const p = preCType === 3 ? $42a19166d05576d2$export$1bfe9e4b89f5e7d9(preC, absP, 2) : absP;
+                    const p = preCType === 3 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[3], seg[4]);
+                    absP = _geo.vec(seg[3], seg[4]);
                     preCType = 3;
                     break;
                 }
             case "s":
                 {
-                    const p = preCType === 3 ? $42a19166d05576d2$export$1bfe9e4b89f5e7d9(preC, absP, 2) : absP;
+                    const p = preCType === 3 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
-                    absP = $42a19166d05576d2$export$202e0172ed3c7be0(seg[3] + absP.x, seg[4] + absP.y);
+                    absP = _geo.vec(seg[3] + absP.x, seg[4] + absP.y);
                     preCType = 3;
                     break;
                 }
             case "A":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[6], seg[7]);
+                    const p = _geo.vec(seg[6], seg[7]);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
             case "a":
                 {
-                    const p = $42a19166d05576d2$export$202e0172ed3c7be0(seg[6] + absP.x, seg[7] + absP.y);
+                    const p = _geo.vec(seg[6] + absP.x, seg[7] + absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
@@ -1643,23 +2468,23 @@ function $4739f3f564343508$var$getPathAbsPoints(segments) {
                 preCType = 1;
                 break;
             default:
-                throw $4739f3f564343508$var$getUnknownError();
+                throw getUnknownError();
         }
         controls.push(preC);
         points.push(absP);
     }
     return {
-        points: points,
-        controls: controls
+        points,
+        controls
     };
 }
-function $4739f3f564343508$var$isCurveCommand(c) {
+function isCurveCommand(c) {
     return /Q|q|T|t|C|c|S|s|A|a/.test(c);
 }
-function $4739f3f564343508$export$48a03785919bd95c(segments) {
+function reversePath(segments) {
     if (segments.length < 2) return segments;
     const ret = [];
-    const { points: absPoints , controls: absContolPoints  } = $4739f3f564343508$var$getPathAbsPoints(segments);
+    const { points: absPoints , controls: absContolPoints  } = getPathAbsPoints(segments);
     const length = segments.length;
     let current;
     let absP;
@@ -1670,7 +2495,7 @@ function $4739f3f564343508$export$48a03785919bd95c(segments) {
         switch(current[0]){
             case "M":
                 if (closeCount) {
-                    if ($4739f3f564343508$var$isCurveCommand(ret[ret.length - 1][0])) ret.push([
+                    if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
                         "Z"
                     ]);
                     else ret[ret.length - 1] = [
@@ -1686,7 +2511,7 @@ function $4739f3f564343508$export$48a03785919bd95c(segments) {
                 break;
             case "m":
                 if (closeCount) {
-                    if ($4739f3f564343508$var$isCurveCommand(ret[ret.length - 1][0])) ret.push([
+                    if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
                         "z"
                     ]);
                     else ret[ret.length - 1] = [
@@ -1707,7 +2532,7 @@ function $4739f3f564343508$export$48a03785919bd95c(segments) {
                 break;
             case "L":
                 if (closeCount && i === 0) {
-                    if ($4739f3f564343508$var$isCurveCommand(ret[ret.length - 1][0])) ret.push([
+                    if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
                         "Z"
                     ]);
                     else ret[ret.length - 1] = [
@@ -1723,7 +2548,7 @@ function $4739f3f564343508$export$48a03785919bd95c(segments) {
                 break;
             case "l":
                 if (closeCount && i === 0) {
-                    if ($4739f3f564343508$var$isCurveCommand(ret[ret.length - 1][0])) ret.push([
+                    if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
                         "z"
                     ]);
                     else ret[ret.length - 1] = [
@@ -1908,7 +2733,7 @@ function $4739f3f564343508$export$48a03785919bd95c(segments) {
     ret.unshift(ret.pop());
     return ret;
 }
-function $4739f3f564343508$export$6b790dc62d315a41(segments, diff) {
+function slidePath(segments, diff) {
     return segments.map((current)=>{
         const slided = [
             ...current
@@ -1934,7 +2759,7 @@ function $4739f3f564343508$export$6b790dc62d315a41(segments, diff) {
         return slided;
     });
 }
-function $4739f3f564343508$export$5051f29c6bc7129e(segments, scale) {
+function scalePath(segments, scale) {
     return segments.map((current)=>{
         const slided = [
             ...current
@@ -1966,10 +2791,10 @@ function $4739f3f564343508$export$5051f29c6bc7129e(segments, scale) {
         return slided;
     });
 }
-function $4739f3f564343508$var$convertHVToL(segments) {
+function convertHVToL(segments) {
     // If neither "H" nor "V" exists, abstract points doesn't have to be computed.
     const absVHExisted = segments.some((s)=>/H|V/.test(s[0]));
-    const { points: points  } = $4739f3f564343508$var$getPathAbsPoints(absVHExisted ? segments : []);
+    const { points  } = getPathAbsPoints(absVHExisted ? segments : []);
     return segments.map((s, i)=>{
         switch(s[0]){
             case "H":
@@ -2001,10 +2826,10 @@ function $4739f3f564343508$var$convertHVToL(segments) {
         }
     });
 }
-function $4739f3f564343508$export$4a61cfef64167fa8(segments, radian) {
+function rotatePath(segments, radian) {
     const sin = Math.sin(radian);
     const cos = Math.cos(radian);
-    return $4739f3f564343508$var$convertHVToL(segments).map((current)=>{
+    return convertHVToL(segments).map((current)=>{
         const slided = [
             ...current
         ];
@@ -2031,65 +2856,65 @@ function $4739f3f564343508$export$4a61cfef64167fa8(segments, radian) {
         return slided;
     });
 }
-function $4739f3f564343508$export$4d4f451a69577108(dStr, split = $4739f3f564343508$export$c884d9dcb329c3c.bezierSplitSize) {
+function parsePathD(dStr, split = configs.bezierSplitSize) {
     const _split = Math.max(1, split);
     let ret = [];
     let step = 1 / _split;
-    $4739f3f564343508$export$4c18b684aa252af0(dStr).forEach((seg)=>{
+    parsePathSegments(dStr).forEach((seg)=>{
         if (seg.command === "Z" || seg.command === "z") return;
         if (seg.curve) for(let i = 1; i <= _split; i++)ret.push(seg.lerpFn(step * i));
         else ret.push(seg.segment[1]);
     });
     return ret;
 }
-function $4739f3f564343508$export$8ccf933b0513f8d0(svgPath) {
+function parsePath(svgPath) {
     const dStr = svgPath.getAttribute("d");
-    return dStr ? $4739f3f564343508$export$c904ad00c567a3a6(svgPath.getAttribute("transform"), $4739f3f564343508$export$4d4f451a69577108(dStr)) : [];
+    return dStr ? adoptTransform(svgPath.getAttribute("transform"), parsePathD(dStr)) : [];
 }
-function $4739f3f564343508$export$b0107eabf4066626(svgRect) {
-    const x = $4739f3f564343508$var$_parseFloat(svgRect.getAttribute("x") || "0");
-    const y = $4739f3f564343508$var$_parseFloat(svgRect.getAttribute("y") || "0");
-    const width = $4739f3f564343508$var$_parseFloat(svgRect.getAttribute("width") || "0");
-    const height = $4739f3f564343508$var$_parseFloat(svgRect.getAttribute("height") || "0");
+function parseRect(svgRect) {
+    const x = _parseFloat(svgRect.getAttribute("x") || "0");
+    const y = _parseFloat(svgRect.getAttribute("y") || "0");
+    const width = _parseFloat(svgRect.getAttribute("width") || "0");
+    const height = _parseFloat(svgRect.getAttribute("height") || "0");
     // トランスフォーム
-    return $4739f3f564343508$export$c904ad00c567a3a6(svgRect.getAttribute("transform"), [
-        $42a19166d05576d2$export$202e0172ed3c7be0(x, y),
-        $42a19166d05576d2$export$202e0172ed3c7be0(x + width, y),
-        $42a19166d05576d2$export$202e0172ed3c7be0(x + width, y + height),
-        $42a19166d05576d2$export$202e0172ed3c7be0(x, y + height)
+    return adoptTransform(svgRect.getAttribute("transform"), [
+        _geo.vec(x, y),
+        _geo.vec(x + width, y),
+        _geo.vec(x + width, y + height),
+        _geo.vec(x, y + height)
     ]);
 }
-function $4739f3f564343508$export$dc2e748a816b89ef(svgEllipse) {
-    const cx = $4739f3f564343508$var$_parseFloat(svgEllipse.getAttribute("cx") || "0");
-    const cy = $4739f3f564343508$var$_parseFloat(svgEllipse.getAttribute("cy") || "0");
-    const rx = $4739f3f564343508$var$_parseFloat(svgEllipse.getAttribute("rx") || "1");
-    const ry = $4739f3f564343508$var$_parseFloat(svgEllipse.getAttribute("ry") || "1");
+function parseEllipse(svgEllipse) {
+    const cx = _parseFloat(svgEllipse.getAttribute("cx") || "0");
+    const cy = _parseFloat(svgEllipse.getAttribute("cy") || "0");
+    const rx = _parseFloat(svgEllipse.getAttribute("rx") || "1");
+    const ry = _parseFloat(svgEllipse.getAttribute("ry") || "1");
     // トランスフォーム
-    return $4739f3f564343508$export$c904ad00c567a3a6(svgEllipse.getAttribute("transform"), $42a19166d05576d2$export$2d3e06704631d4b1(rx, ry, 0, Math.PI * 2, $42a19166d05576d2$export$202e0172ed3c7be0(cx, cy), 0, $4739f3f564343508$export$c884d9dcb329c3c.ellipseSplitSize));
+    return adoptTransform(svgEllipse.getAttribute("transform"), _geo.approximateArc(rx, ry, 0, Math.PI * 2, _geo.vec(cx, cy), 0, configs.ellipseSplitSize));
 }
-function $4739f3f564343508$export$347295f3a35d1b04(svgCircle) {
-    const cx = $4739f3f564343508$var$_parseFloat(svgCircle.getAttribute("cx") || "0");
-    const cy = $4739f3f564343508$var$_parseFloat(svgCircle.getAttribute("cy") || "0");
-    const r = $4739f3f564343508$var$_parseFloat(svgCircle.getAttribute("r") || "1");
+function parseCircle(svgCircle) {
+    const cx = _parseFloat(svgCircle.getAttribute("cx") || "0");
+    const cy = _parseFloat(svgCircle.getAttribute("cy") || "0");
+    const r = _parseFloat(svgCircle.getAttribute("r") || "1");
     // トランスフォーム
-    return $4739f3f564343508$export$c904ad00c567a3a6(svgCircle.getAttribute("transform"), $42a19166d05576d2$export$2d3e06704631d4b1(r, r, 0, Math.PI * 2, $42a19166d05576d2$export$202e0172ed3c7be0(cx, cy), 0, $4739f3f564343508$export$c884d9dcb329c3c.ellipseSplitSize));
+    return adoptTransform(svgCircle.getAttribute("transform"), _geo.approximateArc(r, r, 0, Math.PI * 2, _geo.vec(cx, cy), 0, configs.ellipseSplitSize));
 }
-function $4739f3f564343508$export$c904ad00c567a3a6(commandStr, points) {
+function adoptTransform(commandStr, points) {
     if (!commandStr) return points;
-    let ret = $42a19166d05576d2$export$67b7da414b044aeb(points);
+    let ret = _geo.cloneVectors(points);
     // 複数コマンドの場合もあるのでループ
     const commandList = commandStr.split(/\)/);
     commandList.forEach((current)=>{
         const tmp = current.split(/\(/);
         if (tmp.length === 2) {
             const command = tmp[0].trim().toLowerCase();
-            const params = $4739f3f564343508$var$parseNumbers(tmp[1]);
+            const params = parseNumbers(tmp[1]);
             switch(command){
                 case "matrix":
-                    ret = $42a19166d05576d2$export$51186ad6e864892a(ret, params);
+                    ret = _geo.transform(ret, params);
                     break;
                 case "translate":
-                    ret = ret.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(p.x + params[0], p.y + params[1]));
+                    ret = ret.map((p)=>_geo.vec(p.x + params[0], p.y + params[1]));
                     break;
                 case "scale":
                     {
@@ -2097,22 +2922,22 @@ function $4739f3f564343508$export$c904ad00c567a3a6(commandStr, points) {
                         // XY等倍の場合を考慮
                         let scaleY = params[0];
                         if (params.length > 1) scaleY = params[1];
-                        ret = ret.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(p.x * scaleX, p.y * scaleY));
+                        ret = ret.map((p)=>_geo.vec(p.x * scaleX, p.y * scaleY));
                         break;
                     }
                 case "rotate":
                     {
                         // 回転基準点
-                        let base = $42a19166d05576d2$export$202e0172ed3c7be0(0, 0);
-                        if (params.length > 2) base = $42a19166d05576d2$export$202e0172ed3c7be0(params[1], params[2]);
-                        ret = ret.map((p)=>$42a19166d05576d2$export$bb628a54ab399bc9(p, params[0] * Math.PI / 180, base));
+                        let base = _geo.vec(0, 0);
+                        if (params.length > 2) base = _geo.vec(params[1], params[2]);
+                        ret = ret.map((p)=>_geo.rotate(p, params[0] * Math.PI / 180, base));
                         break;
                     }
                 case "skewx":
-                    ret = ret.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(p.x + Math.tan(params[0] * Math.PI / 180) * p.y, p.y));
+                    ret = ret.map((p)=>_geo.vec(p.x + Math.tan(params[0] * Math.PI / 180) * p.y, p.y));
                     break;
                 case "skewy":
-                    ret = ret.map((p)=>$42a19166d05576d2$export$202e0172ed3c7be0(p.x, p.y + Math.tan(params[0] * Math.PI / 180) * p.x));
+                    ret = ret.map((p)=>_geo.vec(p.x, p.y + Math.tan(params[0] * Math.PI / 180) * p.x));
                     break;
             }
         }
@@ -2120,10 +2945,10 @@ function $4739f3f564343508$export$c904ad00c567a3a6(commandStr, points) {
     return ret;
 }
 // All commands (BbRr isn't supported)
-const $4739f3f564343508$var$allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g;
-function $4739f3f564343508$export$2e40abba722fb6e(dString) {
+const allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g;
+function splitD(dString) {
     // 要素分割
-    const strList = dString.replace($4739f3f564343508$var$allCommand, " $& ")// Insert space before each signature, but don't destruct exponent exporession such as 2.2e-10.
+    const strList = dString.replace(allCommand, " $& ")// Insert space before each signature, but don't destruct exponent exporession such as 2.2e-10.
     .replace(/([^e])(-|\+)/g, "$1 $2").split(/,| /).filter((str)=>str);
     // 直前のコマンド
     let pastCommand = "M";
@@ -2131,7 +2956,7 @@ function $4739f3f564343508$export$2e40abba722fb6e(dString) {
     for(let i = 0; i < strList.length;){
         const info = [];
         // Check if a command exists
-        if (strList[i].match($4739f3f564343508$var$allCommand)) {
+        if (strList[i].match(allCommand)) {
             info.push(strList[i]);
             pastCommand = info[0];
             i++;
@@ -2166,25 +2991,25 @@ function $4739f3f564343508$export$2e40abba722fb6e(dString) {
                 i += 7;
                 break;
             default:
-                throw $4739f3f564343508$var$getUnknownError();
+                throw getUnknownError();
         }
         ret.push(info);
     }
     return ret;
 }
-function $4739f3f564343508$export$fcd3e6bef03de9b5(pathList) {
-    const svg = $4739f3f564343508$export$23fffd85f6e7bf10(pathList);
+function serializeSvgString(pathList) {
+    const svg = serializeSvg(pathList);
     const xmlSerializer = new XMLSerializer();
     const textXml = xmlSerializer.serializeToString(svg);
     return textXml;
 }
-function $4739f3f564343508$export$23fffd85f6e7bf10(pathList) {
-    const dom = document.createElementNS($4739f3f564343508$var$HTTP_SVG, "svg");
+function serializeSvg(pathList) {
+    const dom = document.createElementNS(HTTP_SVG, "svg");
     // キャンバスサイズ
     let width = 1;
     let height = 1;
     pathList.forEach((path)=>{
-        dom.appendChild($4739f3f564343508$export$2e1620420525139f(path.d, path.style));
+        dom.appendChild(serializePath(path.d, path.style));
         path.d.forEach((p)=>{
             width = Math.max(width, p.x);
             height = Math.max(height, p.y);
@@ -2196,18 +3021,18 @@ function $4739f3f564343508$export$23fffd85f6e7bf10(pathList) {
     dom.setAttribute("height", `${height}`);
     return dom;
 }
-function $4739f3f564343508$export$2e1620420525139f(pointList, style) {
-    const dom = document.createElementNS($4739f3f564343508$var$HTTP_SVG, "path");
-    dom.setAttribute("d", $4739f3f564343508$export$b17447bcace34a38(pointList));
-    dom.setAttribute("style", $4739f3f564343508$export$71fc5f2a8ce00485(style));
+function serializePath(pointList, style) {
+    const dom = document.createElementNS(HTTP_SVG, "path");
+    dom.setAttribute("d", serializePointList(pointList));
+    dom.setAttribute("style", serializeStyle(style));
     return dom;
 }
-function $4739f3f564343508$export$b17447bcace34a38(pointList, open) {
+function serializePointList(pointList, open) {
     if (pointList.length === 0) return "";
     const [head, ...body] = pointList;
     return `M ${head.x},${head.y}` + body.map((p)=>` L ${p.x},${p.y}`).join("") + (open ? "" : " Z");
 }
-function $4739f3f564343508$export$712f75a7545ed530() {
+function createStyle() {
     return {
         fill: false,
         fillGlobalAlpha: 1,
@@ -2221,7 +3046,7 @@ function $4739f3f564343508$export$712f75a7545ed530() {
         strokeStyle: ""
     };
 }
-function $4739f3f564343508$export$ea651f49739595b5(svgPath) {
+function parseTagStyle(svgPath) {
     // スタイル候補要素リスト
     const styleObject = {};
     svgPath.getAttributeNames().forEach((name)=>{
@@ -2260,13 +3085,13 @@ function $4739f3f564343508$export$ea651f49739595b5(svgPath) {
                 }
                 break;
             case "stroke-width":
-                ret.lineWidth = $4739f3f564343508$var$_parseFloat(val);
+                ret.lineWidth = _parseFloat(val);
                 break;
             case "stroke-opacity":
-                ret.strokeGlobalAlpha = $4739f3f564343508$var$_parseFloat(val);
+                ret.strokeGlobalAlpha = _parseFloat(val);
                 break;
             case "fill-opacity":
-                ret.fillGlobalAlpha = $4739f3f564343508$var$_parseFloat(val);
+                ret.fillGlobalAlpha = _parseFloat(val);
                 break;
             case "stroke-linecap":
                 ret.lineCap = val;
@@ -2276,15 +3101,15 @@ function $4739f3f564343508$export$ea651f49739595b5(svgPath) {
                 break;
             case "stroke-dasharray":
                 if (val.toLowerCase() === "none") ret.lineDash = [];
-                else ret.lineDash = $4739f3f564343508$var$parseNumbers(val);
+                else ret.lineDash = parseNumbers(val);
                 break;
             default:
                 break;
         }
         return ret;
-    }, $4739f3f564343508$export$712f75a7545ed530());
+    }, createStyle());
 }
-function $4739f3f564343508$export$71fc5f2a8ce00485(style) {
+function serializeStyle(style) {
     let ret = "";
     // fill情報
     if (!style.fill) ret += "fill:none;";
@@ -2303,22 +3128,22 @@ function $4739f3f564343508$export$71fc5f2a8ce00485(style) {
     }
     return ret;
 }
-function $4739f3f564343508$export$824c337f43f2b64d(path, line) {
-    let splited = $42a19166d05576d2$export$2757549f1e61727a(path.d, line);
+function splitPath(path, line) {
+    let splited = _geo.splitPolyByLine(path.d, line);
     if (splited.length < 2) return [
         path
     ];
     // 本体と回転方向が一致しているかで分類
-    const rootLoopwise = $42a19166d05576d2$export$a818964288006665(path.d);
+    const rootLoopwise = _geo.getLoopwise(path.d);
     const sameLoopwiseList = [];
     const oppositeLoopwiseList = [];
     if (path.included) path.included.forEach((s)=>{
-        if ($42a19166d05576d2$export$a818964288006665(s) === rootLoopwise) sameLoopwiseList.push(s);
+        if (_geo.getLoopwise(s) === rootLoopwise) sameLoopwiseList.push(s);
         else oppositeLoopwiseList.push(s);
     });
     // 本体と同回転のものはそのまま分割
     sameLoopwiseList.forEach((poly)=>{
-        const sp = $42a19166d05576d2$export$2757549f1e61727a(poly, line);
+        const sp = _geo.splitPolyByLine(poly, line);
         splited = [
             ...splited,
             ...sp.length > 0 ? sp : [
@@ -2329,68 +3154,68 @@ function $4739f3f564343508$export$824c337f43f2b64d(path, line) {
     // 本体と逆回転のものは特殊処理
     const notPolyList = [];
     oppositeLoopwiseList.forEach((poly)=>{
-        const sp = $42a19166d05576d2$export$2757549f1e61727a(poly, line);
+        const sp = _geo.splitPolyByLine(poly, line);
         if (sp.length > 0) // 分割されたらブーリアン差をとるために集める
         notPolyList.push(poly);
         else // 分割なしならそのまま
         splited.push(poly);
     });
     // 切断されたくり抜き領域を差し引いたポリゴンを生成
-    const splitedAfterNot = splited.map((s)=>notPolyList.reduce((p, c)=>$42a19166d05576d2$export$a9718a9904071bdb(p, c), s));
-    return $42a19166d05576d2$export$301d301794861250(splitedAfterNot).map((group)=>{
+    const splitedAfterNot = splited.map((s)=>notPolyList.reduce((p, c)=>_geo.getPolygonNotPolygon(p, c), s));
+    return _geo.getIncludedPolygonGroups(splitedAfterNot).map((group)=>{
         const [d, ...included] = group;
         return {
             d: d,
-            included: included,
+            included,
             style: path.style
         };
     });
 }
-function $4739f3f564343508$export$ddb6741fe18661da(polygons, style = $4739f3f564343508$export$712f75a7545ed530()) {
-    return $42a19166d05576d2$export$301d301794861250(polygons).map((group)=>{
+function getGroupedPathList(polygons, style = createStyle()) {
+    return _geo.getIncludedPolygonGroups(polygons).map((group)=>{
         const [d, ...included] = group;
         return {
-            d: d,
-            included: included,
-            style: style
+            d,
+            included,
+            style
         };
     });
 }
-function $4739f3f564343508$export$5e4a93171a2cecef(matrix) {
+function affineToTransform(matrix) {
     return `matrix(${matrix.join(",")})`;
 }
-function $4739f3f564343508$export$99f660e5a014b917(transformStr) {
+function parseTransform(transformStr) {
     const transformStrList = transformStr.split(")").map((s)=>`${s})`);
-    const affines = transformStrList.map((str)=>$4739f3f564343508$var$parseUnitTransform(str));
-    return $42a19166d05576d2$export$39e2946afec0625e(affines);
+    const affines = transformStrList.map((str)=>parseUnitTransform(str));
+    return _geo.multiAffines(affines);
 }
-function $4739f3f564343508$var$parseUnitTransform(str) {
-    if (/translateX/.test(str)) return $4739f3f564343508$export$cfbb7daae60df2da(str);
-    if (/translateY/.test(str)) return $4739f3f564343508$export$55034416ce644b0b(str);
-    if (/translate/.test(str)) return $4739f3f564343508$export$8ea33f091e4ee473(str);
-    if (/skewX/.test(str)) return $4739f3f564343508$export$4ee10febcc0667ba(str);
-    if (/skewY/.test(str)) return $4739f3f564343508$export$526b0abc787d6147(str);
-    if (/scaleX/.test(str)) return $4739f3f564343508$export$a7334c33d5322834(str);
-    if (/scaleY/.test(str)) return $4739f3f564343508$export$c57105ed5304910(str);
-    if (/scale/.test(str)) return $4739f3f564343508$export$534b094a708572c1(str);
-    if (/rotate/.test(str)) return $4739f3f564343508$export$48229fbd5ecbd4ac(str);
-    if (/matrix/.test(str)) return $4739f3f564343508$export$ecbfee2fb71e332e(str);
+function parseUnitTransform(str) {
+    if (/translateX/.test(str)) return parseTranslateX(str);
+    if (/translateY/.test(str)) return parseTranslateY(str);
+    if (/translate/.test(str)) return parseTranslate(str);
+    if (/skewX/.test(str)) return parseSkewX(str);
+    if (/skewY/.test(str)) return parseSkewY(str);
+    if (/scaleX/.test(str)) return parseScaleX(str);
+    if (/scaleY/.test(str)) return parseScaleY(str);
+    if (/scale/.test(str)) return parseScale(str);
+    if (/rotate/.test(str)) return parseRotate(str);
+    if (/matrix/.test(str)) return parseMatrix(str);
     return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
 }
-function $4739f3f564343508$var$parseNumbers(str) {
+function parseNumbers(str) {
     const list = str.trim().replace(/,/g, " ").split(/ +/);
-    return list.map((s)=>$4739f3f564343508$var$_parseFloat(s));
+    return list.map((s)=>_parseFloat(s));
 }
-function $4739f3f564343508$export$8ea33f091e4ee473(str) {
+function parseTranslate(str) {
     const splited = str.match(/translate\((.+)\)/);
     if (!splited || splited.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else if (numbers.length === 1) return [
         1,
@@ -2409,14 +3234,14 @@ function $4739f3f564343508$export$8ea33f091e4ee473(str) {
         numbers[1]
     ];
 }
-function $4739f3f564343508$export$cfbb7daae60df2da(str) {
+function parseTranslateX(str) {
     const splited = str.match(/translateX\((.+)\)/);
     if (!splited || splited.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else return [
         1,
@@ -2427,14 +3252,14 @@ function $4739f3f564343508$export$cfbb7daae60df2da(str) {
         0
     ];
 }
-function $4739f3f564343508$export$55034416ce644b0b(str) {
+function parseTranslateY(str) {
     const splited = str.match(/translateY\((.+)\)/);
     if (!splited || splited.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else return [
         1,
@@ -2445,14 +3270,14 @@ function $4739f3f564343508$export$55034416ce644b0b(str) {
         numbers[0]
     ];
 }
-function $4739f3f564343508$export$4ee10febcc0667ba(str) {
+function parseSkewX(str) {
     const splited = str.match(/skewX\((.+)\)/);
     if (!splited || splited.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else return [
         1,
@@ -2463,14 +3288,14 @@ function $4739f3f564343508$export$4ee10febcc0667ba(str) {
         0
     ];
 }
-function $4739f3f564343508$export$526b0abc787d6147(str) {
+function parseSkewY(str) {
     const splited = str.match(/skewY\((.+)\)/);
     if (!splited || splited.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else return [
         1,
@@ -2481,14 +3306,14 @@ function $4739f3f564343508$export$526b0abc787d6147(str) {
         0
     ];
 }
-function $4739f3f564343508$export$534b094a708572c1(str) {
+function parseScale(str) {
     const splited = str.match(/scale\((.+)\)/);
     if (!splited || splited.length < 2) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else if (numbers.length === 1) return [
         numbers[0],
@@ -2507,14 +3332,14 @@ function $4739f3f564343508$export$534b094a708572c1(str) {
         0
     ];
 }
-function $4739f3f564343508$export$a7334c33d5322834(str) {
+function parseScaleX(str) {
     const splited = str.match(/scaleX\((.+)\)/);
     if (!splited || splited.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else return [
         numbers[0],
@@ -2525,14 +3350,14 @@ function $4739f3f564343508$export$a7334c33d5322834(str) {
         0
     ];
 }
-function $4739f3f564343508$export$c57105ed5304910(str) {
+function parseScaleY(str) {
     const splited = str.match(/scaleY\((.+)\)/);
     if (!splited || splited.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     else return [
         1,
@@ -2543,14 +3368,14 @@ function $4739f3f564343508$export$c57105ed5304910(str) {
         0
     ];
 }
-function $4739f3f564343508$export$48229fbd5ecbd4ac(str) {
+function parseRotate(str) {
     const splited = str.match(/rotate\((.+)\)/);
     if (!splited || splited.length < 2) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
-    if ($4739f3f564343508$var$parseNumbers.length < 1) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+    const numbers = parseNumbers(splited[1]);
+    if (parseNumbers.length < 1) return [
+        ..._geo.IDENTITY_AFFINE
     ];
     const rad = numbers[0] / 180 * Math.PI;
     const cos = Math.cos(rad);
@@ -2563,7 +3388,7 @@ function $4739f3f564343508$export$48229fbd5ecbd4ac(str) {
         0,
         0
     ];
-    if (numbers.length > 2) return $42a19166d05576d2$export$defd75fdf417c537($42a19166d05576d2$export$defd75fdf417c537([
+    if (numbers.length > 2) return _geo.multiAffine(_geo.multiAffine([
         1,
         0,
         0,
@@ -2580,21 +3405,21 @@ function $4739f3f564343508$export$48229fbd5ecbd4ac(str) {
     ]);
     else return rot;
 }
-function $4739f3f564343508$export$ecbfee2fb71e332e(str) {
+function parseMatrix(str) {
     const splited = str.match(/matrix\((.+)\)/);
     if (!splited || splited.length < 2) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
-    const numbers = $4739f3f564343508$var$parseNumbers(splited[1]);
+    const numbers = parseNumbers(splited[1]);
     if (numbers.length < 5) return [
-        ...$42a19166d05576d2$export$6b37290cfd5aead9
+        ..._geo.IDENTITY_AFFINE
     ];
     return numbers.slice(0, 6);
 }
-function $4739f3f564343508$var$getUnknownError() {
+function getUnknownError() {
     return new Error(`Unexpected error`);
 }
 
+},{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-
-//# sourceMappingURL=index.99b46b95.js.map
+//# sourceMappingURL=index.d2c2b992.js.map
