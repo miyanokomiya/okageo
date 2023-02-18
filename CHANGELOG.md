@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [3.0.8] - 2023-02-18
 ### Changed
 - Migrate `parcel-bundler` to `parcel2` for demo
 
