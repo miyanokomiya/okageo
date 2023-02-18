@@ -2949,7 +2949,7 @@ const allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g;
 function splitD(dString) {
     // 要素分割
     const strList = dString.replace(allCommand, " $& ")// Insert space before each signature, but don't destruct exponent exporession such as 2.2e-10.
-    .replace(/([^e])(-|\+)/g, "$1 $2").split(/,| /).filter((str)=>str);
+    .replace(/([^e])(-|\+)/g, "$1 $2").split(/,| /).filter((str)=>str).flatMap(complementDecimalShorthand);
     // 直前のコマンド
     let pastCommand = "M";
     const ret = [];
@@ -2996,6 +2996,17 @@ function splitD(dString) {
         ret.push(info);
     }
     return ret;
+}
+/**
+ * '1.2.3' => ['1.2', '0.3']
+ */ function complementDecimalShorthand(str) {
+    const list = str.split(/\./);
+    return list.length <= 2 ? [
+        str
+    ] : [
+        `${list[0]}.${list[1]}`,
+        ...list.slice(2).map((v)=>`0.${v}`)
+    ];
 }
 function serializeSvgString(pathList) {
     const svg = serializeSvg(pathList);
@@ -3422,4 +3433,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.d2c2b992.js.map
+//# sourceMappingURL=index.f1127106.js.map
