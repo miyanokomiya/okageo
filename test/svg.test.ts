@@ -1010,6 +1010,13 @@ describe('splitD pathのd要素分解', () => {
         ['l', '-2.2e-14', '-125'],
         ['l', '124', '-125'],
       ])
+
+      // Decimal shorthand
+      const res3 = svg.splitD('M0.1 0.2 L0.5.8.1.2')
+      expect(res3).toHaveLength(3)
+      expect(res3[0]).toEqual(['M', '0.1', '0.2'])
+      expect(res3[1]).toEqual(['L', '0.5', '0.8'])
+      expect(res3[2]).toEqual(['L', '0.1', '0.2'])
     })
   })
 })

@@ -1335,6 +1335,7 @@ export function splitD(dString: string): string[][] {
     .replace(/([^e])(-|\+)/g, '$1 $2')
     .split(/,| /)
     .filter((str) => str)
+    .flatMap(complementDecimalShorthand)
   // 直前のコマンド
   let pastCommand = 'M'
 
@@ -1402,6 +1403,16 @@ export function splitD(dString: string): string[][] {
   }
 
   return ret
+}
+
+/**
+ * '1.2.3' => ['1.2', '0.3']
+ */
+function complementDecimalShorthand(str: string): string[] {
+  const list = str.split(/\./)
+  return list.length <= 2
+    ? [str]
+    : [`${list[0]}.${list[1]}`, ...list.slice(2).map((v) => `0.${v}`)]
 }
 
 /**
