@@ -698,11 +698,11 @@ function getCrossLineAndBezier(p0, p1, p2, p, q) {
     return rayToBezier(p0, p1, p2, p, q).filter((t)=>0 <= t && t <= 1).map((t)=>vec((p2.x - 2 * p1.x + p0.x) * t * t + 2 * (p1.x - p0.x) * t + p0.x, (p2.y - 2 * p1.y + p0.y) * t * t + 2 * (p1.y - p0.y) * t + p0.y));
 }
 function isCrossSegAndSeg(seg1, seg2) {
-    const { ta , tb , tc , td  } = getCrossSegAndSegParams(seg1, seg2);
+    const { ta, tb, tc, td } = getCrossSegAndSegParams(seg1, seg2);
     return tc * td < 0 && ta * tb < 0;
 }
 function isTouchSegAndSeg(seg1, seg2) {
-    const { ta , tb , tc , td  } = getCrossSegAndSegParams(seg1, seg2);
+    const { ta, tb, tc, td } = getCrossSegAndSegParams(seg1, seg2);
     return tc * td <= 0 && ta * tb <= 0;
 }
 function getCrossSegAndSegParams(seg1, seg2) {
@@ -1074,7 +1074,7 @@ function getArcLerpFn(rx, ry, startPoint, endPoint, largeArcFlag, sweepFlag, rad
     const ay2 = a.y * a.y;
     const l = ax2 / rx / rx + ay2 / ry / ry;
     const lsqrt = l > 1 ? Math.sqrt(l) : 1;
-    const { x: rxa , y: rya  } = vec(Math.abs(rx) * lsqrt, Math.abs(ry) * lsqrt);
+    const { x: rxa, y: rya } = vec(Math.abs(rx) * lsqrt, Math.abs(ry) * lsqrt);
     const rx2 = rxa * rxa;
     const ry2 = rya * rya;
     const b = multi(multi(vec(rxa * a.y / rya, -rya * a.x / rxa), Math.sqrt(Math.max(0, rx2 * ry2 - rx2 * ay2 - ry2 * ax2) / (rx2 * ay2 + ry2 * ax2))), largeArcFlag === sweepFlag ? -1 : 1);
@@ -2484,7 +2484,7 @@ function isCurveCommand(c) {
 function reversePath(segments) {
     if (segments.length < 2) return segments;
     const ret = [];
-    const { points: absPoints , controls: absContolPoints  } = getPathAbsPoints(segments);
+    const { points: absPoints, controls: absContolPoints } = getPathAbsPoints(segments);
     const length = segments.length;
     let current;
     let absP;
@@ -2794,7 +2794,7 @@ function scalePath(segments, scale) {
 function convertHVToL(segments) {
     // If neither "H" nor "V" exists, abstract points doesn't have to be computed.
     const absVHExisted = segments.some((s)=>/H|V/.test(s[0]));
-    const { points  } = getPathAbsPoints(absVHExisted ? segments : []);
+    const { points } = getPathAbsPoints(absVHExisted ? segments : []);
     return segments.map((s, i)=>{
         switch(s[0]){
             case "H":
@@ -3433,4 +3433,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.f1127106.js.map
+//# sourceMappingURL=index.88e0d4d7.js.map
