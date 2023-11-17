@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.0] - 2023-11-17
+### Added
+- Optimal bezier interpolation
+
 ## [3.0.8] - 2023-02-18
 ### Changed
 - Migrate `parcel-bundler` to `parcel2` for demo

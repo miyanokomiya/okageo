@@ -1619,3 +1619,63 @@ export function roundTrip(min: number, max: number, val: number) {
     return length - d + min
   }
 }
+
+/**
+ * Ref: https://omaraflak.medium.com/b%C3%A9zier-interpolation-8033e9a262c2
+ * @param points target points to interpolate via a bezier curve
+ * @return control point sets for cubic bezier curve
+ */
+export function getBezierInterpolation(
+  points: IVec2[]
+): [c0: IVec2, c1: IVec2][] {
+  const len = points.length
+  if (len < 3) return []
+
+  const A = solveBezierInterpolationEquations(points)
+  const B: IVec2[] = []
+  for (let i = 0; i < points.length - 2; i++) {
+    B[i] = sub(multi(points[i + 1], 2), A[i + 1])
+  }
+  B[points.length - 2] = multi(
+    add(A[points.length - 2], points[points.length - 1]),
+    1 / 2
+  )
+
+  return A.map((a, i) => [a, B[i]])
+}
+
+/**
+ * Based on Tridiagonal matrix algorithm with bezier interpolation equation matrix.
+ * Suppose "points" has at least 3 items.
+ */
+function solveBezierInterpolationEquations(points: IVec2[]): IVec2[] {
+  const values: IVec2[] = [add(points[0], multi(points[1], 2))]
+  for (let i = 1; i < points.length - 2; i++) {
+    values.push(multi(add(multi(points[i], 2), points[i + 1]), 2))
+  }
+  values.push(
+    add(multi(points[points.length - 2], 8), points[points.length - 1])
+  )
+
+  const C: number[] = [0.5]
+  for (let i = 1; i < points.length - 2; i++) {
+    C[i] = 1 / (4 - C[i - 1])
+  }
+
+  const D: IVec2[] = [multi(values[0], 0.5)]
+  for (let i = 1; i < points.length - 2; i++) {
+    D[i] = multi(sub(values[i], D[i - 1]), 1 / (4 - C[i - 1]))
+  }
+  D[points.length - 2] = multi(
+    sub(values[points.length - 2], multi(D[points.length - 3], 2)),
+    1 / (7 - C[points.length - 3])
+  )
+
+  const ret: IVec2[] = []
+  ret[points.length - 2] = D[points.length - 2]
+  for (let i = points.length - 3; 0 <= i; i--) {
+    ret[i] = sub(D[i], multi(ret[i + 1], C[i]))
+  }
+
+  return ret
+}
