@@ -560,6 +560,11 @@ parcelHelpers.export(exports, "getApproPoints", ()=>getApproPoints);
  * @param max max value
  * @return round tripped value
  */ parcelHelpers.export(exports, "roundTrip", ()=>roundTrip);
+/**
+ * Ref: https://omaraflak.medium.com/b%C3%A9zier-interpolation-8033e9a262c2
+ * @param points target points to interpolate via a bezier curve
+ * @return control point sets for cubic bezier curve
+ */ parcelHelpers.export(exports, "getBezierInterpolation", ()=>getBezierInterpolation);
 const MINVALUE = 0.000001;
 const IDENTITY_AFFINE = [
     1,
@@ -1465,6 +1470,41 @@ function roundTrip(min, max, val) {
     const d = Math.abs(val - min) % length;
     if (d < harf) return d + min;
     else return length - d + min;
+}
+function getBezierInterpolation(points) {
+    const len = points.length;
+    if (len < 3) return [];
+    const A = solveBezierInterpolationEquations(points);
+    const B = [];
+    for(let i = 0; i < points.length - 2; i++)B[i] = sub(multi(points[i + 1], 2), A[i + 1]);
+    B[points.length - 2] = multi(add(A[points.length - 2], points[points.length - 1]), 0.5);
+    return A.map((a, i)=>[
+            a,
+            B[i]
+        ]);
+}
+/**
+ * Based on Tridiagonal matrix algorithm with bezier interpolation equation matrix.
+ * Suppose "points" has at least 3 items.
+ */ function solveBezierInterpolationEquations(points) {
+    const values = [
+        add(points[0], multi(points[1], 2))
+    ];
+    for(let i = 1; i < points.length - 2; i++)values.push(multi(add(multi(points[i], 2), points[i + 1]), 2));
+    values.push(add(multi(points[points.length - 2], 8), points[points.length - 1]));
+    const C = [
+        0.5
+    ];
+    for(let i = 1; i < points.length - 2; i++)C[i] = 1 / (4 - C[i - 1]);
+    const D = [
+        multi(values[0], 0.5)
+    ];
+    for(let i = 1; i < points.length - 2; i++)D[i] = multi(sub(values[i], D[i - 1]), 1 / (4 - C[i - 1]));
+    D[points.length - 2] = multi(sub(values[points.length - 2], multi(D[points.length - 3], 2)), 1 / (7 - C[points.length - 3]));
+    const ret = [];
+    ret[points.length - 2] = D[points.length - 2];
+    for(let i = points.length - 3; 0 <= i; i--)ret[i] = sub(D[i], multi(ret[i + 1], C[i]));
+    return ret;
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
@@ -3433,4 +3473,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.88e0d4d7.js.map
+//# sourceMappingURL=index.ae5b2cc1.js.map
