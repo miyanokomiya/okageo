@@ -1932,3 +1932,55 @@ describe('roundTrip', () => {
     expect(geo.roundTrip(min, max, val)).toBeCloseTo(expected)
   })
 })
+
+describe('getBezierInterpolation', () => {
+  it('should return empty array when the number of points is less than 3', () => {
+    expect(geo.getBezierInterpolation([{ x: 0, y: 0 }])).toEqual([])
+    expect(
+      geo.getBezierInterpolation([
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+      ])
+    ).toEqual([])
+  })
+
+  it('should deal with point duplication', () => {
+    expect(
+      geo.getBezierInterpolation([
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ])
+    ).toEqual([
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
+    ])
+  })
+
+  it('should return bezier control points', () => {
+    const ret0 = geo.getBezierInterpolation([
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+    ])
+    expect(ret0[0][0].x).toBeCloseTo(4.615, 3)
+    expect(ret0[0][0].y).toBeCloseTo(-0.769, 3)
+    expect(ret0[0][1].x).toBeCloseTo(9.231, 3)
+    expect(ret0[0][1].y).toBeCloseTo(-1.538, 3)
+    expect(ret0[1][0].x).toBeCloseTo(10.769, 3)
+    expect(ret0[1][0].y).toBeCloseTo(1.538, 3)
+    expect(ret0[1][1].x).toBeCloseTo(10.385, 3)
+    expect(ret0[1][1].y).toBeCloseTo(5.769, 3)
+  })
+})
