@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.1] - 2023-11-18
+### Fixed
+- Remove absolute position effect from optimal bezier interpolation for consistent result
+
 ## [3.1.0] - 2023-11-17
 ### Added
 - Optimal bezier interpolation

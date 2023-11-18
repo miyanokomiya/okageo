@@ -1631,17 +1631,25 @@ export function getBezierInterpolation(
   const len = points.length
   if (len < 3) return []
 
-  const A = solveBezierInterpolationEquations(points)
+  // This algorithm appears dependent on the absolute position of the line.
+  // => Remove the absolute position effect for consistency.
+  const origin = points[0]
+  const adjustedPoints = points.map((p) => sub(p, origin))
+
+  const A = solveBezierInterpolationEquations(adjustedPoints)
   const B: IVec2[] = []
-  for (let i = 0; i < points.length - 2; i++) {
-    B[i] = sub(multi(points[i + 1], 2), A[i + 1])
+  for (let i = 0; i < adjustedPoints.length - 2; i++) {
+    B[i] = sub(multi(adjustedPoints[i + 1], 2), A[i + 1])
   }
-  B[points.length - 2] = multi(
-    add(A[points.length - 2], points[points.length - 1]),
+  B[adjustedPoints.length - 2] = multi(
+    add(
+      A[adjustedPoints.length - 2],
+      adjustedPoints[adjustedPoints.length - 1]
+    ),
     1 / 2
   )
 
-  return A.map((a, i) => [a, B[i]])
+  return A.map((a, i) => [add(a, origin), add(B[i], origin)])
 }
 
 /**
