@@ -1474,13 +1474,17 @@ function roundTrip(min, max, val) {
 function getBezierInterpolation(points) {
     const len = points.length;
     if (len < 3) return [];
-    const A = solveBezierInterpolationEquations(points);
+    // This algorithm appears dependent on the absolute position of the line.
+    // => Remove the absolute position effect for consistency.
+    const origin = points[0];
+    const adjustedPoints = points.map((p)=>sub(p, origin));
+    const A = solveBezierInterpolationEquations(adjustedPoints);
     const B = [];
-    for(let i = 0; i < points.length - 2; i++)B[i] = sub(multi(points[i + 1], 2), A[i + 1]);
-    B[points.length - 2] = multi(add(A[points.length - 2], points[points.length - 1]), 0.5);
+    for(let i = 0; i < adjustedPoints.length - 2; i++)B[i] = sub(multi(adjustedPoints[i + 1], 2), A[i + 1]);
+    B[adjustedPoints.length - 2] = multi(add(A[adjustedPoints.length - 2], adjustedPoints[adjustedPoints.length - 1]), 0.5);
     return A.map((a, i)=>[
-            a,
-            B[i]
+            add(a, origin),
+            add(B[i], origin)
         ]);
 }
 /**
@@ -3473,4 +3477,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.ae5b2cc1.js.map
+//# sourceMappingURL=index.6f05ce35.js.map
