@@ -47,7 +47,7 @@
     "parcel": "^2.8.3",
     "prettier": "^2.4.0",
     "rollup": "^3.2.3",
-    "rollup-plugin-dts": "^5.0.0",
+    "rollup-plugin-dts": "^6.0.2",
     "rollup-plugin-esbuild": "^6.1.0",
     "ts-jest": "^28.0.5",
     "tslib": "^2.3.1",
