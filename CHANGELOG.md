@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [3.1.2] - 2024-02-22
 ### Added
 - Add `getCrossSegAndBezier3` to get intersections between a segment and a cubic bezier
 - Add `getClosestPointOnBezier3` to get the closest point on a cubic bezier
