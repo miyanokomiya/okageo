@@ -29,6 +29,12 @@ export function getDistance(a: IVec2, b: IVec2): number {
   return getNorm(sub(a, b))
 }
 
+export function getDistanceSq(a: IVec2, b: IVec2): number {
+  const x = a.x - b.x
+  const y = a.y - b.y
+  return x * x + y * y
+}
+
 export function getPolylineLength(polyline: IVec2[], closed = false): number {
   if (polyline.length < 2) return 0
 
@@ -1725,4 +1731,62 @@ export function getCrossSegAndBezier3(
       x: ((ax * t + bx) * t + cx) * t + dx,
       y: ((ay * t + by) * t + cy) * t + dy,
     }))
+}
+
+export function getClosestPointOnBezier3(
+  bezier: Readonly<[c0: IVec2, c1: IVec2, c2: IVec2, c3: IVec2]>,
+  p: Readonly<IVec2>,
+  epsilon: number
+): IVec2 {
+  const lerpFn = getBezier3LerpFn(bezier)
+  const epsilonSq = epsilon * epsilon
+
+  const size = 10
+  let range = [0, 1]
+  let delta = 0
+  let ret = bezier[0]
+  let count = 0
+
+  while (count < 100) {
+    const ranges: number[] = []
+    const rangeSize = range[1] - range[0]
+    const step = rangeSize / size
+    for (let i = 0; i <= size; i++) {
+      ranges.push(range[0] + step * i)
+    }
+
+    let candidate:
+      | [range: [number, number], pedal: IVec2, d: number]
+      | undefined
+    for (let i = 0; i < ranges.length - 1; i++) {
+      const seg = [lerpFn(ranges[i]), lerpFn(ranges[i + 1])]
+      const pedal = getPedal(p, seg)
+      if (isOnSeg(pedal, seg)) {
+        const d = getDistanceSq(p, pedal)
+        if (!candidate || d < candidate[2]) {
+          candidate = [[ranges[i], ranges[i + 1]], pedal, d]
+        }
+      } else {
+        // When the pedal isn't on the segment, either vertex is the closest..
+        const d0 = getDistanceSq(p, seg[0])
+        const d1 = getDistanceSq(p, seg[1])
+        const [d, vertex] = d0 <= d1 ? [d0, seg[0]] : [d1, seg[1]]
+        if (!candidate || d < candidate[2]) {
+          candidate = [[ranges[i], ranges[i + 1]], vertex, d]
+        }
+      }
+    }
+
+    if (!candidate) break
+    if (Math.abs(delta - candidate[2]) < epsilonSq) {
+      ret = candidate[1]
+      break
+    }
+
+    range = candidate[0]
+    delta = candidate[2]
+    count++
+  }
+
+  return ret
 }

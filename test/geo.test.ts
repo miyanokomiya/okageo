@@ -2074,3 +2074,30 @@ describe('getCrossSegAndBezier3', () => {
     expect(res5[0].y).toBeCloseTo(0)
   })
 })
+
+describe('getClosestPointOnBezier3', () => {
+  it('should return closest point on a bezier', () => {
+    const bezier = [
+      { x: 0, y: 0 },
+      { x: 5, y: -10 },
+      { x: 5, y: 10 },
+      { x: 10, y: 0 },
+    ] as const
+
+    const res0 = geo.getClosestPointOnBezier3(bezier, { x: 0, y: -10 }, 0.1)
+    expect(res0.x).toBeCloseTo(2.272)
+    expect(res0.y).toBeCloseTo(-2.834)
+
+    const res1 = geo.getClosestPointOnBezier3(bezier, { x: 2, y: -2 }, 0.01)
+    expect(res1.x).toBeCloseTo(1.615)
+    expect(res1.y).toBeCloseTo(-2.42)
+
+    const res2 = geo.getClosestPointOnBezier3(bezier, { x: -5, y: -5 }, 0.01)
+    expect(res2.x).toBeCloseTo(0.714)
+    expect(res2.y).toBeCloseTo(-1.282)
+
+    const res3 = geo.getClosestPointOnBezier3(bezier, { x: 5, y: 10 }, 0.01)
+    expect(res3.x).toBeCloseTo(7.126)
+    expect(res3.y).toBeCloseTo(2.845)
+  })
+})

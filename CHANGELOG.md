@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Add `getCrossSegAndBezier3` to get intersections between a segment and a cubic bezier
+- Add `getClosestPointOnBezier3` to get the closest point on a cubic bezier
 
 ## [3.1.1] - 2023-11-18
 ### Fixed
