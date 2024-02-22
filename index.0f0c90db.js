@@ -222,6 +222,7 @@ parcelHelpers.export(exports, "sub", ()=>sub);
 parcelHelpers.export(exports, "multi", ()=>multi);
 parcelHelpers.export(exports, "isSame", ()=>isSame);
 parcelHelpers.export(exports, "getDistance", ()=>getDistance);
+parcelHelpers.export(exports, "getDistanceSq", ()=>getDistanceSq);
 parcelHelpers.export(exports, "getPolylineLength", ()=>getPolylineLength);
 parcelHelpers.export(exports, "getNorm", ()=>getNorm);
 parcelHelpers.export(exports, "isZero", ()=>isZero);
@@ -565,6 +566,10 @@ parcelHelpers.export(exports, "getApproPoints", ()=>getApproPoints);
  * @param points target points to interpolate via a bezier curve
  * @return control point sets for cubic bezier curve
  */ parcelHelpers.export(exports, "getBezierInterpolation", ()=>getBezierInterpolation);
+/**
+ * The order of returned items is srbitrary.
+ */ parcelHelpers.export(exports, "getCrossSegAndBezier3", ()=>getCrossSegAndBezier3);
+parcelHelpers.export(exports, "getClosestPointOnBezier3", ()=>getClosestPointOnBezier3);
 const MINVALUE = 0.000001;
 const IDENTITY_AFFINE = [
     1,
@@ -595,6 +600,11 @@ function isSame(a, b) {
 }
 function getDistance(a, b) {
     return getNorm(sub(a, b));
+}
+function getDistanceSq(a, b) {
+    const x = a.x - b.x;
+    const y = a.y - b.y;
+    return x * x + y * y;
 }
 function getPolylineLength(polyline, closed = false) {
     if (polyline.length < 2) return 0;
@@ -1508,6 +1518,89 @@ function getBezierInterpolation(points) {
     const ret = [];
     ret[points.length - 2] = D[points.length - 2];
     for(let i = points.length - 3; 0 <= i; i--)ret[i] = sub(D[i], multi(ret[i + 1], C[i]));
+    return ret;
+}
+function getCrossSegAndBezier3(seg, bezier) {
+    const ax = 3 * (bezier[1].x - bezier[2].x) + bezier[3].x - bezier[0].x;
+    const ay = 3 * (bezier[1].y - bezier[2].y) + bezier[3].y - bezier[0].y;
+    const bx = 3 * (bezier[0].x - 2 * bezier[1].x + bezier[2].x);
+    const by = 3 * (bezier[0].y - 2 * bezier[1].y + bezier[2].y);
+    const cx = 3 * (bezier[1].x - bezier[0].x);
+    const cy = 3 * (bezier[1].y - bezier[0].y);
+    const dx = bezier[0].x;
+    const dy = bezier[0].y;
+    const vx = seg[1].y - seg[0].y;
+    const vy = seg[0].x - seg[1].x;
+    const d = seg[0].x * vx + seg[0].y * vy;
+    const roots = solveQubicFomula(vx * ax + vy * ay, vx * bx + vy * by, vx * cx + vy * cy, vx * dx + vy * dy - d);
+    return roots.filter((t)=>0 <= t && t <= 1).map((t)=>({
+            x: ((ax * t + bx) * t + cx) * t + dx,
+            y: ((ay * t + by) * t + cy) * t + dy
+        }));
+}
+function getClosestPointOnBezier3(bezier, p, epsilon) {
+    const lerpFn = getBezier3LerpFn(bezier);
+    const epsilonSq = epsilon * epsilon;
+    const size = 10;
+    let range = [
+        0,
+        1
+    ];
+    let delta = 0;
+    let ret = bezier[0];
+    let count = 0;
+    while(count < 100){
+        const ranges = [];
+        const rangeSize = range[1] - range[0];
+        const step = rangeSize / size;
+        for(let i = 0; i <= size; i++)ranges.push(range[0] + step * i);
+        let candidate;
+        for(let i = 0; i < ranges.length - 1; i++){
+            const seg = [
+                lerpFn(ranges[i]),
+                lerpFn(ranges[i + 1])
+            ];
+            const pedal = getPedal(p, seg);
+            if (isOnSeg(pedal, seg)) {
+                const d = getDistanceSq(p, pedal);
+                if (!candidate || d < candidate[2]) candidate = [
+                    [
+                        ranges[i],
+                        ranges[i + 1]
+                    ],
+                    pedal,
+                    d
+                ];
+            } else {
+                // When the pedal isn't on the segment, either vertex is the closest..
+                const d0 = getDistanceSq(p, seg[0]);
+                const d1 = getDistanceSq(p, seg[1]);
+                const [d, vertex] = d0 <= d1 ? [
+                    d0,
+                    seg[0]
+                ] : [
+                    d1,
+                    seg[1]
+                ];
+                if (!candidate || d < candidate[2]) candidate = [
+                    [
+                        ranges[i],
+                        ranges[i + 1]
+                    ],
+                    vertex,
+                    d
+                ];
+            }
+        }
+        if (!candidate) break;
+        if (Math.abs(delta - candidate[2]) < epsilonSq) {
+            ret = candidate[1];
+            break;
+        }
+        range = candidate[0];
+        delta = candidate[2];
+        count++;
+    }
     return ret;
 }
 
@@ -3477,4 +3570,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.62b7b1e1.js.map
+//# sourceMappingURL=index.0f0c90db.js.map
