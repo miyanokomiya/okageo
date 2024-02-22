@@ -1687,3 +1687,42 @@ function solveBezierInterpolationEquations(points: IVec2[]): IVec2[] {
 
   return ret
 }
+
+/**
+ * The order of returned items is srbitrary.
+ */
+export function getCrossSegAndBezier3(
+  seg: Readonly<[IVec2, IVec2]>,
+  bezier: Readonly<[c0: IVec2, c1: IVec2, c2: IVec2, c3: IVec2]>
+): IVec2[] {
+  const ax = 3 * (bezier[1].x - bezier[2].x) + bezier[3].x - bezier[0].x
+  const ay = 3 * (bezier[1].y - bezier[2].y) + bezier[3].y - bezier[0].y
+
+  const bx = 3 * (bezier[0].x - 2 * bezier[1].x + bezier[2].x)
+  const by = 3 * (bezier[0].y - 2 * bezier[1].y + bezier[2].y)
+
+  const cx = 3 * (bezier[1].x - bezier[0].x)
+  const cy = 3 * (bezier[1].y - bezier[0].y)
+
+  const dx = bezier[0].x
+  const dy = bezier[0].y
+
+  const vx = seg[1].y - seg[0].y
+  const vy = seg[0].x - seg[1].x
+
+  const d = seg[0].x * vx + seg[0].y * vy
+
+  const roots = solveQubicFomula(
+    vx * ax + vy * ay,
+    vx * bx + vy * by,
+    vx * cx + vy * cy,
+    vx * dx + vy * dy - d
+  )
+
+  return roots
+    .filter((t) => 0 <= t && t <= 1)
+    .map((t) => ({
+      x: ((ax * t + bx) * t + cx) * t + dx,
+      y: ((ay * t + by) * t + cy) * t + dy,
+    }))
+}

@@ -1996,3 +1996,81 @@ describe('getBezierInterpolation', () => {
     expect(ret0[1][1].y).toBeCloseTo(6.769, 3)
   })
 })
+
+describe('getCrossSegAndBezier3', () => {
+  it('should retun intersections between a segment and a cubic bezier', () => {
+    const bezier = [
+      { x: 0, y: 0 },
+      { x: 5, y: -10 },
+      { x: 5, y: 10 },
+      { x: 10, y: 0 },
+    ] as const
+
+    const res0 = geo.getCrossSegAndBezier3(
+      [
+        { x: 0, y: 2 },
+        { x: 10, y: 2 },
+      ],
+      bezier
+    )
+    res0.sort((a, b) => a.x - b.x)
+    expect(res0).toHaveLength(2)
+    expect(res0[0].x).toBeCloseTo(6.124)
+    expect(res0[0].y).toBeCloseTo(2)
+    expect(res0[1].x).toBeCloseTo(8.776)
+    expect(res0[1].y).toBeCloseTo(2)
+
+    const res1 = geo.getCrossSegAndBezier3(
+      [
+        { x: 0, y: 12 },
+        { x: 10, y: 12 },
+      ],
+      bezier
+    )
+    expect(res1).toHaveLength(0)
+
+    const res2 = geo.getCrossSegAndBezier3(
+      [
+        { x: 0, y: 5 },
+        { x: 10, y: -5 },
+      ],
+      bezier
+    )
+    expect(res2).toHaveLength(1)
+    expect(res2[0].x).toBeCloseTo(5)
+    expect(res2[0].y).toBeCloseTo(0)
+
+    const res3 = geo.getCrossSegAndBezier3(
+      [
+        { x: 0, y: 5 },
+        { x: 0, y: -5 },
+      ],
+      bezier
+    )
+    expect(res3).toHaveLength(1)
+    expect(res3[0].x).toBeCloseTo(0)
+    expect(res3[0].y).toBeCloseTo(0)
+
+    const res4 = geo.getCrossSegAndBezier3(
+      [
+        { x: 10, y: 5 },
+        { x: 10, y: -5 },
+      ],
+      bezier
+    )
+    expect(res4).toHaveLength(1)
+    expect(res4[0].x).toBeCloseTo(10)
+    expect(res4[0].y).toBeCloseTo(0)
+
+    const res5 = geo.getCrossSegAndBezier3(
+      [
+        { x: 10, y: 0 },
+        { x: 10, y: -5 },
+      ],
+      bezier
+    )
+    expect(res5).toHaveLength(1)
+    expect(res5[0].x).toBeCloseTo(10)
+    expect(res5[0].y).toBeCloseTo(0)
+  })
+})

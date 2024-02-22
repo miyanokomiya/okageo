@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add `getCrossSegAndBezier3` to get intersections between a segment and a cubic bezier
 
 ## [3.1.1] - 2023-11-18
 ### Fixed
