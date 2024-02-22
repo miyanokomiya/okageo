@@ -27,3 +27,4 @@ jspm_packages/
 doc
 dist
 dist-demo
+.vim

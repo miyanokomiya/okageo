@@ -15,6 +15,7 @@
     "svg"
   ],
   "sideEffects": false,
+  "packageManager": "yarn@4.1.0",
   "scripts": {
     "lint:es": "yarn eslint ./src ./test ./demo ./*.js --ext .js,.ts",
     "lint:json": "yarn prettier -c ./*.json ./.*.json",
