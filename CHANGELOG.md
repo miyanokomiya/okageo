@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.3] - 2024-02-24
+### Added
+- Add `getCrossSegAndBezier3WithT` to get extra information of intersections
+- Add `divideBezier3` to divide cubic bezier
+
 ## [3.1.2] - 2024-02-22
 ### Added
 - Add `getCrossSegAndBezier3` to get intersections between a segment and a cubic bezier

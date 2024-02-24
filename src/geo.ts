@@ -815,7 +815,7 @@ export function getBezier2LerpFn(
  * @return calced point
  */
 export function getPointOnBezier3(
-  pointList: Readonly<[IVec2, IVec2, IVec2, IVec2]>,
+  pointList: Readonly<Bezier3>,
   rate: number
 ): IVec2 {
   const t = rate
@@ -828,7 +828,7 @@ export function getPointOnBezier3(
 }
 
 export function getBezier3LerpFn(
-  pointList: Readonly<[IVec2, IVec2, IVec2, IVec2]>
+  pointList: Readonly<Bezier3>
 ): (t: number) => IVec2 {
   return (t) => getPointOnBezier3(pointList, t)
 }
@@ -844,7 +844,7 @@ export function getBezier3LerpFn(
  * @return calced point
  */
 export function getYOnBezier3AtX(
-  pointList: Readonly<[IVec2, IVec2, IVec2, IVec2]>,
+  pointList: Readonly<Bezier3>,
   x: number
 ): number {
   const [p0, p1, p2, p3] = pointList
@@ -1694,13 +1694,22 @@ function solveBezierInterpolationEquations(points: IVec2[]): IVec2[] {
   return ret
 }
 
+type Bezier3 = [c0: IVec2, c1: IVec2, c2: IVec2, c3: IVec2]
+
 /**
  * The order of returned items is srbitrary.
  */
 export function getCrossSegAndBezier3(
   seg: Readonly<[IVec2, IVec2]>,
-  bezier: Readonly<[c0: IVec2, c1: IVec2, c2: IVec2, c3: IVec2]>
+  bezier: Readonly<Bezier3>
 ): IVec2[] {
+  return getCrossSegAndBezier3WithT(seg, bezier).map(([p]) => p)
+}
+
+export function getCrossSegAndBezier3WithT(
+  seg: Readonly<[IVec2, IVec2]>,
+  bezier: Readonly<Bezier3>
+): [IVec2, t: number][] {
   const ax = 3 * (bezier[1].x - bezier[2].x) + bezier[3].x - bezier[0].x
   const ay = 3 * (bezier[1].y - bezier[2].y) + bezier[3].y - bezier[0].y
 
@@ -1727,10 +1736,30 @@ export function getCrossSegAndBezier3(
 
   return roots
     .filter((t) => 0 <= t && t <= 1)
-    .map((t) => ({
-      x: ((ax * t + bx) * t + cx) * t + dx,
-      y: ((ay * t + by) * t + cy) * t + dy,
-    }))
+    .map((t) => [
+      {
+        x: ((ax * t + bx) * t + cx) * t + dx,
+        y: ((ay * t + by) * t + cy) * t + dy,
+      },
+      t,
+    ])
+}
+
+export function divideBezier3(
+  bezier: Readonly<Bezier3>,
+  t: number
+): [Bezier3, Bezier3] {
+  const [a, b, c, d] = bezier
+  const e = lerpPoint(a, b, t)
+  const f = lerpPoint(b, c, t)
+  const g = lerpPoint(c, d, t)
+  const h = lerpPoint(e, f, t)
+  const j = lerpPoint(f, g, t)
+  const k = lerpPoint(h, j, t)
+  return [
+    [a, e, h, k],
+    [k, j, g, d],
+  ]
 }
 
 export function getClosestPointOnBezier3(

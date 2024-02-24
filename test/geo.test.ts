@@ -2075,6 +2075,26 @@ describe('getCrossSegAndBezier3', () => {
   })
 })
 
+describe('divideBezier3', () => {
+  it('should return divided beziers', () => {
+    const bezier = [
+      { x: 0, y: 0 },
+      { x: 5, y: -10 },
+      { x: 5, y: 10 },
+      { x: 10, y: 0 },
+    ] as const
+    const lerp = geo.getBezier3LerpFn(bezier)
+
+    const res0 = geo.divideBezier3(bezier, 0.5)
+    const lerp00 = geo.getBezier3LerpFn(res0[0])
+    const lerp01 = geo.getBezier3LerpFn(res0[1])
+    expect(lerp00(0.2).x).toBeCloseTo(lerp(0.1).x)
+    expect(lerp00(0.2).y).toBeCloseTo(lerp(0.1).y)
+    expect(lerp01(0.2).x).toBeCloseTo(lerp(0.6).x)
+    expect(lerp01(0.2).y).toBeCloseTo(lerp(0.6).y)
+  })
+})
+
 describe('getClosestPointOnBezier3', () => {
   it('should return closest point on a bezier', () => {
     const bezier = [
