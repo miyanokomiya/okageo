@@ -569,6 +569,8 @@ parcelHelpers.export(exports, "getApproPoints", ()=>getApproPoints);
 /**
  * The order of returned items is srbitrary.
  */ parcelHelpers.export(exports, "getCrossSegAndBezier3", ()=>getCrossSegAndBezier3);
+parcelHelpers.export(exports, "getCrossSegAndBezier3WithT", ()=>getCrossSegAndBezier3WithT);
+parcelHelpers.export(exports, "divideBezier3", ()=>divideBezier3);
 parcelHelpers.export(exports, "getClosestPointOnBezier3", ()=>getClosestPointOnBezier3);
 const MINVALUE = 0.000001;
 const IDENTITY_AFFINE = [
@@ -1521,6 +1523,9 @@ function getBezierInterpolation(points) {
     return ret;
 }
 function getCrossSegAndBezier3(seg, bezier) {
+    return getCrossSegAndBezier3WithT(seg, bezier).map(([p])=>p);
+}
+function getCrossSegAndBezier3WithT(seg, bezier) {
     const ax = 3 * (bezier[1].x - bezier[2].x) + bezier[3].x - bezier[0].x;
     const ay = 3 * (bezier[1].y - bezier[2].y) + bezier[3].y - bezier[0].y;
     const bx = 3 * (bezier[0].x - 2 * bezier[1].x + bezier[2].x);
@@ -1533,10 +1538,36 @@ function getCrossSegAndBezier3(seg, bezier) {
     const vy = seg[0].x - seg[1].x;
     const d = seg[0].x * vx + seg[0].y * vy;
     const roots = solveQubicFomula(vx * ax + vy * ay, vx * bx + vy * by, vx * cx + vy * cy, vx * dx + vy * dy - d);
-    return roots.filter((t)=>0 <= t && t <= 1).map((t)=>({
-            x: ((ax * t + bx) * t + cx) * t + dx,
-            y: ((ay * t + by) * t + cy) * t + dy
-        }));
+    return roots.filter((t)=>0 <= t && t <= 1).map((t)=>[
+            {
+                x: ((ax * t + bx) * t + cx) * t + dx,
+                y: ((ay * t + by) * t + cy) * t + dy
+            },
+            t
+        ]);
+}
+function divideBezier3(bezier, t) {
+    const [a, b, c, d] = bezier;
+    const e = lerpPoint(a, b, t);
+    const f = lerpPoint(b, c, t);
+    const g = lerpPoint(c, d, t);
+    const h = lerpPoint(e, f, t);
+    const j = lerpPoint(f, g, t);
+    const k = lerpPoint(h, j, t);
+    return [
+        [
+            a,
+            e,
+            h,
+            k
+        ],
+        [
+            k,
+            j,
+            g,
+            d
+        ]
+    ];
 }
 function getClosestPointOnBezier3(bezier, p, epsilon) {
     const lerpFn = getBezier3LerpFn(bezier);
@@ -3570,4 +3601,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.0f0c90db.js.map
+//# sourceMappingURL=index.827e06b2.js.map
