@@ -2006,6 +2006,16 @@ describe('getCrossSegAndBezier3', () => {
       { x: 10, y: 0 },
     ] as const
 
+    expect(
+      geo.getCrossSegAndBezier3(
+        [
+          { x: -10, y: -2 },
+          { x: -2, y: -2 },
+        ],
+        bezier
+      )
+    ).toHaveLength(0)
+
     const res0 = geo.getCrossSegAndBezier3(
       [
         { x: 0, y: 2 },
@@ -2072,6 +2082,41 @@ describe('getCrossSegAndBezier3', () => {
     expect(res5).toHaveLength(1)
     expect(res5[0].x).toBeCloseTo(10)
     expect(res5[0].y).toBeCloseTo(0)
+  })
+})
+
+describe('getCrossLineAndBezier3', () => {
+  it('should retun intersections between a line and a cubic bezier', () => {
+    const bezier = [
+      { x: 0, y: 0 },
+      { x: 5, y: -10 },
+      { x: 5, y: 10 },
+      { x: 10, y: 0 },
+    ] as const
+
+    expect(
+      geo.getCrossLineAndBezier3(
+        [
+          { x: -10, y: -2 },
+          { x: -2, y: -2 },
+        ],
+        bezier
+      )
+    ).toHaveLength(2)
+
+    const res0 = geo.getCrossLineAndBezier3(
+      [
+        { x: 0, y: 2 },
+        { x: 10, y: 2 },
+      ],
+      bezier
+    )
+    res0.sort((a, b) => a.x - b.x)
+    expect(res0).toHaveLength(2)
+    expect(res0[0].x).toBeCloseTo(6.124)
+    expect(res0[0].y).toBeCloseTo(2)
+    expect(res0[1].x).toBeCloseTo(8.776)
+    expect(res0[1].y).toBeCloseTo(2)
   })
 })
 

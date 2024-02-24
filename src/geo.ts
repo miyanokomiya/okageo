@@ -1710,6 +1710,21 @@ export function getCrossSegAndBezier3WithT(
   seg: Readonly<[IVec2, IVec2]>,
   bezier: Readonly<Bezier3>
 ): [IVec2, t: number][] {
+  const candidates = getCrossLineAndBezier3WithT(seg, bezier)
+  return candidates.filter(([p]) => isOnSeg(p, seg as unknown as IVec2[]))
+}
+
+export function getCrossLineAndBezier3(
+  seg: Readonly<[IVec2, IVec2]>,
+  bezier: Readonly<Bezier3>
+): IVec2[] {
+  return getCrossLineAndBezier3WithT(seg, bezier).map(([p]) => p)
+}
+
+export function getCrossLineAndBezier3WithT(
+  line: Readonly<[IVec2, IVec2]>,
+  bezier: Readonly<Bezier3>
+): [IVec2, t: number][] {
   const ax = 3 * (bezier[1].x - bezier[2].x) + bezier[3].x - bezier[0].x
   const ay = 3 * (bezier[1].y - bezier[2].y) + bezier[3].y - bezier[0].y
 
@@ -1722,10 +1737,10 @@ export function getCrossSegAndBezier3WithT(
   const dx = bezier[0].x
   const dy = bezier[0].y
 
-  const vx = seg[1].y - seg[0].y
-  const vy = seg[0].x - seg[1].x
+  const vx = line[1].y - line[0].y
+  const vy = line[0].x - line[1].x
 
-  const d = seg[0].x * vx + seg[0].y * vy
+  const d = line[0].x * vx + line[0].y * vy
 
   const roots = solveQubicFomula(
     vx * ax + vy * ay,

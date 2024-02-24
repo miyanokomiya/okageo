@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.4] - 2024-02-24
+### Fixed
+- Fix `getCrossSegAndBezier3` didn't take care of a segment but a line
+- Add `getCrossLineAndBezier3` for line version of `getCrossSegAndBezier3`
+
 ## [3.1.3] - 2024-02-24
 ### Added
 - Add `getCrossSegAndBezier3WithT` to get extra information of intersections
