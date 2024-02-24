@@ -570,6 +570,8 @@ parcelHelpers.export(exports, "getApproPoints", ()=>getApproPoints);
  * The order of returned items is srbitrary.
  */ parcelHelpers.export(exports, "getCrossSegAndBezier3", ()=>getCrossSegAndBezier3);
 parcelHelpers.export(exports, "getCrossSegAndBezier3WithT", ()=>getCrossSegAndBezier3WithT);
+parcelHelpers.export(exports, "getCrossLineAndBezier3", ()=>getCrossLineAndBezier3);
+parcelHelpers.export(exports, "getCrossLineAndBezier3WithT", ()=>getCrossLineAndBezier3WithT);
 parcelHelpers.export(exports, "divideBezier3", ()=>divideBezier3);
 parcelHelpers.export(exports, "getClosestPointOnBezier3", ()=>getClosestPointOnBezier3);
 const MINVALUE = 0.000001;
@@ -1526,6 +1528,13 @@ function getCrossSegAndBezier3(seg, bezier) {
     return getCrossSegAndBezier3WithT(seg, bezier).map(([p])=>p);
 }
 function getCrossSegAndBezier3WithT(seg, bezier) {
+    const candidates = getCrossLineAndBezier3WithT(seg, bezier);
+    return candidates.filter(([p])=>isOnSeg(p, seg));
+}
+function getCrossLineAndBezier3(seg, bezier) {
+    return getCrossLineAndBezier3WithT(seg, bezier).map(([p])=>p);
+}
+function getCrossLineAndBezier3WithT(line, bezier) {
     const ax = 3 * (bezier[1].x - bezier[2].x) + bezier[3].x - bezier[0].x;
     const ay = 3 * (bezier[1].y - bezier[2].y) + bezier[3].y - bezier[0].y;
     const bx = 3 * (bezier[0].x - 2 * bezier[1].x + bezier[2].x);
@@ -1534,9 +1543,9 @@ function getCrossSegAndBezier3WithT(seg, bezier) {
     const cy = 3 * (bezier[1].y - bezier[0].y);
     const dx = bezier[0].x;
     const dy = bezier[0].y;
-    const vx = seg[1].y - seg[0].y;
-    const vy = seg[0].x - seg[1].x;
-    const d = seg[0].x * vx + seg[0].y * vy;
+    const vx = line[1].y - line[0].y;
+    const vy = line[0].x - line[1].x;
+    const d = line[0].x * vx + line[0].y * vy;
     const roots = solveQubicFomula(vx * ax + vy * ay, vx * bx + vy * by, vx * cx + vy * cy, vx * dx + vy * dy - d);
     return roots.filter((t)=>0 <= t && t <= 1).map((t)=>[
             {
@@ -3601,4 +3610,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.827e06b2.js.map
+//# sourceMappingURL=index.76c4d966.js.map
