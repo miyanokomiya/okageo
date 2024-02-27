@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [3.1.5] - 2024-02-24
+## [3.1.5] - 2024-02-27
 ### Fixed
 - Fix invalid calculation of `getBezierInterpolation`
 
