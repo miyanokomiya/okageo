@@ -1985,15 +1985,75 @@ describe('getBezierInterpolation', () => {
   })
 
   it('should return bezier control points: non-zero origin', () => {
-    const ret0 = geo.getBezierInterpolation([
+    const points = [
       { x: 1, y: 1 },
       { x: 11, y: 1 },
       { x: 11, y: 11 },
-    ])
+    ]
+    const ret0 = geo.getBezierInterpolation(points)
+    expect(ret0).toHaveLength(2)
     expect(ret0[0][0].x).toBeCloseTo(5.167, 3)
     expect(ret0[0][0].y).toBeCloseTo(0.167, 3)
     expect(ret0[1][1].x).toBeCloseTo(11.833, 3)
     expect(ret0[1][1].y).toBeCloseTo(6.833, 3)
+  })
+})
+
+describe('getPeriodicBezierInterpolation', () => {
+  it('should return empty array when the number of points is less than 3', () => {
+    expect(geo.getPeriodicBezierInterpolation([{ x: 0, y: 0 }])).toEqual([])
+    expect(
+      geo.getPeriodicBezierInterpolation([
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+      ])
+    ).toEqual([])
+  })
+
+  it('should deal with point duplication', () => {
+    expect(
+      geo.getPeriodicBezierInterpolation([
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ])
+    ).toEqual([
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
+    ])
+  })
+
+  it('should return bezier control points', () => {
+    const points = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+      { x: 0, y: 10 },
+      { x: 0, y: 0 },
+    ]
+    const ret0 = geo.getPeriodicBezierInterpolation(points)
+    expect(ret0).toHaveLength(4)
+    expect(ret0[0][0].x).toBeCloseTo(2.5)
+    expect(ret0[0][0].y).toBeCloseTo(-2.583)
+    expect(ret0[0][1].x).toBeCloseTo(7.5)
+    expect(ret0[0][1].y).toBeCloseTo(-2.541)
+    expect(ret0[1][0].x).toBeCloseTo(12.5)
+    expect(ret0[1][0].y).toBeCloseTo(2.542)
+    expect(ret0[1][1].x).toBeCloseTo(12.5)
+    expect(ret0[1][1].y).toBeCloseTo(7.583)
+    expect(ret0[3][1].x).toBeCloseTo(-2.5)
+    expect(ret0[3][1].y).toBeCloseTo(2.583)
   })
 })
 

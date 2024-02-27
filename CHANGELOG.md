@@ -6,9 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.5] - 2024-02-24
+### Fixed
+- Fix invalid calculation of `getBezierInterpolation`
+
+### Added
+- Add `getPeriodicBezierInterpolation` for interpolating a polyline via periodic bezier curve.
+
 ## [3.1.4] - 2024-02-24
 ### Fixed
 - Fix `getCrossSegAndBezier3` didn't take care of a segment but a line
+
+### Added
 - Add `getCrossLineAndBezier3` for line version of `getCrossSegAndBezier3`
 
 ## [3.1.3] - 2024-02-24

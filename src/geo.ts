@@ -1686,6 +1686,93 @@ function solveBezierInterpolationEquations(points: IVec2[]): IVec2[] {
   return ret
 }
 
+/**
+ * "points" should be cloased manually.
+ * @param points target points to interpolate via a periodic bezier curve
+ * @return control point sets for cubic bezier curve
+ */
+export function getPeriodicBezierInterpolation(
+  points: IVec2[]
+): [c0: IVec2, c1: IVec2][] {
+  const len = points.length
+  if (len < 3) return []
+
+  const A = getPeriodicBezierInterpolationA(points)
+  const B: IVec2[] = []
+  for (let i = 0; i < points.length - 2; i++) {
+    B[i] = sub(multi(points[i + 1], 2), A[i + 1])
+  }
+  B[points.length - 2] = sub(multi(points[0], 2), A[0])
+
+  return A.map((a, i) => [a, B[i]])
+}
+
+export function getPeriodicBezierInterpolationA(points: IVec2[]): IVec2[] {
+  const paramSize = points.length - 1
+  const gamma = 1
+
+  const values: IVec2[] = []
+  for (let i = 0; i < points.length - 1; i++) {
+    values.push(multi(add(multi(points[i], 2), points[i + 1]), 2))
+  }
+  const y = solvePeriodicBezierInterpolationEquations(values, gamma)
+
+  const u = points.map(() => ({ x: 0, y: 0 }))
+  u[0] = { x: gamma, y: gamma }
+  u[paramSize - 1] = { x: 1, y: 1 }
+  const q = solvePeriodicBezierInterpolationEquations(u, gamma)
+
+  const v = u
+  const vy = {
+    x: v[0].x * y[0].x + v[paramSize - 1].x * y[paramSize - 1].x,
+    y: v[0].y * y[0].y + v[paramSize - 1].y * y[paramSize - 1].y,
+  }
+  const vq = {
+    x: v[0].x * q[0].x + v[paramSize - 1].x * q[paramSize - 1].x,
+    y: v[0].y * q[0].y + v[paramSize - 1].y * q[paramSize - 1].y,
+  }
+
+  const A: IVec2[] = []
+  for (let i = 0; i < paramSize; i++) {
+    A[i] = {
+      x: y[i].x - (q[i].x * vy.x) / (1 + vq.x),
+      y: y[i].y - (q[i].y * vy.y) / (1 + vq.y),
+    }
+  }
+
+  return A
+}
+
+/**
+ * https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+ */
+function solvePeriodicBezierInterpolationEquations(
+  values: IVec2[],
+  gamma: number
+): IVec2[] {
+  const C: number[] = [1 / (4 - gamma)]
+  for (let i = 1; i < values.length - 1; i++) {
+    C[i] = 1 / (4 - C[i - 1])
+  }
+
+  const D: IVec2[] = [multi(values[0], 1 / (4 - gamma))]
+  for (let i = 1; i < values.length - 1; i++) {
+    D[i] = multi(sub(values[i], D[i - 1]), 1 / (4 - C[i - 1]))
+  }
+  D[values.length - 1] = multi(
+    sub(values[values.length - 1], D[values.length - 2]),
+    1 / (4 - 1 / gamma - C[values.length - 2])
+  )
+
+  const ret: IVec2[] = []
+  ret[values.length - 1] = D[values.length - 1]
+  for (let i = values.length - 2; 0 <= i; i--) {
+    ret[i] = sub(D[i], multi(ret[i + 1], C[i]))
+  }
+
+  return ret
+}
+
 type Bezier3 = [c0: IVec2, c1: IVec2, c2: IVec2, c3: IVec2]
 
 /**
