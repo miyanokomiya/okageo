@@ -567,6 +567,12 @@ parcelHelpers.export(exports, "getApproPoints", ()=>getApproPoints);
  * @return control point sets for cubic bezier curve
  */ parcelHelpers.export(exports, "getBezierInterpolation", ()=>getBezierInterpolation);
 /**
+ * "points" should be cloased manually.
+ * @param points target points to interpolate via a periodic bezier curve
+ * @return control point sets for cubic bezier curve
+ */ parcelHelpers.export(exports, "getPeriodicBezierInterpolation", ()=>getPeriodicBezierInterpolation);
+parcelHelpers.export(exports, "getPeriodicBezierInterpolationA", ()=>getPeriodicBezierInterpolationA);
+/**
  * The order of returned items is srbitrary.
  */ parcelHelpers.export(exports, "getCrossSegAndBezier3", ()=>getCrossSegAndBezier3);
 parcelHelpers.export(exports, "getCrossSegAndBezier3WithT", ()=>getCrossSegAndBezier3WithT);
@@ -1488,17 +1494,13 @@ function roundTrip(min, max, val) {
 function getBezierInterpolation(points) {
     const len = points.length;
     if (len < 3) return [];
-    // This algorithm appears dependent on the absolute position of the line.
-    // => Remove the absolute position effect for consistency.
-    const origin = points[0];
-    const adjustedPoints = points.map((p)=>sub(p, origin));
-    const A = solveBezierInterpolationEquations(adjustedPoints);
+    const A = solveBezierInterpolationEquations(points);
     const B = [];
-    for(let i = 0; i < adjustedPoints.length - 2; i++)B[i] = sub(multi(adjustedPoints[i + 1], 2), A[i + 1]);
-    B[adjustedPoints.length - 2] = multi(add(A[adjustedPoints.length - 2], adjustedPoints[adjustedPoints.length - 1]), 0.5);
+    for(let i = 0; i < points.length - 2; i++)B[i] = sub(multi(points[i + 1], 2), A[i + 1]);
+    B[points.length - 2] = multi(add(A[points.length - 2], points[points.length - 1]), 0.5);
     return A.map((a, i)=>[
-            add(a, origin),
-            add(B[i], origin)
+            a,
+            B[i]
         ]);
 }
 /**
@@ -1518,10 +1520,74 @@ function getBezierInterpolation(points) {
         multi(values[0], 0.5)
     ];
     for(let i = 1; i < points.length - 2; i++)D[i] = multi(sub(values[i], D[i - 1]), 1 / (4 - C[i - 1]));
-    D[points.length - 2] = multi(sub(values[points.length - 2], multi(D[points.length - 3], 2)), 1 / (7 - C[points.length - 3]));
+    D[points.length - 2] = multi(sub(values[points.length - 2], multi(D[points.length - 3], 2)), 1 / (7 - 2 * C[points.length - 3]));
     const ret = [];
     ret[points.length - 2] = D[points.length - 2];
     for(let i = points.length - 3; 0 <= i; i--)ret[i] = sub(D[i], multi(ret[i + 1], C[i]));
+    return ret;
+}
+function getPeriodicBezierInterpolation(points) {
+    const len = points.length;
+    if (len < 3) return [];
+    const A = getPeriodicBezierInterpolationA(points);
+    const B = [];
+    for(let i = 0; i < points.length - 2; i++)B[i] = sub(multi(points[i + 1], 2), A[i + 1]);
+    B[points.length - 2] = sub(multi(points[0], 2), A[0]);
+    return A.map((a, i)=>[
+            a,
+            B[i]
+        ]);
+}
+function getPeriodicBezierInterpolationA(points) {
+    const paramSize = points.length - 1;
+    const gamma = 1;
+    const values = [];
+    for(let i = 0; i < points.length - 1; i++)values.push(multi(add(multi(points[i], 2), points[i + 1]), 2));
+    const y = solvePeriodicBezierInterpolationEquations(values, gamma);
+    const u = points.map(()=>({
+            x: 0,
+            y: 0
+        }));
+    u[0] = {
+        x: gamma,
+        y: gamma
+    };
+    u[paramSize - 1] = {
+        x: 1,
+        y: 1
+    };
+    const q = solvePeriodicBezierInterpolationEquations(u, gamma);
+    const v = u;
+    const vy = {
+        x: v[0].x * y[0].x + v[paramSize - 1].x * y[paramSize - 1].x,
+        y: v[0].y * y[0].y + v[paramSize - 1].y * y[paramSize - 1].y
+    };
+    const vq = {
+        x: v[0].x * q[0].x + v[paramSize - 1].x * q[paramSize - 1].x,
+        y: v[0].y * q[0].y + v[paramSize - 1].y * q[paramSize - 1].y
+    };
+    const A = [];
+    for(let i = 0; i < paramSize; i++)A[i] = {
+        x: y[i].x - q[i].x * vy.x / (1 + vq.x),
+        y: y[i].y - q[i].y * vy.y / (1 + vq.y)
+    };
+    return A;
+}
+/**
+ * https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+ */ function solvePeriodicBezierInterpolationEquations(values, gamma) {
+    const C = [
+        1 / (4 - gamma)
+    ];
+    for(let i = 1; i < values.length - 1; i++)C[i] = 1 / (4 - C[i - 1]);
+    const D = [
+        multi(values[0], 1 / (4 - gamma))
+    ];
+    for(let i = 1; i < values.length - 1; i++)D[i] = multi(sub(values[i], D[i - 1]), 1 / (4 - C[i - 1]));
+    D[values.length - 1] = multi(sub(values[values.length - 1], D[values.length - 2]), 1 / (4 - 1 / gamma - C[values.length - 2]));
+    const ret = [];
+    ret[values.length - 1] = D[values.length - 1];
+    for(let i = values.length - 2; 0 <= i; i--)ret[i] = sub(D[i], multi(ret[i + 1], C[i]));
     return ret;
 }
 function getCrossSegAndBezier3(seg, bezier) {
@@ -3610,4 +3676,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.76c4d966.js.map
+//# sourceMappingURL=index.2234ac14.js.map
