@@ -1974,14 +1974,14 @@ describe('getBezierInterpolation', () => {
       { x: 10, y: 0 },
       { x: 10, y: 10 },
     ])
-    expect(ret0[0][0].x).toBeCloseTo(4.615, 3)
-    expect(ret0[0][0].y).toBeCloseTo(-0.769, 3)
-    expect(ret0[0][1].x).toBeCloseTo(9.231, 3)
-    expect(ret0[0][1].y).toBeCloseTo(-1.538, 3)
-    expect(ret0[1][0].x).toBeCloseTo(10.769, 3)
-    expect(ret0[1][0].y).toBeCloseTo(1.538, 3)
-    expect(ret0[1][1].x).toBeCloseTo(10.385, 3)
-    expect(ret0[1][1].y).toBeCloseTo(5.769, 3)
+    expect(ret0[0][0].x).toBeCloseTo(4.167, 3)
+    expect(ret0[0][0].y).toBeCloseTo(-0.833, 3)
+    expect(ret0[0][1].x).toBeCloseTo(8.333, 3)
+    expect(ret0[0][1].y).toBeCloseTo(-1.667, 3)
+    expect(ret0[1][0].x).toBeCloseTo(11.667, 3)
+    expect(ret0[1][0].y).toBeCloseTo(1.667, 3)
+    expect(ret0[1][1].x).toBeCloseTo(10.833, 3)
+    expect(ret0[1][1].y).toBeCloseTo(5.833, 3)
   })
 
   it('should return bezier control points: non-zero origin', () => {
@@ -1990,10 +1990,10 @@ describe('getBezierInterpolation', () => {
       { x: 11, y: 1 },
       { x: 11, y: 11 },
     ])
-    expect(ret0[0][0].x).toBeCloseTo(5.615, 3)
-    expect(ret0[0][0].y).toBeCloseTo(1 - 0.769, 3)
-    expect(ret0[1][1].x).toBeCloseTo(11.385, 3)
-    expect(ret0[1][1].y).toBeCloseTo(6.769, 3)
+    expect(ret0[0][0].x).toBeCloseTo(5.167, 3)
+    expect(ret0[0][0].y).toBeCloseTo(0.167, 3)
+    expect(ret0[1][1].x).toBeCloseTo(11.833, 3)
+    expect(ret0[1][1].y).toBeCloseTo(6.833, 3)
   })
 })
 

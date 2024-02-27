@@ -1682,7 +1682,7 @@ function solveBezierInterpolationEquations(points: IVec2[]): IVec2[] {
   }
   D[points.length - 2] = multi(
     sub(values[points.length - 2], multi(D[points.length - 3], 2)),
-    1 / (7 - C[points.length - 3])
+    1 / (7 - 2 * C[points.length - 3])
   )
 
   const ret: IVec2[] = []
