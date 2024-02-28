@@ -2045,15 +2045,36 @@ describe('getPeriodicBezierInterpolation', () => {
     const ret0 = geo.getPeriodicBezierInterpolation(points)
     expect(ret0).toHaveLength(4)
     expect(ret0[0][0].x).toBeCloseTo(2.5)
-    expect(ret0[0][0].y).toBeCloseTo(-2.583)
+    expect(ret0[0][0].y).toBeCloseTo(-2.5)
     expect(ret0[0][1].x).toBeCloseTo(7.5)
-    expect(ret0[0][1].y).toBeCloseTo(-2.541)
+    expect(ret0[0][1].y).toBeCloseTo(-2.5)
     expect(ret0[1][0].x).toBeCloseTo(12.5)
-    expect(ret0[1][0].y).toBeCloseTo(2.542)
+    expect(ret0[1][0].y).toBeCloseTo(2.5)
     expect(ret0[1][1].x).toBeCloseTo(12.5)
-    expect(ret0[1][1].y).toBeCloseTo(7.583)
+    expect(ret0[1][1].y).toBeCloseTo(7.5)
     expect(ret0[3][1].x).toBeCloseTo(-2.5)
-    expect(ret0[3][1].y).toBeCloseTo(2.583)
+    expect(ret0[3][1].y).toBeCloseTo(2.5)
+  })
+
+  it('should return bezier control points: non-zero origin', () => {
+    const points = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+      { x: 0, y: 10 },
+      { x: 0, y: 0 },
+    ]
+    const ret0 = geo.getPeriodicBezierInterpolation(points)
+    const origin = { x: 100, y: 200 }
+    const shift = geo.getPeriodicBezierInterpolation(
+      points.map((p) => geo.add(p, origin))
+    )
+    ret0.forEach(([c1, c2], i) => {
+      expect(c1.x).toBeCloseTo(shift[i][0].x - origin.x)
+      expect(c1.y).toBeCloseTo(shift[i][0].y - origin.y)
+      expect(c2.x).toBeCloseTo(shift[i][1].x - origin.x)
+      expect(c2.y).toBeCloseTo(shift[i][1].y - origin.y)
+    })
   })
 })
 

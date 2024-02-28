@@ -1702,7 +1702,7 @@ export function getPeriodicBezierInterpolation(
   for (let i = 0; i < points.length - 2; i++) {
     B[i] = sub(multi(points[i + 1], 2), A[i + 1])
   }
-  B[points.length - 2] = sub(multi(points[0], 2), A[0])
+  B[points.length - 2] = sub(multi(points[points.length - 1], 2), A[0])
 
   return A.map((a, i) => [a, B[i]])
 }
@@ -1713,23 +1713,28 @@ export function getPeriodicBezierInterpolationA(points: IVec2[]): IVec2[] {
 
   const values: IVec2[] = []
   for (let i = 0; i < points.length - 1; i++) {
-    values.push(multi(add(multi(points[i], 2), points[i + 1]), 2))
+    values.push({
+      x: 4 * points[i].x + 2 * points[i + 1].x,
+      y: 4 * points[i].y + 2 * points[i + 1].y,
+    })
   }
   const y = solvePeriodicBezierInterpolationEquations(values, gamma)
 
-  const u = points.map(() => ({ x: 0, y: 0 }))
+  const u: IVec2[] = []
   u[0] = { x: gamma, y: gamma }
-  u[paramSize - 1] = { x: 1, y: 1 }
+  for (let i = 1; i < points.length - 2; i++) {
+    u.push({ x: 0, y: 0 })
+  }
+  u.push({ x: 1, y: 1 })
   const q = solvePeriodicBezierInterpolationEquations(u, gamma)
 
-  const v = u
   const vy = {
-    x: v[0].x * y[0].x + v[paramSize - 1].x * y[paramSize - 1].x,
-    y: v[0].y * y[0].y + v[paramSize - 1].y * y[paramSize - 1].y,
+    x: y[0].x + (1 / gamma) * y[paramSize - 1].x,
+    y: y[0].y + (1 / gamma) * y[paramSize - 1].y,
   }
   const vq = {
-    x: v[0].x * q[0].x + v[paramSize - 1].x * q[paramSize - 1].x,
-    y: v[0].y * q[0].y + v[paramSize - 1].y * q[paramSize - 1].y,
+    x: q[0].x + (1 / gamma) * q[paramSize - 1].x,
+    y: q[0].y + (1 / gamma) * q[paramSize - 1].y,
   }
 
   const A: IVec2[] = []

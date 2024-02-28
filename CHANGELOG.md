@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.6] - 2024-02-28
+### Fixed
+- Fix invalid calculation of `getPeriodicBezierInterpolation`
+
 ## [3.1.5] - 2024-02-27
 ### Fixed
 - Fix invalid calculation of `getBezierInterpolation`
