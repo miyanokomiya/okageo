@@ -1479,6 +1479,7 @@ function clamp(min = -Infinity, max = Infinity, val) {
 }
 function circleClamp(min, max, val) {
     if (min === max) return min;
+    if (min <= val && val <= max) return val;
     if (max < val) return (val - max) % (max - min) + min;
     else if (val < min) return max - (min - val) % (max - min);
     else return val;
@@ -3679,4 +3680,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.7dd24921.js.map
+//# sourceMappingURL=index.e1ea08b9.js.map
