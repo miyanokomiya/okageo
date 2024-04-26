@@ -1597,6 +1597,7 @@ export function clamp(min = -Infinity, max = Infinity, val: number) {
  */
 export function circleClamp(min: number, max: number, val: number) {
   if (min === max) return min
+  if (min <= val && val <= max) return val
 
   if (max < val) {
     return ((val - max) % (max - min)) + min
