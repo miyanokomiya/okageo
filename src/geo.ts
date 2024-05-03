@@ -244,7 +244,7 @@ export function getCrossLineAndBezier(
   p2: IVec2,
   p: IVec2,
   q: IVec2
-) {
+): IVec2[] {
   return rayToBezier(p0, p1, p2, p, q)
     .filter((t) => 0 <= t && t <= 1)
     .map((t) =>
@@ -1585,7 +1585,7 @@ function isCloseToZero(val: number): boolean {
  * @param max max value
  * @return clamped value
  */
-export function clamp(min = -Infinity, max = Infinity, val: number) {
+export function clamp(min = -Infinity, max = Infinity, val: number): number {
   return Math.max(Math.min(val, max), min)
 }
 
@@ -1595,7 +1595,7 @@ export function clamp(min = -Infinity, max = Infinity, val: number) {
  * @param max max value
  * @return clamped value
  */
-export function circleClamp(min: number, max: number, val: number) {
+export function circleClamp(min: number, max: number, val: number): number {
   if (min === max) return min
   if (min <= val && val <= max) return val
 
@@ -1614,7 +1614,7 @@ export function circleClamp(min: number, max: number, val: number) {
  * @param max max value
  * @return round tripped value
  */
-export function roundTrip(min: number, max: number, val: number) {
+export function roundTrip(min: number, max: number, val: number): number {
   const harf = max - min
   const length = 2 * harf
   if (length === 0) return min

@@ -1492,7 +1492,7 @@ export function serializePointList(pointList: IVec2[], open?: boolean): string {
  * デフォルトstyle作成
  * @return スタイルオブジェクト
  */
-export function createStyle() {
+export function createStyle(): ISvgStyle {
   return {
     fill: false,
     fillGlobalAlpha: 1,
@@ -1590,7 +1590,7 @@ export function parseTagStyle(svgPath: SVGElement): ISvgStyle {
  * @param style スタイル情報
  * @return style属性文字列
  */
-export function serializeStyle(style: ISvgStyle) {
+export function serializeStyle(style: ISvgStyle): string {
   let ret = ''
 
   // fill情報
