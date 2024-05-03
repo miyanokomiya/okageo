@@ -1,10 +1,13 @@
-name: Publish Package to npmjs
+name: Publish Package to npmjs and JSR
 on:
   release:
     types: [created]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -14,5 +17,6 @@ jobs:
       - run: corepack enable yarn
       - run: yarn
       - run: npm publish
+      - run: npx jsr publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
