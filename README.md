@@ -50,4 +50,5 @@ $ yarn demo
 ```
 
 ## publish
+Bump version written in `package.json` and `jsr.json`.
 Create new release on Github.
