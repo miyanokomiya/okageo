@@ -619,20 +619,50 @@ export function getPathTotalLength(
  */
 export function getPathPointAtLengthFromStructs(
   structs: PathLengthStruct[],
-  distance: number
+  distance: number,
+  split = configs.bezierSplitSize
 ): IVec2 {
+  if (structs.length === 0) return geo.vec(0, 0)
+  if (distance === 0) {
+    return structs[0].lerpFn(0)
+  }
+
   let l = Math.max(distance, 0)
   for (let i = 0; i < structs.length; i++) {
     const s = structs[i]
     if (l < s.length) {
-      return s.lerpFn(l / s.length)
+      return seekDistantPointOfLerpFn(s, l, split)
+    } else if (l === s.length) {
+      return s.lerpFn(1)
     } else {
       l -= s.length
     }
   }
-  return structs.length > 0
-    ? structs[structs.length - 1].lerpFn(1)
-    : geo.vec(0, 0)
+  return structs[structs.length - 1].lerpFn(1)
+}
+
+function seekDistantPointOfLerpFn(
+  pathStruct: PathLengthStruct,
+  distant: number,
+  split = configs.bezierSplitSize
+): IVec2 {
+  const step = 1 / split
+  let prev = pathStruct.lerpFn(0)
+  let sum = 0
+  for (let i = 1; i < split; i++) {
+    const t = step * i
+    const p = pathStruct.lerpFn(t)
+    const d = geo.getDistance(prev, p)
+    const nextSum = sum + d
+    if (distant < nextSum) {
+      return pathStruct.lerpFn(t - (nextSum - distant) / pathStruct.length)
+    }
+
+    prev = p
+    sum = nextSum
+  }
+
+  return pathStruct.lerpFn(1)
 }
 
 /**
@@ -649,7 +679,8 @@ export function getPathPointAtLength(
 ): IVec2 {
   return getPathPointAtLengthFromStructs(
     getPathLengthStructs(dStr, split),
-    distance
+    distance,
+    split
   )
 }
 

@@ -1795,7 +1795,7 @@ describe('getPathPointAtLength', () => {
     expect(svg.getPathPointAtLength(d, 2)).toEqual({ x: 2, y: 0 })
     expect(svg.getPathPointAtLength(d, 4)).toEqual({ x: 3, y: 1 })
     expect(svg.getPathPointAtLength(d, 8)).toEqual({ x: 11, y: 10 })
-    expect(svg.getPathPointAtLength(d, 19)).toEqual({ x: 20, y: 20 })
+    expect(svg.getPathPointAtLength(d, 19)).toEqual({ x: 10, y: 10 }) // This'll be unstable because it's at the jump.
     expect(svg.getPathPointAtLength(d, 20)).toEqual({ x: 20, y: 20 })
   })
 
@@ -1808,6 +1808,11 @@ describe('getPathPointAtLength', () => {
     const res1 = svg.getPathPointAtLength(d, length)
     expect(res1.x).toBeCloseTo(125)
     expect(res1.y).toBeCloseTo(100)
+  })
+
+  it('should derive the point based on geometrical length: straight bezier case', () => {
+    const d = 'M0,0 C0,0 200,0 200,0'
+    expect(svg.getPathPointAtLength(d, 20, 1000).x).toBeCloseTo(20)
   })
 })
 
