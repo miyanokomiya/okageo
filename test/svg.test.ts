@@ -1814,6 +1814,18 @@ describe('getPathPointAtLength', () => {
     const d = 'M0,0 C0,0 200,0 200,0'
     expect(svg.getPathPointAtLength(d, 20, 1000).x).toBeCloseTo(20)
   })
+
+  it('should regard head period', () => {
+    const d = 'M0,0 L100,0'
+    expect(svg.getPathPointAtLength(d, 5, 10).x).toBeCloseTo(5)
+    expect(svg.getPathPointAtLength(d, 10, 10).x).toBeCloseTo(10)
+  })
+
+  it('should regard tail period', () => {
+    const d = 'M0,0 L100,0'
+    expect(svg.getPathPointAtLength(d, 90, 10).x).toBeCloseTo(90)
+    expect(svg.getPathPointAtLength(d, 95, 10).x).toBeCloseTo(95)
+  })
 })
 
 describe('reversePath', () => {

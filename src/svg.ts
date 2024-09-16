@@ -649,7 +649,7 @@ function seekDistantPointOfLerpFn(
   const step = 1 / split
   let prev = pathStruct.lerpFn(0)
   let sum = 0
-  for (let i = 1; i < split; i++) {
+  for (let i = 1; i <= split; i++) {
     const t = step * i
     const p = pathStruct.lerpFn(t)
     const d = geo.getDistance(prev, p)
