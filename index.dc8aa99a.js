@@ -2566,7 +2566,7 @@ function seekDistantPointOfLerpFn(pathStruct, distant, split = configs.bezierSpl
     const step = 1 / split;
     let prev = pathStruct.lerpFn(0);
     let sum = 0;
-    for(let i = 1; i < split; i++){
+    for(let i = 1; i <= split; i++){
         const t = step * i;
         const p = pathStruct.lerpFn(t);
         const d = _geo.getDistance(prev, p);
@@ -3698,4 +3698,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.263e07a7.js.map
+//# sourceMappingURL=index.dc8aa99a.js.map
