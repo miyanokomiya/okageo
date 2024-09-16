@@ -1815,6 +1815,11 @@ describe('getPathPointAtLength', () => {
     expect(svg.getPathPointAtLength(d, 20, 1000).x).toBeCloseTo(20)
   })
 
+  it('issued case', () => {
+    const d = 'M0,0 C200,0 300,0 200,0'
+    expect(svg.getPathPointAtLength(d, 20, 10).x).toBeCloseTo(20.7, 1)
+  })
+
   it('should regard head period', () => {
     const d = 'M0,0 L100,0'
     expect(svg.getPathPointAtLength(d, 5, 10).x).toBeCloseTo(5)

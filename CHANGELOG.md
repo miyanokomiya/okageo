@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.9] - 2024-09-16
+### Fixed
+- Fix invalid calculation of `getPathPointAtLength` that could return a point outside the path.
+
 ## [3.1.8] - 2024-09-16
 ### Fixed
 - Fix invalid calculation of `getPathPointAtLength` that neglected the tail part.

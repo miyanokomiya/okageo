@@ -576,6 +576,7 @@ function _parsePathSegments(segments: PathSegmentRaw[]): PathSegment[] {
 export interface PathLengthStruct {
   lerpFn: (t: number) => IVec2
   length: number
+  curve?: boolean
 }
 
 export function getPathLengthStructs(
@@ -589,6 +590,7 @@ export function getPathLengthStructs(
     length: geo.getPolylineLength(
       seg.curve ? geo.getApproPoints(seg.lerpFn, split) : seg.segment
     ),
+    curve: seg.curve,
   }))
 }
 
@@ -631,7 +633,9 @@ export function getPathPointAtLengthFromStructs(
   for (let i = 0; i < structs.length; i++) {
     const s = structs[i]
     if (l < s.length) {
-      return seekDistantPointOfLerpFn(s, l, split)
+      return s.curve
+        ? seekDistantPointOfLerpFn(s, l, split)
+        : s.lerpFn(l / s.length)
     } else if (l === s.length) {
       return s.lerpFn(1)
     } else {
@@ -654,8 +658,10 @@ function seekDistantPointOfLerpFn(
     const p = pathStruct.lerpFn(t)
     const d = geo.getDistance(prev, p)
     const nextSum = sum + d
-    if (distant < nextSum) {
-      return pathStruct.lerpFn(t - (nextSum - distant) / pathStruct.length)
+    if (Math.abs(distant - nextSum) < geo.MINVALUE) {
+      return p
+    } else if (distant < nextSum) {
+      return pathStruct.lerpFn(t - ((nextSum - distant) / d) * step)
     }
 
     prev = p
