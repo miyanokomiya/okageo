@@ -2550,17 +2550,35 @@ function getPathTotalLengthFromStructs(structs) {
 function getPathTotalLength(dStr, split = configs.bezierSplitSize) {
     return getPathTotalLengthFromStructs(getPathLengthStructs(dStr, split));
 }
-function getPathPointAtLengthFromStructs(structs, distance) {
+function getPathPointAtLengthFromStructs(structs, distance, split = configs.bezierSplitSize) {
+    if (structs.length === 0) return _geo.vec(0, 0);
+    if (distance === 0) return structs[0].lerpFn(0);
     let l = Math.max(distance, 0);
     for(let i = 0; i < structs.length; i++){
         const s = structs[i];
-        if (l < s.length) return s.lerpFn(l / s.length);
+        if (l < s.length) return seekDistantPointOfLerpFn(s, l, split);
+        else if (l === s.length) return s.lerpFn(1);
         else l -= s.length;
     }
-    return structs.length > 0 ? structs[structs.length - 1].lerpFn(1) : _geo.vec(0, 0);
+    return structs[structs.length - 1].lerpFn(1);
+}
+function seekDistantPointOfLerpFn(pathStruct, distant, split = configs.bezierSplitSize) {
+    const step = 1 / split;
+    let prev = pathStruct.lerpFn(0);
+    let sum = 0;
+    for(let i = 1; i < split; i++){
+        const t = step * i;
+        const p = pathStruct.lerpFn(t);
+        const d = _geo.getDistance(prev, p);
+        const nextSum = sum + d;
+        if (distant < nextSum) return pathStruct.lerpFn(t - (nextSum - distant) / pathStruct.length);
+        prev = p;
+        sum = nextSum;
+    }
+    return pathStruct.lerpFn(1);
 }
 function getPathPointAtLength(dStr, distance, split = configs.bezierSplitSize) {
-    return getPathPointAtLengthFromStructs(getPathLengthStructs(dStr, split), distance);
+    return getPathPointAtLengthFromStructs(getPathLengthStructs(dStr, split), distance, split);
 }
 function getPathAbsPoints(segments) {
     const points = [];
@@ -3680,4 +3698,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.e1ea08b9.js.map
+//# sourceMappingURL=index.263e07a7.js.map
