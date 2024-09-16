@@ -2541,7 +2541,8 @@ function _parsePathSegments(segments) {
 function getPathLengthStructs(dStr, split = configs.bezierSplitSize) {
     return parsePathSegments(dStr).map((seg)=>({
             lerpFn: seg.curve ? seg.lerpFn : (t)=>_geo.lerpPoint(seg.segment[0], seg.segment[1], t),
-            length: _geo.getPolylineLength(seg.curve ? _geo.getApproPoints(seg.lerpFn, split) : seg.segment)
+            length: _geo.getPolylineLength(seg.curve ? _geo.getApproPoints(seg.lerpFn, split) : seg.segment),
+            curve: seg.curve
         }));
 }
 function getPathTotalLengthFromStructs(structs) {
@@ -2556,7 +2557,7 @@ function getPathPointAtLengthFromStructs(structs, distance, split = configs.bezi
     let l = Math.max(distance, 0);
     for(let i = 0; i < structs.length; i++){
         const s = structs[i];
-        if (l < s.length) return seekDistantPointOfLerpFn(s, l, split);
+        if (l < s.length) return s.curve ? seekDistantPointOfLerpFn(s, l, split) : s.lerpFn(l / s.length);
         else if (l === s.length) return s.lerpFn(1);
         else l -= s.length;
     }
@@ -2571,7 +2572,8 @@ function seekDistantPointOfLerpFn(pathStruct, distant, split = configs.bezierSpl
         const p = pathStruct.lerpFn(t);
         const d = _geo.getDistance(prev, p);
         const nextSum = sum + d;
-        if (distant < nextSum) return pathStruct.lerpFn(t - (nextSum - distant) / pathStruct.length);
+        if (Math.abs(distant - nextSum) < _geo.MINVALUE) return p;
+        else if (distant < nextSum) return pathStruct.lerpFn(t - (nextSum - distant) / d * step);
         prev = p;
         sum = nextSum;
     }
@@ -3698,4 +3700,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
 
-//# sourceMappingURL=index.dc8aa99a.js.map
+//# sourceMappingURL=index.70ebd9cc.js.map
