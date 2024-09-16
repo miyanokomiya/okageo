@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [3.1.8] - 2024-09-16
+### Fixed
+- Fix invalid calculation of `getPathPointAtLength` that neglected the tail part.
+
 ## [3.1.7] - 2024-09-16
 ### Fixed
 - Fix inaccurate calculation of `getPathPointAtLength`
