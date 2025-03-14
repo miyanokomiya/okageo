@@ -73,7 +73,7 @@
         localRequire,
         module,
         module.exports,
-        this
+        globalObject
       );
     }
 
@@ -142,12 +142,12 @@
       this[globalName] = mainExports;
     }
   }
-})({"38PNf":[function(require,module,exports) {
+})({"38PNf":[function(require,module,exports,__globalThis) {
 var _geo = require("../src/geo");
 var _svg = require("../src/svg");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const fileInput = document.getElementById("input");
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const fileInput = document.getElementById('input');
 fileInput.onchange = (e)=>{
     const file = e.target.files;
     if (!file || file.length === 0) return;
@@ -169,49 +169,49 @@ fileInput.onchange = (e)=>{
     };
 };
 function runReverse() {
-    const text = document.getElementById("input-path").value;
-    document.getElementById("reverse-result").value = _svg.pathSegmentRawsToString(_svg.reversePath(_svg.parsePathSegmentRaws(text)));
-    document.getElementById("path-src").setAttribute("d", text);
-    document.getElementById("path-dist").setAttribute("d", _svg.pathSegmentRawsToString(_svg.reversePath(_svg.parsePathSegmentRaws(text))));
+    const text = document.getElementById('input-path').value;
+    document.getElementById('reverse-result').value = _svg.pathSegmentRawsToString(_svg.reversePath(_svg.parsePathSegmentRaws(text)));
+    document.getElementById('path-src').setAttribute('d', text);
+    document.getElementById('path-dist').setAttribute('d', _svg.pathSegmentRawsToString(_svg.reversePath(_svg.parsePathSegmentRaws(text))));
 }
 runReverse();
-document.getElementById("run-reverse").addEventListener("click", runReverse);
+document.getElementById('run-reverse').addEventListener('click', runReverse);
 function runModify() {
-    const text = document.getElementById("input-path2").value;
-    document.getElementById("path-src2").setAttribute("d", text);
+    const text = document.getElementById('input-path2').value;
+    document.getElementById('path-src2').setAttribute('d', text);
     const segs = _svg.parsePathSegmentRaws(text);
-    document.getElementById("path-dist2").setAttribute("d", _svg.pathSegmentRawsToString(_svg.slidePath(segs, {
+    document.getElementById('path-dist2').setAttribute('d', _svg.pathSegmentRawsToString(_svg.slidePath(segs, {
         x: 30,
         y: 30
     })));
-    document.getElementById("path-dist3").setAttribute("d", _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
+    document.getElementById('path-dist3').setAttribute('d', _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
         x: -1,
         y: 1
     })));
-    document.getElementById("path-dist4").setAttribute("d", _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
+    document.getElementById('path-dist4').setAttribute('d', _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
         x: 1,
         y: -1
     })));
-    document.getElementById("path-dist5").setAttribute("d", _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
+    document.getElementById('path-dist5').setAttribute('d', _svg.pathSegmentRawsToString(_svg.scalePath(segs, {
         x: -1,
         y: -1
     })));
 }
 runModify();
-document.getElementById("run-modify").addEventListener("click", runModify);
+document.getElementById('run-modify').addEventListener('click', runModify);
 function runRotate() {
-    const text = document.getElementById("input-rotate").value;
-    document.getElementById("rotate-src2").setAttribute("d", text);
+    const text = document.getElementById('input-rotate').value;
+    document.getElementById('rotate-src2').setAttribute('d', text);
     const segs = _svg.parsePathSegmentRaws(text);
-    document.getElementById("rotate-dist2").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * Math.PI / 5)));
-    document.getElementById("rotate-dist3").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 2) / 5)));
-    document.getElementById("rotate-dist4").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 3) / 5)));
-    document.getElementById("rotate-dist5").setAttribute("d", _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 4) / 5)));
+    document.getElementById('rotate-dist2').setAttribute('d', _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * Math.PI / 5)));
+    document.getElementById('rotate-dist3').setAttribute('d', _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 2) / 5)));
+    document.getElementById('rotate-dist4').setAttribute('d', _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 3) / 5)));
+    document.getElementById('rotate-dist5').setAttribute('d', _svg.pathSegmentRawsToString(_svg.rotatePath(segs, 2 * (Math.PI * 4) / 5)));
 }
 runRotate();
-document.getElementById("run-rotate").addEventListener("click", runRotate);
+document.getElementById('run-rotate').addEventListener('click', runRotate);
 
-},{"../src/geo":"8ubUB","../src/svg":"hNdpk"}],"8ubUB":[function(require,module,exports) {
+},{"../src/geo":"8ubUB","../src/svg":"hNdpk"}],"8ubUB":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "MINVALUE", ()=>MINVALUE);
@@ -580,6 +580,14 @@ parcelHelpers.export(exports, "getCrossLineAndBezier3", ()=>getCrossLineAndBezie
 parcelHelpers.export(exports, "getCrossLineAndBezier3WithT", ()=>getCrossLineAndBezier3WithT);
 parcelHelpers.export(exports, "divideBezier3", ()=>divideBezier3);
 parcelHelpers.export(exports, "getClosestPointOnBezier3", ()=>getClosestPointOnBezier3);
+/**
+ * Compute the intersection points between two cubic bezier curves using bezier clipping algorithm.
+ * @param curve1 First cubic bezier curve
+ * @param curve2 Second cubic bezier curve
+ * @param tolerance Error tolerance for intersection (smaller means more accurate)
+ * @param maxIterations Maximum number of bezier clipping iterations
+ * @returns Array of intersection points
+ */ parcelHelpers.export(exports, "getCrossBezier3AndBezier3", ()=>getCrossBezier3AndBezier3);
 const MINVALUE = 0.000001;
 const IDENTITY_AFFINE = [
     1,
@@ -631,7 +639,7 @@ function isZero(a) {
 }
 function getUnit(a) {
     const d = getNorm(a);
-    if (d < MINVALUE) throw new Error("cannot get unit vector of zero vector");
+    if (d < MINVALUE) throw new Error('cannot get unit vector of zero vector');
     return multi(a, 1 / d);
 }
 function getCross(a, b) {
@@ -691,7 +699,7 @@ function solveEquationOrder2(a, b, c) {
     ];
 }
 function getPedal(p, line) {
-    if (line.length !== 2) throw new Error("line must be length = 2");
+    if (line.length !== 2) throw new Error('line must be length = 2');
     const s = line[0];
     const t = line[1];
     const vecST = sub(t, s);
@@ -945,7 +953,7 @@ function triangleSplit(polygon) {
                 const tmpCross = getCross(v1, v2);
                 if (tmpCross * currentCross > 0) // 判定続行
                 tri = getTriangle(targetPoly, index);
-                if (index === farthestIndex) throw new Error("failed to split triangles");
+                if (index === farthestIndex) throw new Error('failed to split triangles');
             }
             // 採用された点を削除
             targetPoly.splice(index, 1);
@@ -1030,7 +1038,7 @@ function approximateBezier(pointList, size) {
     for(let i = 0; i <= size; i++)ret.push(getPointOnBezier2(pointList, unitT * i));
     else if (pointList.length === 4) // 3次ベジェの場合
     for(let i = 0; i <= size; i++)ret.push(getPointOnBezier3(pointList, unitT * i));
-    else throw new Error("connot approximate");
+    else throw new Error('connot approximate');
     return ret;
 }
 function getPointOnBezier2(pointList, rate) {
@@ -1413,7 +1421,7 @@ function interpolateVector(from, to, rate) {
     const list = solveQubicFomula(a, b, c, d);
     if (list.length === 0) return 0;
     const ret = getCloseInRangeValue(list, 0, 1);
-    if (ret === undefined) throw new Error("Error: Cannot resolve uniquely in 0 <= t <= 1.");
+    if (ret === undefined) throw new Error('Error: Cannot resolve uniquely in 0 <= t <= 1.');
     return Math.max(Math.min(ret, 1), 0);
 }
 function solveQubicFomula(a, b, c, d) {
@@ -1713,21 +1721,70 @@ function getClosestPointOnBezier3(bezier, p, epsilon) {
     }
     return ret;
 }
+function getCrossBezier3AndBezier3(curve1, curve2, tolerance = MINVALUE, maxIterations = 50) {
+    const toleranceSq = tolerance * tolerance;
+    const toleranceHalf = tolerance / 2;
+    function boundingBox(curve) {
+        const xs = curve.map((p)=>p.x);
+        const ys = curve.map((p)=>p.y);
+        return {
+            minX: Math.min(...xs),
+            maxX: Math.max(...xs),
+            minY: Math.min(...ys),
+            maxY: Math.max(...ys)
+        };
+    }
+    function boundingBoxesOverlap(b1, b2) {
+        return !(b1.maxX < b2.minX || b1.minX > b2.maxX || b1.maxY < b2.minY || b1.minY > b2.maxY);
+    }
+    // Recursive bezier clipping algorithm to find intersections
+    function bezierClipRecursive(subcurve1, subcurve2, depth) {
+        if (depth > maxIterations) return [];
+        const bb1 = boundingBox(subcurve1);
+        const bb2 = boundingBox(subcurve2);
+        if (!boundingBoxesOverlap(bb1, bb2)) return [];
+        // If the control points of both curves are tightly packed, consider them as potential intersections
+        if (Math.abs(bb1.maxX - bb1.minX) < toleranceHalf && Math.abs(bb1.maxY - bb1.minY) < toleranceHalf && Math.abs(bb2.maxX - bb2.minX) < toleranceHalf && Math.abs(bb2.maxY - bb2.minY) < toleranceHalf) {
+            const intersectionPoint = {
+                x: (bb1.minX + bb1.maxX + bb2.minX + bb2.maxX) / 4,
+                y: (bb1.minY + bb1.maxY + bb2.minY + bb2.maxY) / 4
+            };
+            return [
+                intersectionPoint
+            ];
+        }
+        // Subdivide both curves and recurse
+        const [curve1Left, curve1Right] = divideBezier3(subcurve1, 0.5);
+        const [curve2Left, curve2Right] = divideBezier3(subcurve2, 0.5);
+        return [
+            ...bezierClipRecursive(curve1Left, curve2Left, depth + 1),
+            ...bezierClipRecursive(curve1Left, curve2Right, depth + 1),
+            ...bezierClipRecursive(curve1Right, curve2Left, depth + 1),
+            ...bezierClipRecursive(curve1Right, curve2Right, depth + 1)
+        ];
+    }
+    const ret = [];
+    bezierClipRecursive(curve1, curve2, 0).forEach((p)=>{
+        // Omit points that are too close to other points
+        if (ret.every((q)=>getDistanceSq(p, q) >= toleranceSq)) ret.push(p);
+    });
+    return ret;
+}
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
     };
 };
 exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, "__esModule", {
+    Object.defineProperty(a, '__esModule', {
         value: true
     });
 };
 exports.exportAll = function(source, dest) {
     Object.keys(source).forEach(function(key) {
-        if (key === "default" || key === "__esModule" || Object.prototype.hasOwnProperty.call(dest, key)) return;
+        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
         Object.defineProperty(dest, key, {
             enumerable: true,
             get: function() {
@@ -1744,7 +1801,7 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"hNdpk":[function(require,module,exports) {
+},{}],"hNdpk":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "configs", ()=>configs);
@@ -1978,7 +2035,7 @@ parcelHelpers.export(exports, "getPathLengthStructs", ()=>getPathLengthStructs);
  * @return transform value
  */ parcelHelpers.export(exports, "parseMatrix", ()=>parseMatrix);
 var _geo = require("./geo");
-const HTTP_SVG = "http://www.w3.org/2000/svg";
+const HTTP_SVG = 'http://www.w3.org/2000/svg';
 // Unary plus operator seems faster than native parseFloat
 const _parseFloat = (v)=>+v;
 const configs = {
@@ -2055,8 +2112,8 @@ function fitRect(pathInfoList, x, y, width, height) {
 }
 function parseSvgGraphicsStr(svgString) {
     const domParser = new DOMParser();
-    const svgDom = domParser.parseFromString(svgString, "image/svg+xml");
-    const svgTags = svgDom.getElementsByTagName("svg");
+    const svgDom = domParser.parseFromString(svgString, 'image/svg+xml');
+    const svgTags = svgDom.getElementsByTagName('svg');
     if (!svgTags || svgTags.length === 0) return [];
     return parseSvgGraphics(svgTags[0]);
 }
@@ -2067,7 +2124,7 @@ function parseSvgGraphicsStr(svgString) {
  */ function parseSvgTree(elm, parentInfo) {
     var _a, _b;
     const style = Object.assign(Object.assign({}, (_a = parentInfo === null || parentInfo === void 0 ? void 0 : parentInfo.style) !== null && _a !== void 0 ? _a : {}), parseTagStyle(elm));
-    const transformStr = elm.getAttribute("transform");
+    const transformStr = elm.getAttribute('transform');
     const parentTransform = (_b = parentInfo === null || parentInfo === void 0 ? void 0 : parentInfo.transform) !== null && _b !== void 0 ? _b : _geo.IDENTITY_AFFINE;
     let ret = [];
     const svgPath = parseSVGShape(elm);
@@ -2087,22 +2144,22 @@ function parseSvgGraphicsStr(svgString) {
 }
 function parseSVGShape(elm) {
     switch(elm.tagName.toLowerCase()){
-        case "path":
+        case 'path':
             return {
                 d: parsePath(elm),
                 style: parseTagStyle(elm)
             };
-        case "rect":
+        case 'rect':
             return {
                 d: parseRect(elm),
                 style: parseTagStyle(elm)
             };
-        case "ellipse":
+        case 'ellipse':
             return {
                 d: parseEllipse(elm),
                 style: parseTagStyle(elm)
             };
-        case "circle":
+        case 'circle':
             return {
                 d: parseCircle(elm),
                 style: parseTagStyle(elm)
@@ -2116,32 +2173,32 @@ function parseSvgGraphics(svgTag) {
 }
 function openCommandToD(command) {
     let d = command.type;
-    if ("x1" in command) d += ` ${command.x1}`;
-    if ("y1" in command) d += ` ${command.y1}`;
-    if ("x2" in command) d += ` ${command.x2}`;
-    if ("y2" in command) d += ` ${command.y2}`;
-    if ("x3" in command) d += ` ${command.x3}`;
-    if ("y3" in command) d += ` ${command.y3}`;
-    if ("x" in command) d += ` ${command.x}`;
-    if ("y" in command) d += ` ${command.y}`;
+    if ('x1' in command) d += ` ${command.x1}`;
+    if ('y1' in command) d += ` ${command.y1}`;
+    if ('x2' in command) d += ` ${command.x2}`;
+    if ('y2' in command) d += ` ${command.y2}`;
+    if ('x3' in command) d += ` ${command.x3}`;
+    if ('y3' in command) d += ` ${command.y3}`;
+    if ('x' in command) d += ` ${command.x}`;
+    if ('y' in command) d += ` ${command.y}`;
     return d;
 }
 function parseOpenPath(fontPath) {
     const pathInfoList = [];
-    let current = "";
+    let current = '';
     fontPath.commands.forEach((c)=>{
-        current += openCommandToD(c) + " ";
-        if (current && c.type.toUpperCase() === "Z") {
+        current += openCommandToD(c) + ' ';
+        if (current && c.type.toUpperCase() === 'Z') {
             const pathList = parsePathD(current);
             pathInfoList.push({
                 d: pathList,
                 style: Object.assign(Object.assign({}, createStyle()), {
                     fill: true,
-                    fillStyle: "black",
+                    fillStyle: 'black',
                     stroke: false
                 })
             });
-            current = "";
+            current = '';
         }
     });
     return pathInfoList;
@@ -2152,8 +2209,8 @@ function parsePathSegmentRaw(segment) {
         _parseFloat(segment[1]),
         _parseFloat(segment[2]),
         _parseFloat(segment[3]),
-        segment[4] !== "0",
-        segment[5] !== "0",
+        segment[4] !== '0',
+        segment[5] !== '0',
         _parseFloat(segment[6]),
         _parseFloat(segment[7])
     ];
@@ -2169,14 +2226,14 @@ function parsePathSegmentRaws(dStr) {
     return splitD(dStr).map((c)=>parsePathSegmentRaw(c));
 }
 function pathSegmentRawsToString(segs) {
-    return segs.map(pathSegmentRawToString).join(" ");
+    return segs.map(pathSegmentRawToString).join(' ');
 }
 function pathSegmentRawToString(seg) {
     return seg.map((v)=>{
-        if (v === true) return "1";
-        else if (v === false) return "0";
+        if (v === true) return '1';
+        else if (v === false) return '0';
         else return v.toString();
-    }).join(" ");
+    }).join(' ');
 }
 function parsePathSegments(dStr) {
     return _parsePathSegments(parsePathSegmentRaws(dStr));
@@ -2189,11 +2246,11 @@ function _parsePathSegments(segments) {
     let currentBezier = 1;
     segments.forEach((current)=>{
         switch(current[0]){
-            case "M":
+            case 'M':
                 {
                     const p1 = _geo.vec(current[1], current[2]);
                     ret.push({
-                        command: "M",
+                        command: 'M',
                         segment: [
                             p1,
                             p1
@@ -2205,11 +2262,11 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "m":
+            case 'm':
                 {
                     const p1 = _geo.vec(current[1], current[2]);
                     ret.push({
-                        command: "m",
+                        command: 'm',
                         segment: [
                             p1,
                             p1
@@ -2221,12 +2278,12 @@ function _parsePathSegments(segments) {
                     currentBezier = 1;
                     break;
                 }
-            case "L":
+            case 'L':
                 {
                     const p0 = currentP;
                     const p1 = _geo.vec(current[1], current[2]);
                     ret.push({
-                        command: "L",
+                        command: 'L',
                         segment: [
                             p0,
                             p1
@@ -2238,12 +2295,12 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "l":
+            case 'l':
                 {
                     const p0 = currentP;
                     const p1 = _geo.add(currentP, _geo.vec(current[1], current[2]));
                     ret.push({
-                        command: "l",
+                        command: 'l',
                         segment: [
                             p0,
                             p1
@@ -2255,12 +2312,12 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "H":
+            case 'H':
                 {
                     const p0 = currentP;
                     const p1 = _geo.vec(current[1], p0.y);
                     ret.push({
-                        command: "H",
+                        command: 'H',
                         segment: [
                             p0,
                             p1
@@ -2271,12 +2328,12 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "h":
+            case 'h':
                 {
                     const p0 = currentP;
                     const p1 = _geo.vec(current[1] + p0.x, p0.y);
                     ret.push({
-                        command: "h",
+                        command: 'h',
                         segment: [
                             p0,
                             p1
@@ -2287,12 +2344,12 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "V":
+            case 'V':
                 {
                     const p0 = currentP;
                     const p1 = _geo.vec(p0.x, current[1]);
                     ret.push({
-                        command: "V",
+                        command: 'V',
                         segment: [
                             p0,
                             p1
@@ -2303,12 +2360,12 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "v":
+            case 'v':
                 {
                     const p0 = currentP;
                     const p1 = _geo.vec(p0.x, current[1] + p0.y);
                     ret.push({
-                        command: "v",
+                        command: 'v',
                         segment: [
                             p0,
                             p1
@@ -2319,13 +2376,13 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "Q":
+            case 'Q':
                 {
                     const p0 = currentP;
                     const p1 = _geo.vec(current[1], current[2]);
                     const p2 = _geo.vec(current[3], current[4]);
                     ret.push({
-                        command: "Q",
+                        command: 'Q',
                         lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
@@ -2338,13 +2395,13 @@ function _parsePathSegments(segments) {
                     currentP = p2;
                     break;
                 }
-            case "q":
+            case 'q':
                 {
                     const p0 = currentP;
                     const p1 = _geo.add(p0, _geo.vec(current[1], current[2]));
                     const p2 = _geo.add(p0, _geo.vec(current[3], current[4]));
                     ret.push({
-                        command: "q",
+                        command: 'q',
                         lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
@@ -2357,13 +2414,13 @@ function _parsePathSegments(segments) {
                     currentP = p2;
                     break;
                 }
-            case "T":
+            case 'T':
                 {
                     const p0 = currentP;
                     const p1 = currentBezier === 2 ? _geo.getSymmetry(currentControlP, p0) : p0;
                     const p2 = _geo.vec(current[1], current[2]);
                     ret.push({
-                        command: "T",
+                        command: 'T',
                         lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
@@ -2376,13 +2433,13 @@ function _parsePathSegments(segments) {
                     currentP = p2;
                     break;
                 }
-            case "t":
+            case 't':
                 {
                     const p0 = currentP;
                     const p1 = currentBezier === 2 ? _geo.getSymmetry(currentControlP, p0) : p0;
                     const p2 = _geo.add(p0, _geo.vec(current[1], current[2]));
                     ret.push({
-                        command: "t",
+                        command: 't',
                         lerpFn: _geo.getBezier2LerpFn([
                             p0,
                             p1,
@@ -2395,14 +2452,14 @@ function _parsePathSegments(segments) {
                     currentP = p2;
                     break;
                 }
-            case "C":
+            case 'C':
                 {
                     const p0 = currentP;
                     const p1 = _geo.vec(current[1], current[2]);
                     const p2 = _geo.vec(current[3], current[4]);
                     const p3 = _geo.vec(current[5], current[6]);
                     ret.push({
-                        command: "C",
+                        command: 'C',
                         lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
@@ -2416,14 +2473,14 @@ function _parsePathSegments(segments) {
                     currentP = p3;
                     break;
                 }
-            case "c":
+            case 'c':
                 {
                     const p0 = currentP;
                     const p1 = _geo.add(p0, _geo.vec(current[1], current[2]));
                     const p2 = _geo.add(p0, _geo.vec(current[3], current[4]));
                     const p3 = _geo.add(p0, _geo.vec(current[5], current[6]));
                     ret.push({
-                        command: "c",
+                        command: 'c',
                         lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
@@ -2437,14 +2494,14 @@ function _parsePathSegments(segments) {
                     currentP = p3;
                     break;
                 }
-            case "S":
+            case 'S':
                 {
                     const p0 = currentP;
                     const p1 = currentBezier === 3 ? _geo.getSymmetry(currentControlP, p0) : p0;
                     const p2 = _geo.vec(current[1], current[2]);
                     const p3 = _geo.vec(current[3], current[4]);
                     ret.push({
-                        command: "S",
+                        command: 'S',
                         lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
@@ -2458,14 +2515,14 @@ function _parsePathSegments(segments) {
                     currentP = p3;
                     break;
                 }
-            case "s":
+            case 's':
                 {
                     const p0 = currentP;
                     const p1 = currentBezier === 3 ? _geo.getSymmetry(currentControlP, p0) : p0;
                     const p2 = _geo.add(p0, _geo.vec(current[1], current[2]));
                     const p3 = _geo.add(p0, _geo.vec(current[3], current[4]));
                     ret.push({
-                        command: "s",
+                        command: 's',
                         lerpFn: _geo.getBezier3LerpFn([
                             p0,
                             p1,
@@ -2479,7 +2536,7 @@ function _parsePathSegments(segments) {
                     currentP = p3;
                     break;
                 }
-            case "A":
+            case 'A':
                 {
                     const p0 = currentP;
                     const rx = current[1];
@@ -2489,7 +2546,7 @@ function _parsePathSegments(segments) {
                     const radian = current[3] / 180 * Math.PI;
                     const p1 = _geo.vec(current[6], current[7]);
                     ret.push({
-                        command: "A",
+                        command: 'A',
                         lerpFn: _geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
                         curve: true
                     });
@@ -2498,7 +2555,7 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "a":
+            case 'a':
                 {
                     const p0 = currentP;
                     const rx = current[1];
@@ -2508,7 +2565,7 @@ function _parsePathSegments(segments) {
                     const radian = current[3] / 180 * Math.PI;
                     const p1 = _geo.add(p0, _geo.vec(current[6], current[7]));
                     ret.push({
-                        command: "a",
+                        command: 'a',
                         lerpFn: _geo.getArcLerpFn(rx, ry, p0, p1, large, sweep, radian),
                         curve: true
                     });
@@ -2517,8 +2574,8 @@ function _parsePathSegments(segments) {
                     currentP = p1;
                     break;
                 }
-            case "Z":
-            case "z":
+            case 'Z':
+            case 'z':
                 {
                     const p0 = currentP;
                     const p1 = startP;
@@ -2593,21 +2650,21 @@ function getPathAbsPoints(segments) {
     for(let i = 0; i < segments.length; i++){
         seg = segments[i];
         switch(seg[0]){
-            case "M":
+            case 'M':
                 {
                     const p = _geo.vec(seg[1], seg[2]);
                     startP = absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "m":
+            case 'm':
                 {
                     const p = _geo.add(_geo.vec(seg[1], seg[2]), absP);
                     startP = absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "L":
+            case 'L':
                 {
                     const p = _geo.vec(seg[1], seg[2]);
                     startP !== null && startP !== void 0 ? startP : startP = p;
@@ -2615,7 +2672,7 @@ function getPathAbsPoints(segments) {
                     preCType = 1;
                     break;
                 }
-            case "l":
+            case 'l':
                 {
                     const p = _geo.add(_geo.vec(seg[1], seg[2]), absP);
                     startP !== null && startP !== void 0 ? startP : startP = p;
@@ -2623,35 +2680,35 @@ function getPathAbsPoints(segments) {
                     preCType = 1;
                     break;
                 }
-            case "H":
+            case 'H':
                 {
                     const p = _geo.vec(seg[1], absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "h":
+            case 'h':
                 {
                     const p = _geo.vec(seg[1] + absP.x, absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "V":
+            case 'V':
                 {
                     const p = _geo.vec(absP.x, seg[1]);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "v":
+            case 'v':
                 {
                     const p = _geo.vec(absP.x, seg[1] + absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "Q":
+            case 'Q':
                 {
                     const p = _geo.vec(seg[1], seg[2]);
                     preC = p;
@@ -2659,7 +2716,7 @@ function getPathAbsPoints(segments) {
                     preCType = 2;
                     break;
                 }
-            case "q":
+            case 'q':
                 {
                     const p = _geo.vec(seg[1] + absP.x, seg[2] + absP.y);
                     preC = p;
@@ -2667,7 +2724,7 @@ function getPathAbsPoints(segments) {
                     preCType = 2;
                     break;
                 }
-            case "T":
+            case 'T':
                 {
                     const p = preCType === 2 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
@@ -2675,7 +2732,7 @@ function getPathAbsPoints(segments) {
                     preCType = 2;
                     break;
                 }
-            case "t":
+            case 't':
                 {
                     const p = preCType === 2 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
@@ -2683,7 +2740,7 @@ function getPathAbsPoints(segments) {
                     preCType = 2;
                     break;
                 }
-            case "C":
+            case 'C':
                 {
                     const p = _geo.vec(seg[3], seg[4]);
                     preC = p;
@@ -2691,7 +2748,7 @@ function getPathAbsPoints(segments) {
                     preCType = 3;
                     break;
                 }
-            case "c":
+            case 'c':
                 {
                     const p = _geo.vec(seg[3] + absP.x, seg[4] + absP.y);
                     preC = p;
@@ -2699,7 +2756,7 @@ function getPathAbsPoints(segments) {
                     preCType = 3;
                     break;
                 }
-            case "S":
+            case 'S':
                 {
                     const p = preCType === 3 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
@@ -2707,7 +2764,7 @@ function getPathAbsPoints(segments) {
                     preCType = 3;
                     break;
                 }
-            case "s":
+            case 's':
                 {
                     const p = preCType === 3 ? _geo.lerpPoint(preC, absP, 2) : absP;
                     preC = p;
@@ -2715,22 +2772,22 @@ function getPathAbsPoints(segments) {
                     preCType = 3;
                     break;
                 }
-            case "A":
+            case 'A':
                 {
                     const p = _geo.vec(seg[6], seg[7]);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "a":
+            case 'a':
                 {
                     const p = _geo.vec(seg[6] + absP.x, seg[7] + absP.y);
                     absP = preC = p;
                     preCType = 1;
                     break;
                 }
-            case "Z":
-            case "z":
+            case 'Z':
+            case 'z':
                 absP = preC = startP;
                 preCType = 1;
                 break;
@@ -2760,13 +2817,13 @@ function reversePath(segments) {
         current = segments[i];
         absP = absPoints[i === 0 ? length - 1 : i - 1];
         switch(current[0]){
-            case "M":
+            case 'M':
                 if (closeCount) {
                     if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
-                        "Z"
+                        'Z'
                     ]);
                     else ret[ret.length - 1] = [
-                        "Z"
+                        'Z'
                     ];
                     closeCount = false;
                 }
@@ -2776,18 +2833,18 @@ function reversePath(segments) {
                     absP.y
                 ]);
                 break;
-            case "m":
+            case 'm':
                 if (closeCount) {
                     if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
-                        "z"
+                        'z'
                     ]);
                     else ret[ret.length - 1] = [
-                        "z"
+                        'z'
                     ];
                     closeCount = false;
                 }
                 if (i === 0) ret.push([
-                    "M",
+                    'M',
                     absP.x,
                     absP.y
                 ]);
@@ -2797,13 +2854,13 @@ function reversePath(segments) {
                     -current[2]
                 ]);
                 break;
-            case "L":
+            case 'L':
                 if (closeCount && i === 0) {
                     if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
-                        "Z"
+                        'Z'
                     ]);
                     else ret[ret.length - 1] = [
-                        "Z"
+                        'Z'
                     ];
                     closeCount = false;
                 }
@@ -2813,18 +2870,18 @@ function reversePath(segments) {
                     absP.y
                 ]);
                 break;
-            case "l":
+            case 'l':
                 if (closeCount && i === 0) {
                     if (isCurveCommand(ret[ret.length - 1][0])) ret.push([
-                        "z"
+                        'z'
                     ]);
                     else ret[ret.length - 1] = [
-                        "z"
+                        'z'
                     ];
                     closeCount = false;
                 }
                 if (i === 0) ret.push([
-                    "L",
+                    'L',
                     absP.x,
                     absP.y
                 ]);
@@ -2834,31 +2891,31 @@ function reversePath(segments) {
                     -current[2]
                 ]);
                 break;
-            case "H":
+            case 'H':
                 ret.push([
                     current[0],
                     absP.x
                 ]);
                 break;
-            case "h":
+            case 'h':
                 ret.push([
                     current[0],
                     -current[1]
                 ]);
                 break;
-            case "V":
+            case 'V':
                 ret.push([
                     current[0],
                     absP.y
                 ]);
                 break;
-            case "v":
+            case 'v':
                 ret.push([
                     current[0],
                     -current[1]
                 ]);
                 break;
-            case "Q":
+            case 'Q':
                 ret.push([
                     current[0],
                     current[1],
@@ -2867,7 +2924,7 @@ function reversePath(segments) {
                     absP.y
                 ]);
                 break;
-            case "q":
+            case 'q':
                 ret.push([
                     current[0],
                     current[1] - current[3],
@@ -2876,11 +2933,11 @@ function reversePath(segments) {
                     -current[4]
                 ]);
                 break;
-            case "T":
+            case 'T':
                 {
                     const c = absContolPoints[i];
                     ret.push([
-                        "Q",
+                        'Q',
                         c.x,
                         c.y,
                         absP.x,
@@ -2888,12 +2945,12 @@ function reversePath(segments) {
                     ]);
                     break;
                 }
-            case "t":
+            case 't':
                 {
                     const b = absPoints[i];
                     const c = absContolPoints[i];
                     ret.push([
-                        "q",
+                        'q',
                         c.x - b.x,
                         c.y - b.y,
                         -current[1],
@@ -2901,7 +2958,7 @@ function reversePath(segments) {
                     ]);
                     break;
                 }
-            case "C":
+            case 'C':
                 ret.push([
                     current[0],
                     current[3],
@@ -2912,7 +2969,7 @@ function reversePath(segments) {
                     absP.y
                 ]);
                 break;
-            case "c":
+            case 'c':
                 ret.push([
                     current[0],
                     current[3] - current[5],
@@ -2923,11 +2980,11 @@ function reversePath(segments) {
                     -current[6]
                 ]);
                 break;
-            case "S":
+            case 'S':
                 {
                     const c = absContolPoints[i];
                     ret.push([
-                        "C",
+                        'C',
                         current[1],
                         current[2],
                         c.x,
@@ -2937,12 +2994,12 @@ function reversePath(segments) {
                     ]);
                     break;
                 }
-            case "s":
+            case 's':
                 {
                     const b = absPoints[i];
                     const c = absContolPoints[i];
                     ret.push([
-                        "c",
+                        'c',
                         current[1] - current[3],
                         current[2] - current[4],
                         c.x - b.x,
@@ -2952,7 +3009,7 @@ function reversePath(segments) {
                     ]);
                     break;
                 }
-            case "A":
+            case 'A':
                 ret.push([
                     current[0],
                     current[1],
@@ -2964,7 +3021,7 @@ function reversePath(segments) {
                     absP.y
                 ]);
                 break;
-            case "a":
+            case 'a':
                 ret.push([
                     current[0],
                     current[1],
@@ -2976,20 +3033,20 @@ function reversePath(segments) {
                     -current[7]
                 ]);
                 break;
-            case "Z":
+            case 'Z':
                 closeCount = true;
                 ret.push([
-                    "L",
+                    'L',
                     absP.x,
                     absP.y
                 ]);
                 break;
-            case "z":
+            case 'z':
                 {
                     closeCount = true;
                     const absPP = absPoints[i];
                     ret.push([
-                        "l",
+                        'l',
                         absP.x - absPP.x,
                         absP.y - absPP.y
                     ]);
@@ -3006,13 +3063,13 @@ function slidePath(segments, diff) {
             ...current
         ];
         switch(slided[0]){
-            case "H":
+            case 'H':
                 slided[1] += diff.x;
                 break;
-            case "V":
+            case 'V':
                 slided[1] += diff.y;
                 break;
-            case "A":
+            case 'A':
                 slided[6] += diff.x;
                 slided[7] += diff.y;
                 break;
@@ -3032,16 +3089,16 @@ function scalePath(segments, scale) {
             ...current
         ];
         switch(slided[0]){
-            case "H":
-            case "h":
+            case 'H':
+            case 'h':
                 slided[1] *= scale.x;
                 break;
-            case "V":
-            case "v":
+            case 'V':
+            case 'v':
                 slided[1] *= scale.y;
                 break;
-            case "A":
-            case "a":
+            case 'A':
+            case 'a':
                 slided[1] *= Math.abs(scale.x);
                 slided[2] *= Math.abs(scale.y);
                 if (scale.x * scale.y < 0) slided[5] = !slided[5];
@@ -3064,27 +3121,27 @@ function convertHVToL(segments) {
     const { points } = getPathAbsPoints(absVHExisted ? segments : []);
     return segments.map((s, i)=>{
         switch(s[0]){
-            case "H":
+            case 'H':
                 return [
-                    "L",
+                    'L',
                     s[1],
                     points[i].y
                 ];
-            case "h":
+            case 'h':
                 return [
-                    "l",
+                    'l',
                     s[1],
                     0
                 ];
-            case "V":
+            case 'V':
                 return [
-                    "L",
+                    'L',
                     points[i].x,
                     s[1]
                 ];
-            case "v":
+            case 'v':
                 return [
-                    "l",
+                    'l',
                     0,
                     s[1]
                 ];
@@ -3101,8 +3158,8 @@ function rotatePath(segments, radian) {
             ...current
         ];
         switch(slided[0]){
-            case "A":
-            case "a":
+            case 'A':
+            case 'a':
                 {
                     slided[3] += radian * 180 / Math.PI;
                     const x = slided[6];
@@ -3128,23 +3185,23 @@ function parsePathD(dStr, split = configs.bezierSplitSize) {
     let ret = [];
     let step = 1 / _split;
     parsePathSegments(dStr).forEach((seg)=>{
-        if (seg.command === "Z" || seg.command === "z") return;
+        if (seg.command === 'Z' || seg.command === 'z') return;
         if (seg.curve) for(let i = 1; i <= _split; i++)ret.push(seg.lerpFn(step * i));
         else ret.push(seg.segment[1]);
     });
     return ret;
 }
 function parsePath(svgPath) {
-    const dStr = svgPath.getAttribute("d");
-    return dStr ? adoptTransform(svgPath.getAttribute("transform"), parsePathD(dStr)) : [];
+    const dStr = svgPath.getAttribute('d');
+    return dStr ? adoptTransform(svgPath.getAttribute('transform'), parsePathD(dStr)) : [];
 }
 function parseRect(svgRect) {
-    const x = _parseFloat(svgRect.getAttribute("x") || "0");
-    const y = _parseFloat(svgRect.getAttribute("y") || "0");
-    const width = _parseFloat(svgRect.getAttribute("width") || "0");
-    const height = _parseFloat(svgRect.getAttribute("height") || "0");
+    const x = _parseFloat(svgRect.getAttribute('x') || '0');
+    const y = _parseFloat(svgRect.getAttribute('y') || '0');
+    const width = _parseFloat(svgRect.getAttribute('width') || '0');
+    const height = _parseFloat(svgRect.getAttribute('height') || '0');
     // トランスフォーム
-    return adoptTransform(svgRect.getAttribute("transform"), [
+    return adoptTransform(svgRect.getAttribute('transform'), [
         _geo.vec(x, y),
         _geo.vec(x + width, y),
         _geo.vec(x + width, y + height),
@@ -3152,19 +3209,19 @@ function parseRect(svgRect) {
     ]);
 }
 function parseEllipse(svgEllipse) {
-    const cx = _parseFloat(svgEllipse.getAttribute("cx") || "0");
-    const cy = _parseFloat(svgEllipse.getAttribute("cy") || "0");
-    const rx = _parseFloat(svgEllipse.getAttribute("rx") || "1");
-    const ry = _parseFloat(svgEllipse.getAttribute("ry") || "1");
+    const cx = _parseFloat(svgEllipse.getAttribute('cx') || '0');
+    const cy = _parseFloat(svgEllipse.getAttribute('cy') || '0');
+    const rx = _parseFloat(svgEllipse.getAttribute('rx') || '1');
+    const ry = _parseFloat(svgEllipse.getAttribute('ry') || '1');
     // トランスフォーム
-    return adoptTransform(svgEllipse.getAttribute("transform"), _geo.approximateArc(rx, ry, 0, Math.PI * 2, _geo.vec(cx, cy), 0, configs.ellipseSplitSize));
+    return adoptTransform(svgEllipse.getAttribute('transform'), _geo.approximateArc(rx, ry, 0, Math.PI * 2, _geo.vec(cx, cy), 0, configs.ellipseSplitSize));
 }
 function parseCircle(svgCircle) {
-    const cx = _parseFloat(svgCircle.getAttribute("cx") || "0");
-    const cy = _parseFloat(svgCircle.getAttribute("cy") || "0");
-    const r = _parseFloat(svgCircle.getAttribute("r") || "1");
+    const cx = _parseFloat(svgCircle.getAttribute('cx') || '0');
+    const cy = _parseFloat(svgCircle.getAttribute('cy') || '0');
+    const r = _parseFloat(svgCircle.getAttribute('r') || '1');
     // トランスフォーム
-    return adoptTransform(svgCircle.getAttribute("transform"), _geo.approximateArc(r, r, 0, Math.PI * 2, _geo.vec(cx, cy), 0, configs.ellipseSplitSize));
+    return adoptTransform(svgCircle.getAttribute('transform'), _geo.approximateArc(r, r, 0, Math.PI * 2, _geo.vec(cx, cy), 0, configs.ellipseSplitSize));
 }
 function adoptTransform(commandStr, points) {
     if (!commandStr) return points;
@@ -3177,13 +3234,13 @@ function adoptTransform(commandStr, points) {
             const command = tmp[0].trim().toLowerCase();
             const params = parseNumbers(tmp[1]);
             switch(command){
-                case "matrix":
+                case 'matrix':
                     ret = _geo.transform(ret, params);
                     break;
-                case "translate":
+                case 'translate':
                     ret = ret.map((p)=>_geo.vec(p.x + params[0], p.y + params[1]));
                     break;
-                case "scale":
+                case 'scale':
                     {
                         const scaleX = params[0];
                         // XY等倍の場合を考慮
@@ -3192,7 +3249,7 @@ function adoptTransform(commandStr, points) {
                         ret = ret.map((p)=>_geo.vec(p.x * scaleX, p.y * scaleY));
                         break;
                     }
-                case "rotate":
+                case 'rotate':
                     {
                         // 回転基準点
                         let base = _geo.vec(0, 0);
@@ -3200,10 +3257,10 @@ function adoptTransform(commandStr, points) {
                         ret = ret.map((p)=>_geo.rotate(p, params[0] * Math.PI / 180, base));
                         break;
                     }
-                case "skewx":
+                case 'skewx':
                     ret = ret.map((p)=>_geo.vec(p.x + Math.tan(params[0] * Math.PI / 180) * p.y, p.y));
                     break;
-                case "skewy":
+                case 'skewy':
                     ret = ret.map((p)=>_geo.vec(p.x, p.y + Math.tan(params[0] * Math.PI / 180) * p.x));
                     break;
             }
@@ -3215,10 +3272,10 @@ function adoptTransform(commandStr, points) {
 const allCommand = /M|m|L|l|H|h|V|v|C|c|S|s|Q|q|T|t|A|a|Z|z/g;
 function splitD(dString) {
     // 要素分割
-    const strList = dString.replace(allCommand, " $& ")// Insert space before each signature, but don't destruct exponent exporession such as 2.2e-10.
-    .replace(/([^e])(-|\+)/g, "$1 $2").split(/,| /).filter((str)=>str).flatMap(complementDecimalShorthand);
+    const strList = dString.replace(allCommand, ' $& ')// Insert space before each signature, but don't destruct exponent exporession such as 2.2e-10.
+    .replace(/([^e])(-|\+)/g, '$1 $2').split(/,| /).filter((str)=>str).flatMap(complementDecimalShorthand);
     // 直前のコマンド
-    let pastCommand = "M";
+    let pastCommand = 'M';
     const ret = [];
     for(let i = 0; i < strList.length;){
         const info = [];
@@ -3227,33 +3284,33 @@ function splitD(dString) {
             info.push(strList[i]);
             pastCommand = info[0];
             i++;
-        } else if (pastCommand.toUpperCase() !== "Z") // Reuse previous command
+        } else if (pastCommand.toUpperCase() !== 'Z') // Reuse previous command
         // Avoid reusing 'Z' that can cause infinite loop
         info.push(pastCommand);
         switch(info[0].toUpperCase()){
-            case "Z":
+            case 'Z':
                 break;
-            case "V":
-            case "H":
+            case 'V':
+            case 'H':
                 info.push(strList[i]);
                 i += 1;
                 break;
-            case "M":
-            case "L":
-            case "T":
+            case 'M':
+            case 'L':
+            case 'T':
                 info.push(strList[i], strList[i + 1]);
                 i += 2;
                 break;
-            case "Q":
-            case "S":
+            case 'Q':
+            case 'S':
                 info.push(strList[i], strList[i + 1], strList[i + 2], strList[i + 3]);
                 i += 4;
                 break;
-            case "C":
+            case 'C':
                 info.push(strList[i], strList[i + 1], strList[i + 2], strList[i + 3], strList[i + 4], strList[i + 5]);
                 i += 6;
                 break;
-            case "A":
+            case 'A':
                 info.push(strList[i], strList[i + 1], strList[i + 2], strList[i + 3], strList[i + 4], strList[i + 5], strList[i + 6]);
                 i += 7;
                 break;
@@ -3282,7 +3339,7 @@ function serializeSvgString(pathList) {
     return textXml;
 }
 function serializeSvg(pathList) {
-    const dom = document.createElementNS(HTTP_SVG, "svg");
+    const dom = document.createElementNS(HTTP_SVG, 'svg');
     // キャンバスサイズ
     let width = 1;
     let height = 1;
@@ -3295,33 +3352,33 @@ function serializeSvg(pathList) {
     });
     width *= 1.1;
     height *= 1.1;
-    dom.setAttribute("width", `${width}`);
-    dom.setAttribute("height", `${height}`);
+    dom.setAttribute('width', `${width}`);
+    dom.setAttribute('height', `${height}`);
     return dom;
 }
 function serializePath(pointList, style) {
-    const dom = document.createElementNS(HTTP_SVG, "path");
-    dom.setAttribute("d", serializePointList(pointList));
-    dom.setAttribute("style", serializeStyle(style));
+    const dom = document.createElementNS(HTTP_SVG, 'path');
+    dom.setAttribute('d', serializePointList(pointList));
+    dom.setAttribute('style', serializeStyle(style));
     return dom;
 }
 function serializePointList(pointList, open) {
-    if (pointList.length === 0) return "";
+    if (pointList.length === 0) return '';
     const [head, ...body] = pointList;
-    return `M ${head.x},${head.y}` + body.map((p)=>` L ${p.x},${p.y}`).join("") + (open ? "" : " Z");
+    return `M ${head.x},${head.y}` + body.map((p)=>` L ${p.x},${p.y}`).join('') + (open ? '' : ' Z');
 }
 function createStyle() {
     return {
         fill: false,
         fillGlobalAlpha: 1,
-        fillStyle: "",
-        lineCap: "butt",
+        fillStyle: '',
+        lineCap: 'butt',
         lineDash: [],
-        lineJoin: "bevel",
+        lineJoin: 'bevel',
         lineWidth: 1,
         stroke: false,
         strokeGlobalAlpha: 1,
-        strokeStyle: ""
+        strokeStyle: ''
     };
 }
 function parseTagStyle(svgPath) {
@@ -3332,53 +3389,53 @@ function parseTagStyle(svgPath) {
         if (!attr) return;
         styleObject[attr.name] = attr.value;
     });
-    const styleAttr = svgPath.getAttributeNode("style");
+    const styleAttr = svgPath.getAttributeNode('style');
     if (styleAttr) {
         // style要素から取得
         const styleStr = styleAttr.value;
-        styleStr.split(";").forEach((elem)=>{
-            const splited = elem.split(":");
+        styleStr.split(';').forEach((elem)=>{
+            const splited = elem.split(':');
             if (splited.length !== 2) return;
             styleObject[splited[0].trim()] = splited[1].trim();
         });
     }
     return Object.entries(styleObject).reduce((ret, [key, val])=>{
         switch(key.toLowerCase()){
-            case "fill":
-                if (val === "none") {
-                    ret.fillStyle = "";
+            case 'fill':
+                if (val === 'none') {
+                    ret.fillStyle = '';
                     ret.fill = false;
                 } else {
                     ret.fillStyle = val;
                     ret.fill = true;
                 }
                 break;
-            case "stroke":
-                if (val === "none") {
-                    ret.strokeStyle = "";
+            case 'stroke':
+                if (val === 'none') {
+                    ret.strokeStyle = '';
                     ret.stroke = false;
                 } else {
                     ret.strokeStyle = val;
                     ret.stroke = true;
                 }
                 break;
-            case "stroke-width":
+            case 'stroke-width':
                 ret.lineWidth = _parseFloat(val);
                 break;
-            case "stroke-opacity":
+            case 'stroke-opacity':
                 ret.strokeGlobalAlpha = _parseFloat(val);
                 break;
-            case "fill-opacity":
+            case 'fill-opacity':
                 ret.fillGlobalAlpha = _parseFloat(val);
                 break;
-            case "stroke-linecap":
+            case 'stroke-linecap':
                 ret.lineCap = val;
                 break;
-            case "stroke-linejoin":
+            case 'stroke-linejoin':
                 ret.lineJoin = val;
                 break;
-            case "stroke-dasharray":
-                if (val.toLowerCase() === "none") ret.lineDash = [];
+            case 'stroke-dasharray':
+                if (val.toLowerCase() === 'none') ret.lineDash = [];
                 else ret.lineDash = parseNumbers(val);
                 break;
             default:
@@ -3388,21 +3445,21 @@ function parseTagStyle(svgPath) {
     }, createStyle());
 }
 function serializeStyle(style) {
-    let ret = "";
+    let ret = '';
     // fill情報
-    if (!style.fill) ret += "fill:none;";
-    else ret += "fill:" + style.fillStyle + ";";
-    if (style.fillGlobalAlpha) ret += "fill-opacity:" + style.fillGlobalAlpha + ";";
+    if (!style.fill) ret += 'fill:none;';
+    else ret += 'fill:' + style.fillStyle + ';';
+    if (style.fillGlobalAlpha) ret += 'fill-opacity:' + style.fillGlobalAlpha + ';';
     // stroke情報
-    if (!style.stroke) ret += "stroke:none;";
-    else ret += "stroke:" + style.strokeStyle + ";";
-    if (style.lineWidth) ret += "stroke-width:" + style.lineWidth + ";";
-    if (style.strokeGlobalAlpha) ret += "stroke-opacity:" + style.strokeGlobalAlpha + ";";
-    if (style.lineCap) ret += "stroke-linecap:" + style.lineCap + ";";
-    if (style.lineJoin) ret += "stroke-linejoin:" + style.lineJoin + ";";
+    if (!style.stroke) ret += 'stroke:none;';
+    else ret += 'stroke:' + style.strokeStyle + ';';
+    if (style.lineWidth) ret += 'stroke-width:' + style.lineWidth + ';';
+    if (style.strokeGlobalAlpha) ret += 'stroke-opacity:' + style.strokeGlobalAlpha + ';';
+    if (style.lineCap) ret += 'stroke-linecap:' + style.lineCap + ';';
+    if (style.lineJoin) ret += 'stroke-linejoin:' + style.lineJoin + ';';
     if (style.lineDash) {
-        if (style.lineDash.length > 0) ret += "stroke-dasharray:" + style.lineDash.join(",") + ";";
-        else ret += "stroke-dasharray:none;";
+        if (style.lineDash.length > 0) ret += 'stroke-dasharray:' + style.lineDash.join(',') + ';';
+        else ret += 'stroke-dasharray:none;';
     }
     return ret;
 }
@@ -3460,10 +3517,10 @@ function getGroupedPathList(polygons, style = createStyle()) {
     });
 }
 function affineToTransform(matrix) {
-    return `matrix(${matrix.join(",")})`;
+    return `matrix(${matrix.join(',')})`;
 }
 function parseTransform(transformStr) {
-    const transformStrList = transformStr.split(")").map((s)=>`${s})`);
+    const transformStrList = transformStr.split(')').map((s)=>`${s})`);
     const affines = transformStrList.map((str)=>parseUnitTransform(str));
     return _geo.multiAffines(affines);
 }
@@ -3483,7 +3540,7 @@ function parseUnitTransform(str) {
     ];
 }
 function parseNumbers(str) {
-    const list = str.trim().replace(/,/g, " ").split(/ +/);
+    const list = str.trim().replace(/,/g, ' ').split(/ +/);
     return list.map((s)=>_parseFloat(s));
 }
 function parseTranslate(str) {
@@ -3698,6 +3755,6 @@ function getUnknownError() {
     return new Error(`Unexpected error`);
 }
 
-},{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire1f64")
+},{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire94c2")
 
-//# sourceMappingURL=index.70ebd9cc.js.map
+//# sourceMappingURL=index.e6b38808.js.map
