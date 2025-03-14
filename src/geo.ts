@@ -1919,3 +1919,101 @@ export function getClosestPointOnBezier3(
 
   return ret
 }
+
+/**
+ * Compute the intersection points between two cubic bezier curves using bezier clipping algorithm.
+ * @param curve1 First cubic bezier curve
+ * @param curve2 Second cubic bezier curve
+ * @param tolerance Error tolerance for intersection (smaller means more accurate)
+ * @param maxIterations Maximum number of bezier clipping iterations
+ * @returns Array of intersection points
+ */
+export function getCrossBezier3AndBezier3(
+  curve1: Readonly<Bezier3>,
+  curve2: Readonly<Bezier3>,
+  tolerance = MINVALUE,
+  maxIterations = 50
+): IVec2[] {
+  const toleranceSq = tolerance * tolerance
+  const toleranceHalf = tolerance / 2
+
+  function boundingBox(curve: Readonly<Bezier3>): {
+    minX: number
+    maxX: number
+    minY: number
+    maxY: number
+  } {
+    const xs = curve.map((p) => p.x)
+    const ys = curve.map((p) => p.y)
+    return {
+      minX: Math.min(...xs),
+      maxX: Math.max(...xs),
+      minY: Math.min(...ys),
+      maxY: Math.max(...ys),
+    }
+  }
+
+  function boundingBoxesOverlap(
+    b1: { minX: number; maxX: number; minY: number; maxY: number },
+    b2: { minX: number; maxX: number; minY: number; maxY: number }
+  ): boolean {
+    return !(
+      b1.maxX < b2.minX ||
+      b1.minX > b2.maxX ||
+      b1.maxY < b2.minY ||
+      b1.minY > b2.maxY
+    )
+  }
+
+  // Recursive bezier clipping algorithm to find intersections
+  function bezierClipRecursive(
+    subcurve1: Readonly<Bezier3>,
+    subcurve2: Readonly<Bezier3>,
+    depth: number
+  ): IVec2[] {
+    if (depth > maxIterations) {
+      return []
+    }
+
+    const bb1 = boundingBox(subcurve1)
+    const bb2 = boundingBox(subcurve2)
+
+    if (!boundingBoxesOverlap(bb1, bb2)) {
+      return []
+    }
+
+    // If the control points of both curves are tightly packed, consider them as potential intersections
+    if (
+      Math.abs(bb1.maxX - bb1.minX) < toleranceHalf &&
+      Math.abs(bb1.maxY - bb1.minY) < toleranceHalf &&
+      Math.abs(bb2.maxX - bb2.minX) < toleranceHalf &&
+      Math.abs(bb2.maxY - bb2.minY) < toleranceHalf
+    ) {
+      const intersectionPoint = {
+        x: (bb1.minX + bb1.maxX + bb2.minX + bb2.maxX) / 4,
+        y: (bb1.minY + bb1.maxY + bb2.minY + bb2.maxY) / 4,
+      }
+      return [intersectionPoint]
+    }
+
+    // Subdivide both curves and recurse
+    const [curve1Left, curve1Right] = divideBezier3(subcurve1, 0.5)
+    const [curve2Left, curve2Right] = divideBezier3(subcurve2, 0.5)
+
+    return [
+      ...bezierClipRecursive(curve1Left, curve2Left, depth + 1),
+      ...bezierClipRecursive(curve1Left, curve2Right, depth + 1),
+      ...bezierClipRecursive(curve1Right, curve2Left, depth + 1),
+      ...bezierClipRecursive(curve1Right, curve2Right, depth + 1),
+    ]
+  }
+
+  const ret: IVec2[] = []
+  bezierClipRecursive(curve1, curve2, 0).forEach((p) => {
+    // Omit points that are too close to other points
+    if (ret.every((q) => getDistanceSq(p, q) >= toleranceSq)) {
+      ret.push(p)
+    }
+  })
+  return ret
+}

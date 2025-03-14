@@ -2247,3 +2247,100 @@ describe('getClosestPointOnBezier3', () => {
     expect(res3.y).toBeCloseTo(2.845)
   })
 })
+
+describe('getCrossBezier3AndBezier3', () => {
+  it('should return intersections between two cubic Bezier curves', () => {
+    const bezier1 = [
+      { x: 0, y: 0 },
+      { x: 5, y: -10 },
+      { x: 5, y: 10 },
+      { x: 10, y: 0 },
+    ] as const
+
+    const bezier2 = [
+      { x: 10, y: -5 },
+      { x: 5, y: -5 },
+      { x: 5, y: 5 },
+      { x: 10, y: 5 },
+    ] as const
+
+    const intersections = geo.getCrossBezier3AndBezier3(bezier1, bezier2)
+    expect(intersections).toHaveLength(1)
+    expect(intersections[0].x).toBeCloseTo(6.77416777)
+    expect(intersections[0].y).toBeCloseTo(2.67337137)
+  })
+
+  it('should return multiple intersections between two cubic Bezier curves', () => {
+    const bezier1 = [
+      { x: 0, y: 0 },
+      { x: 5, y: -10 },
+      { x: 5, y: 10 },
+      { x: 10, y: 0 },
+    ] as const
+
+    const bezier2 = [
+      { x: 10, y: 1 },
+      { x: 5, y: 1 },
+      { x: 5, y: 5 },
+      { x: 10, y: 5 },
+    ] as const
+
+    const intersections = geo.getCrossBezier3AndBezier3(bezier1, bezier2)
+    expect(intersections).toHaveLength(2)
+    expect(intersections[0].x).toBeCloseTo(6.42289369)
+    expect(intersections[0].y).toBeCloseTo(2.36573766)
+    expect(intersections[1].x).toBeCloseTo(9.44889476)
+    expect(intersections[1].y).toBeCloseTo(1.01706455)
+  })
+
+  it('should return empty array when two cubic Bezier curves have no intersection', () => {
+    const bezier1 = [
+      { x: 0, y: 0 },
+      { x: 5, y: -10 },
+      { x: 5, y: 10 },
+      { x: 10, y: 0 },
+    ] as const
+
+    const bezier2 = [
+      { x: 10, y: 4 },
+      { x: 5, y: 4 },
+      { x: 5, y: 10 },
+      { x: 10, y: 10 },
+    ] as const
+
+    const intersections = geo.getCrossBezier3AndBezier3(bezier1, bezier2)
+    expect(intersections).toHaveLength(0)
+  })
+
+  it('should regard vertices', () => {
+    const bezier1 = [
+      { x: 0, y: 0 },
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 0 },
+    ] as const
+
+    const bezier2 = [
+      { x: 10, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+      { x: 10, y: 10 },
+    ] as const
+
+    const intersections1 = geo.getCrossBezier3AndBezier3(bezier1, bezier2)
+    expect(intersections1).toHaveLength(1)
+    expect(intersections1[0].x).toBeCloseTo(10)
+    expect(intersections1[0].y).toBeCloseTo(0)
+
+    const bezier3 = [
+      { x: 5, y: 0 },
+      { x: 5, y: 0 },
+      { x: 5, y: 10 },
+      { x: 5, y: 10 },
+    ] as const
+    const intersections2 = geo.getCrossBezier3AndBezier3(bezier1, bezier3)
+    expect(intersections2).toHaveLength(1)
+    expect(intersections2[0].x).toBeCloseTo(5)
+    expect(intersections2[0].y).toBeCloseTo(0)
+  })
+})
