@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.10] - 2025-03-14
+### Added
+- Add `getCrossBezier3AndBezier3` for calculating intersections between two bezier curves.
+
 ## [3.1.9] - 2024-09-16
 ### Fixed
 - Fix invalid calculation of `getPathPointAtLength` that could return a point outside the path.
