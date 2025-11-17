@@ -286,7 +286,7 @@ parcelHelpers.export(exports, "getRadian", ()=>getRadian);
  */ parcelHelpers.export(exports, "isTouchSegAndSeg", ()=>isTouchSegAndSeg);
 /**
  * 平行判定
- * @param a ベクトル or 2点の配列
+ * @param a ベクトル
  * @param b 同上
  * @return 平行であるフラグ
  */ parcelHelpers.export(exports, "isParallel", ()=>isParallel);
@@ -588,6 +588,8 @@ parcelHelpers.export(exports, "getClosestPointOnBezier3", ()=>getClosestPointOnB
  * @param maxIterations Maximum number of bezier clipping iterations
  * @returns Array of intersection points
  */ parcelHelpers.export(exports, "getCrossBezier3AndBezier3", ()=>getCrossBezier3AndBezier3);
+parcelHelpers.export(exports, "isBezier3Straight", ()=>isBezier3Straight);
+parcelHelpers.export(exports, "isBezier3Identical", ()=>isBezier3Identical);
 const MINVALUE = 0.000001;
 const IDENTITY_AFFINE = [
     1,
@@ -1722,6 +1724,8 @@ function getClosestPointOnBezier3(bezier, p, epsilon) {
     return ret;
 }
 function getCrossBezier3AndBezier3(curve1, curve2, tolerance = MINVALUE, maxIterations = 50) {
+    if (isBezier3Identical(curve1, curve2)) return [];
+    if (isBezier3Straight(curve1) && isBezier3Straight(curve2) && isParallel(sub(curve1[0], curve1[3]), sub(curve2[0], curve2[3]))) return [];
     const toleranceSq = tolerance * tolerance;
     const toleranceHalf = tolerance / 2;
     function boundingBox(curve) {
@@ -1737,38 +1741,51 @@ function getCrossBezier3AndBezier3(curve1, curve2, tolerance = MINVALUE, maxIter
     function boundingBoxesOverlap(b1, b2) {
         return !(b1.maxX < b2.minX || b1.minX > b2.maxX || b1.maxY < b2.minY || b1.minY > b2.maxY);
     }
+    // The maximum number of intersections between cubic bezier curves is 9.
+    const candidates = [];
     // Recursive bezier clipping algorithm to find intersections
     function bezierClipRecursive(subcurve1, subcurve2, depth) {
-        if (depth > maxIterations) return [];
+        if (depth > maxIterations) return;
+        // Set the maximum number x2 in case same points are detected multiple times.
+        if (candidates.length >= 18) return;
         const bb1 = boundingBox(subcurve1);
         const bb2 = boundingBox(subcurve2);
-        if (!boundingBoxesOverlap(bb1, bb2)) return [];
+        if (!boundingBoxesOverlap(bb1, bb2)) return;
         // If the control points of both curves are tightly packed, consider them as potential intersections
         if (Math.abs(bb1.maxX - bb1.minX) < toleranceHalf && Math.abs(bb1.maxY - bb1.minY) < toleranceHalf && Math.abs(bb2.maxX - bb2.minX) < toleranceHalf && Math.abs(bb2.maxY - bb2.minY) < toleranceHalf) {
             const intersectionPoint = {
                 x: (bb1.minX + bb1.maxX + bb2.minX + bb2.maxX) / 4,
                 y: (bb1.minY + bb1.maxY + bb2.minY + bb2.maxY) / 4
             };
-            return [
-                intersectionPoint
-            ];
+            candidates.push(intersectionPoint);
+            return;
         }
         // Subdivide both curves and recurse
         const [curve1Left, curve1Right] = divideBezier3(subcurve1, 0.5);
         const [curve2Left, curve2Right] = divideBezier3(subcurve2, 0.5);
-        return [
-            ...bezierClipRecursive(curve1Left, curve2Left, depth + 1),
-            ...bezierClipRecursive(curve1Left, curve2Right, depth + 1),
-            ...bezierClipRecursive(curve1Right, curve2Left, depth + 1),
-            ...bezierClipRecursive(curve1Right, curve2Right, depth + 1)
-        ];
+        bezierClipRecursive(curve1Left, curve2Left, depth + 1);
+        bezierClipRecursive(curve1Left, curve2Right, depth + 1);
+        bezierClipRecursive(curve1Right, curve2Left, depth + 1);
+        bezierClipRecursive(curve1Right, curve2Right, depth + 1);
     }
+    bezierClipRecursive(curve1, curve2, 0);
     const ret = [];
-    bezierClipRecursive(curve1, curve2, 0).forEach((p)=>{
+    candidates.forEach((p)=>{
         // Omit points that are too close to other points
         if (ret.every((q)=>getDistanceSq(p, q) >= toleranceSq)) ret.push(p);
     });
     return ret;
+}
+function isBezier3Straight([a, b, c, d]) {
+    const v1 = sub(b, a);
+    const v2 = sub(c, a);
+    const v3 = sub(d, a);
+    return isParallel(v1, v2) && isParallel(v1, v3);
+}
+function isBezier3Identical(curve1, curve2) {
+    if (isSame(curve1[0], curve2[0]) && isSame(curve1[1], curve2[1]) && isSame(curve1[2], curve2[2]) && isSame(curve1[3], curve2[3])) return true;
+    if (isSame(curve1[0], curve2[3]) && isSame(curve1[1], curve2[2]) && isSame(curve1[2], curve2[1]) && isSame(curve1[3], curve2[0])) return true;
+    return false;
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
@@ -3757,4 +3774,4 @@ function getUnknownError() {
 
 },{"./geo":"8ubUB","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["38PNf"], "38PNf", "parcelRequire94c2")
 
-//# sourceMappingURL=index.e6b38808.js.map
+//# sourceMappingURL=index.334340c1.js.map
