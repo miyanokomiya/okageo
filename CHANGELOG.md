@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.12] - 2025-03-14
+### Added
+- Fix `getCrossBezier3AndBezier3` for regarding parallel cubic bezier curves. Previous one returns too many intersections in such case.
+
 ## [3.1.10] - 2025-03-14
 ### Added
 - Add `getCrossBezier3AndBezier3` for calculating intersections between two bezier curves.

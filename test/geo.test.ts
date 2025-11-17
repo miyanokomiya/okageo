@@ -2343,4 +2343,85 @@ describe('getCrossBezier3AndBezier3', () => {
     expect(intersections2[0].x).toBeCloseTo(5)
     expect(intersections2[0].y).toBeCloseTo(0)
   })
+
+  it('should return empty when curves are parallel', () => {
+    const bezier1 = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 20, y: 0 },
+      { x: 30, y: 0 },
+    ] as const
+
+    const bezier2 = [
+      { x: 10, y: 0 },
+      { x: 20, y: 0 },
+      { x: 30, y: 0 },
+      { x: 40, y: 0 },
+    ] as const
+
+    const intersections = geo.getCrossBezier3AndBezier3(bezier1, bezier2)
+    expect(intersections).toHaveLength(0)
+  })
+
+  it('should return empty when curves are identical', () => {
+    const bezier1 = [
+      { x: 0, y: 0 },
+      { x: 10, y: 5 },
+      { x: 20, y: -5 },
+      { x: 30, y: 0 },
+    ] as const
+
+    const intersections = geo.getCrossBezier3AndBezier3(bezier1, bezier1)
+    expect(intersections).toHaveLength(0)
+  })
+})
+
+describe('isBezier3Straight', () => {
+  it('should return true when a cubic bezier curve is straight', () => {
+    expect(
+      geo.isBezier3Straight([
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+        { x: 20, y: 0 },
+        { x: 30, y: 0 },
+      ])
+    ).toBe(true)
+    expect(
+      geo.isBezier3Straight([
+        { x: 0, y: 0 },
+        { x: 10, y: 3 },
+        { x: 20, y: 0 },
+        { x: 30, y: 0 },
+      ])
+    ).toBe(false)
+  })
+})
+
+describe('isBezier3Identical', () => {
+  it('should return true when two cubic bezier curves identical', () => {
+    const bezier1 = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 20, y: 0 },
+      { x: 30, y: 0 },
+    ] as const
+
+    expect(
+      geo.isBezier3Identical(bezier1, JSON.parse(JSON.stringify(bezier1)))
+    ).toBe(true)
+    expect(
+      geo.isBezier3Identical(
+        bezier1,
+        JSON.parse(JSON.stringify(bezier1.toReversed()))
+      )
+    ).toBe(true)
+    expect(
+      geo.isBezier3Identical(bezier1, [
+        bezier1[0],
+        bezier1[2],
+        bezier1[1],
+        bezier1[3],
+      ])
+    ).toBe(false)
+  })
 })

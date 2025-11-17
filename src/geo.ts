@@ -303,7 +303,7 @@ function getCrossSegAndSegParams(
 
 /**
  * 平行判定
- * @param a ベクトル or 2点の配列
+ * @param a ベクトル
  * @param b 同上
  * @return 平行であるフラグ
  */
@@ -1934,6 +1934,15 @@ export function getCrossBezier3AndBezier3(
   tolerance = MINVALUE,
   maxIterations = 50
 ): IVec2[] {
+  if (isBezier3Identical(curve1, curve2)) return []
+  if (
+    isBezier3Straight(curve1) &&
+    isBezier3Straight(curve2) &&
+    isParallel(sub(curve1[0], curve1[3]), sub(curve2[0], curve2[3]))
+  ) {
+    return []
+  }
+
   const toleranceSq = tolerance * tolerance
   const toleranceHalf = tolerance / 2
 
@@ -1965,21 +1974,24 @@ export function getCrossBezier3AndBezier3(
     )
   }
 
+  // The maximum number of intersections between cubic bezier curves is 9.
+  const candidates: IVec2[] = []
+
   // Recursive bezier clipping algorithm to find intersections
   function bezierClipRecursive(
     subcurve1: Readonly<Bezier3>,
     subcurve2: Readonly<Bezier3>,
     depth: number
-  ): IVec2[] {
-    if (depth > maxIterations) {
-      return []
-    }
+  ): void {
+    if (depth > maxIterations) return
+    // Set the maximum number x2 in case same points are detected multiple times.
+    if (candidates.length >= 18) return
 
     const bb1 = boundingBox(subcurve1)
     const bb2 = boundingBox(subcurve2)
 
     if (!boundingBoxesOverlap(bb1, bb2)) {
-      return []
+      return
     }
 
     // If the control points of both curves are tightly packed, consider them as potential intersections
@@ -1993,27 +2005,55 @@ export function getCrossBezier3AndBezier3(
         x: (bb1.minX + bb1.maxX + bb2.minX + bb2.maxX) / 4,
         y: (bb1.minY + bb1.maxY + bb2.minY + bb2.maxY) / 4,
       }
-      return [intersectionPoint]
+      candidates.push(intersectionPoint)
+      return
     }
 
     // Subdivide both curves and recurse
     const [curve1Left, curve1Right] = divideBezier3(subcurve1, 0.5)
     const [curve2Left, curve2Right] = divideBezier3(subcurve2, 0.5)
 
-    return [
-      ...bezierClipRecursive(curve1Left, curve2Left, depth + 1),
-      ...bezierClipRecursive(curve1Left, curve2Right, depth + 1),
-      ...bezierClipRecursive(curve1Right, curve2Left, depth + 1),
-      ...bezierClipRecursive(curve1Right, curve2Right, depth + 1),
-    ]
+    bezierClipRecursive(curve1Left, curve2Left, depth + 1)
+    bezierClipRecursive(curve1Left, curve2Right, depth + 1)
+    bezierClipRecursive(curve1Right, curve2Left, depth + 1)
+    bezierClipRecursive(curve1Right, curve2Right, depth + 1)
   }
 
+  bezierClipRecursive(curve1, curve2, 0)
   const ret: IVec2[] = []
-  bezierClipRecursive(curve1, curve2, 0).forEach((p) => {
+  candidates.forEach((p) => {
     // Omit points that are too close to other points
     if (ret.every((q) => getDistanceSq(p, q) >= toleranceSq)) {
       ret.push(p)
     }
   })
   return ret
+}
+
+export function isBezier3Straight([a, b, c, d]: Readonly<Bezier3>): boolean {
+  const v1 = sub(b, a)
+  const v2 = sub(c, a)
+  const v3 = sub(d, a)
+  return isParallel(v1, v2) && isParallel(v1, v3)
+}
+
+export function isBezier3Identical(
+  curve1: Readonly<Bezier3>,
+  curve2: Readonly<Bezier3>
+): boolean {
+  if (
+    isSame(curve1[0], curve2[0]) &&
+    isSame(curve1[1], curve2[1]) &&
+    isSame(curve1[2], curve2[2]) &&
+    isSame(curve1[3], curve2[3])
+  )
+    return true
+  if (
+    isSame(curve1[0], curve2[3]) &&
+    isSame(curve1[1], curve2[2]) &&
+    isSame(curve1[2], curve2[1]) &&
+    isSame(curve1[3], curve2[0])
+  )
+    return true
+  return false
 }
